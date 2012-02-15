@@ -1,0 +1,10 @@
+/app/Config
+/app/tmp
+/lib/Cake/Console/Templates/skel/tmp/
+/plugins
+/vendors
+/build
+/dist
+/app/webroot/attachments
+.DS_Store
+tags
