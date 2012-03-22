@@ -21,7 +21,7 @@ extract($anime['Anime']);
 	<ul class="genres">
 	<?php
 	foreach($genres as $genre)
-		echo '<li>'.ucfirst($genre['Genre']['name']).'</li>';
+		echo '<li rel="tooltip" title="'.$genre['Genre']['description'].'">'.ucfirst($genre['Genre']['name']).'</li>';
 	?>
 	</ul>
 <br class="clear">

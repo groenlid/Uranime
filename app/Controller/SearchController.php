@@ -1,7 +1,7 @@
 <?php
 class SearchController extends AppController {
 	var $helpers = array('Text');
-	var $uses = array('Anime');
+	var $uses = array('Anime','AnimeSynonym');
 	var $components = array(
 		'RequestHandler',
 		'Rest.Rest' => array(
@@ -26,15 +26,44 @@ class SearchController extends AppController {
 		App::uses('Helper','Text'); 
 		//$this->Text = new TextHelper();
 		$search = trim($search);
-		$this->Anime->recursive = -1;
-		$animes = $this->Anime->find('all', 
+		//$this->Anime->recursive = -1;
+
+
+		/*$animes = $this->Anime->find('all', 
 			array(
-				'conditions' 	=> array('title LIKE' => "%$search%"),
+				'conditions' 	=> array("OR" => 
+					array(
+						'Anime.title LIKE' => "%$search%",
+						'AnimeSynonym.title LIKE' => "%$search%"
+						)
+					),
 				'table' => array('anime'),
-				'fields' => array('title','id','image','desc','fanart'),
-				'order' => array('title ASC')
+				'fields' => array('Anime.title','Anime.id','image','desc','fanart'),
+				'order' => array('title ASC'),
+				'joins' => array(
+					array(
+							'table' => 'anime_synonyms',
+							'alias'	=> 'AnimeSynonym',
+							'type' => 'LEFT',
+							'conditions' => array(
+									'AnimeSynonym.anime_id = Anime.id'
+								)
+						)
+					)
 				)
-			);
+			);*/
+		$animes = $this->AnimeSynonym->find('all',
+			array(
+				'fields' => array(
+					'DISTINCT(anime_id)',
+					'Anime.*'),
+				'conditions' => array(
+						'LOWER(AnimeSynonym.title) LIKE' => "%".strtolower($search)."%",
+					),
+				'order' => 'Anime.title ASC'
+			)
+		);
+
 		$this->set(compact('animes'));
 		$this->set('animes',$animes);
 		$this->set('query',$search);

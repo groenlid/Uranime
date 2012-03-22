@@ -2,4 +2,7 @@
     RewriteEngine on
     RewriteRule    ^$    webroot/    [L]
     RewriteRule    (.*) webroot/$1    [L]
+
+	# Adds AUTH support to Rest Plugin:
+	RewriteRule .* - [env=HTTP_AUTHORIZATION:%{HTTP:Authorization},last]
  </IfModule>

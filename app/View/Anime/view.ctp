@@ -26,7 +26,7 @@ extract($anime['Anime']);
 	<?php
 	if($this->Session->check('Auth.User.id'))
 	{
-		echo '<p class="subtle big">Your watched progress</p>';
+		echo '<!--<p class="subtle big">Your watched progress</p>-->';
 		// First find how many episodes is already out
 		$out_now = 0;
 		$user_seen = 0;
@@ -65,9 +65,14 @@ extract($anime['Anime']);
 			$per = $user_seen / $out_now * 100;
 		else
 			$per = 0;
-		echo "<div class='progressbar'><div id='progress' style='width:".$per."%;'></div></div>";
+		
+		$status = ($per < 30) 
+			? "<span><strong>". $user_seen . "</strong> of <strong>" . $out_now . "</strong> seen</span>"
+			: "<span>Watched <strong>". $user_seen . "</strong> out of <strong>" . $out_now . "</strong> episodes</span>";
+		
+		echo "<div class='progressbar'><div id='progress' style='width:".$per."%;'>".$status."</div></div>";
 
-		echo "<p>You have watched <strong>". $user_seen . "</strong> out of <strong>" . $out_now . "</strong> episodes.</p>";
+		//echo "<p>Watched <strong>". $user_seen . "</strong> out of <strong>" . $out_now . "</strong> episodes.</p>";
 
 		if($fanart == null || $fanart == "")
 			$fanart = "http://placehold.it/117x66";
@@ -75,13 +80,13 @@ extract($anime['Anime']);
 			$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 		
 		if($next_episode != null)
-			echo "<p class='subtle big'>Next unseen episode:</p><div class='episode'>
+			echo "<!--<p class='subtle big'>Next unseen episode:</p>--><div class='episode'>
 				<span class='episodeImage'>
 					<img src='http://src.sencha.io/117/".$fanart."'>
 				</span>
 				<span class='episodeContent'>
 					<span class='episodeName'>"
-						.$next_episode['name']."
+						.$this->Html->link($this->Text->truncate($next_episode['name'],45),'/episode/view/'.$next_episode['id'])."
 					</span>
 					<span class='episodeTime'>
 						Episode ".$next_episode['number']."
@@ -92,7 +97,7 @@ extract($anime['Anime']);
 			</div><br class='clear'>";
 	}
 	?>
-
+<!--
 <p class="subtle big">Last 10 episodes</p>
 	<table id="searchTable" class="table table-bordered table-striped table-condensed small-text">
 	<thead>
@@ -102,8 +107,9 @@ extract($anime['Anime']);
 		<td>Air-date</td>
 	</tr>
 	</thead>
-	<tbody>
+	<tbody>-->
 <?php
+/*
 $i = 0;
 
 	foreach(array_reverse($anime['Episode']) as $episode)
@@ -120,16 +126,16 @@ $i = 0;
 				</tr>
 				";
 		$i++;
-	}
-	?>
+	}*/
+	?><!--
 	</tbody>
-	</table>
+	</table>-->
 <?php
 if(count($sequels) != 0 || count($prequels) != 0)
 {
 	echo '
 	<p class="subtle big">Related Anime</p>
-	<ul class="media-grid">
+	<ul class="thumbnails">
 	';
 }
 ?>
@@ -146,12 +152,12 @@ foreach($sequels as $sequel)
 		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 
 	echo '
-		<li>
-			<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'">
+		<li class="thumbnail">
+			<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'" class="">
 				<img src="http://src.sencha.io/200/'.$fanart.'">
-				<span class="anime-gallery-single-name">
-					'.$animeSeq['title'].'
-				</span>
+				<div class="caption">
+					<h4>'.$animeSeq['title'].'</h4>
+				</div>
 				</a>
 		</li>';	
 }
@@ -166,13 +172,13 @@ foreach($prequels as $prequel)
 		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 
 	echo '
-		<li>
-			<a href="/anime/view/'.$animePreq['id'].'/'.$animePreq['title'].'">
+		<li class="thumbnail">
+			<a href="/anime/view/'.$animePreq['id'].'/'.$animePreq['title'].'" class="">
 				<img src="http://src.sencha.io/200/'.$fanart.'">
-				<span class="anime-gallery-single-name">
-					'.$animePreq['title'].'
-				</span>
-			</a>
+				<div class="caption">
+					<h4>'.$animePreq['title'].'</h4>
+				</div>
+				</a>
 		</li>';	
 }
 if(count($sequels) != 0 || count($prequels) != 0)
@@ -184,13 +190,20 @@ if(count($sequels) != 0 || count($prequels) != 0)
 }
 ?>
 <br class="clear">
+<div id="newsfeed">
 <?php
 	foreach($animeActivities as $activity)
 	{
-		
-	//	print_r($activity);
+			/*echo $this->element('activity', array(
+    			"activity" => $activity,
+    			"kindOfObject" => "anime"
+    		));*/
+		//print_r($activity);
 	}
+	
+	
 ?>
+</div>
 </div>
 
 </div>

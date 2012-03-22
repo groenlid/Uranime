@@ -100,7 +100,7 @@ Class RestComponent extends Component {
 			),
 		),
 		'meta' => array(
-			'enable' => true,
+			'enable' => false,
 			'requestKeys' => array(
 				'HTTP_HOST',
 				'HTTP_USER_AGENT',
@@ -924,7 +924,6 @@ Class RestComponent extends Component {
 	}
 
 	public function beforeRedirect (&$Controller, $url, $status = null, $exit = true) {
-		//return;
 		if (@$this->settings['catchredir'] === false) {
 			return;
 		}

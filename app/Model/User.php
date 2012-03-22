@@ -6,7 +6,12 @@ class User extends AppModel {
 
 	/*var $displayField = 'name';*/
 
-	public $hasMany = array( 'AnimelistEntry' );
+	public $hasMany = array( 'AnimelistEntry',
+		'Activity' => array(
+			'foreignKey' => 'subject_id',
+			'dependent' => true
+		)
+	 );
 
 	//var $virtualFields = array('gravatar' => 'LOWER(MD5(User.email))');
 }

@@ -51,17 +51,33 @@
 				if($this->Session->check('Auth.User.id'))
 				{
 					echo "
-				<li class='".(($this->request->params['controller'] == 'calendar') ? 'active' : '') ."'>".
-					$this->Html->link('Calendar','/calendar/view/')."
-				</li>	
-				<li class='".(($this->request->params['controller'] == 'user' && isset($this->request->params['pass'][0]) && $this->request->params['pass'][0] == $this->Session->read('Auth.User.id')) ? 'active' : '' )."'>".
-					$this->Html->link('Profile','/user/view/'.$this->Session->read('Auth.User.id').'/'.$this->Session->read('Auth.User.nick'))."
-				</li>
-				<li class='".(($this->request->params['controller'] == 'library') ? 'active' : '' )."'>".
-					$this->Html->link('Library','/library/view/'.$this->Session->read('Auth.User.id').'/'.$this->Session->read('Auth.User.nick'))."
-				</li>
-				<li>".
-					$this->Html->link('Logout','/user/logout')."
+						<li class='".(($this->request->params['controller'] == 'calendar') ? 'active' : '') ."'>".
+							$this->Html->link('Calendar','/calendar/view/')."
+						</li>";
+				}
+			?>
+        </ul>
+        <ul class="nav pull-right">
+          	<?php
+				if($this->Session->check('Auth.User.id'))
+				{
+					echo "
+				<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>".$this->Session->read('Auth.User.nick')."<b class='caret'></b></a>
+					<ul class='dropdown-menu'>
+						<li class='".(($this->request->params['controller'] == 'user' && isset($this->request->params['pass'][0]) && $this->request->params['pass'][0] == $this->Session->read('Auth.User.id')) ? 'active' : '' )."'>".
+							$this->Html->link('Profile','/user/view/'.$this->Session->read('Auth.User.id').'/'.$this->Session->read('Auth.User.nick'))."
+						</li>
+						<li class='".(($this->request->params['controller'] == 'library') ? 'active' : '' )."'>".
+							$this->Html->link('Library','/library/view/'.$this->Session->read('Auth.User.id').'/'.$this->Session->read('Auth.User.nick'))."
+						</li>
+						<li>
+							".$this->Html->link('Settings','/user/settings/')."
+						</li>
+						<li class='divider'></li>
+						<li>".
+							$this->Html->link('Logout','/user/logout')."
+						</li>
+					</ul>
 				</li>
 					";
 				}
@@ -72,7 +88,7 @@
 					";
 				}
 			?>
-          </ul>
+         </ul> 
 
           <?php
 			/*if(!$this->Session->check('Auth.User.id')){

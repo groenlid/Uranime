@@ -20,23 +20,14 @@
 <div id="newsfeed">
 <?php
 foreach($activity as $a)
-	echo print_activity($a);
-/*echo "
-	<div class='row newsfeed'>
-		<div class='span1'>
-			
-		</div>
-		<div class='span8'>
-			<p>
-			".$a['subject']['nick']." ".$a['Activity']['verb']." ".$a['Activity']['object_type']."
-			</p>
-			<p class='subtle'>".$a['Activity']['timestamp']."</p>
-		</div>	
-	</div>
-";*/
+	echo $this->element('activity', array(
+    	"activity" => $a,
+    	"kindOfObject" => "user"
+    	));
+//	echo print_activity($a);
 
 
-function print_activity($activity)
+/*function print_activity($activity)
 {
 	if(!isset($activity['object']['Anime']))
 		return;
@@ -100,7 +91,7 @@ function print_activity($activity)
 	$result .= "</div>";	
 	$result .= "</div>";
 	return $result;
-}
+}*/
 //debug($activity);
 ?>
 </div>

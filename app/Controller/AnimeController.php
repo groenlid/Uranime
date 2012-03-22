@@ -1,7 +1,7 @@
 <?php
 class AnimeController extends AppController {
-	var $helpers = array('Text','Form');
-	var $uses = array('User','Anime','Episode','Activity','AnimelistEntry','ScrapeInfo','AnimeGenre', 'AnimeRelationship','UserEpisode','AnimeRating');
+	var $helpers = array('Text','Form','Html','Gravatar');
+	var $uses = array('User','Anime','Episode','Activity','AnimelistEntry','ScrapeInfo','AnimeGenre', 'AnimeRelationship','UserEpisode','AnimeRating','AnimeSynonym');
 	var $paginate = array( 'Episode' => array(
 						'limit' => 50,
 						'order' => array(
@@ -37,7 +37,7 @@ class AnimeController extends AppController {
 		}
 		
 		$title = $anime['Anime']['title'];
-		echo "<ul>";
+		echo "<hr><ul>";
 		// Fetch from myanimelist
 		if($where == "myanimelist")
 		{
@@ -54,7 +54,7 @@ class AnimeController extends AppController {
 
 			
 			foreach($json as $anime)
-				$this->showReference($where, $anime['title'],$anime['id'], $id);
+				$this->showReference($where, $anime['title'],$anime['id'], $id, $anime['image_url']);
 			
 		}
 		else if($where == "anidb"){
@@ -65,6 +65,7 @@ class AnimeController extends AppController {
 			{
 				$anidbId = $anime->attributes()->aid;
 				$anidbtitle = '';
+				$anidbImage = $anime->picture;
 				foreach($anime->title as $xmltitle)
 				{
 					if($xmltitle->attributes()->lang == "x-jat" && $xmltitle->attributes()->type == "main")
@@ -89,9 +90,9 @@ class AnimeController extends AppController {
 					} 
 					
 				}
-				//print_r($anime->lang);
+				//print_r($anime);
 
-				$this->showReference($where,$anidbtitle,$anidbId,$id);
+				$this->showReference( $where, $anidbtitle,$anidbId, $id, $anidbImage );
 				//print_r($anime);
 			}
 			//debug($response);
@@ -103,7 +104,8 @@ class AnimeController extends AppController {
 			
 			foreach($serie_info as $serie)
 			{
-				$this->showReference($where,$serie->SeriesName,$serie->seriesid,$id);
+				//print_r($serie);
+				$this->showReference($where,$serie->SeriesName,$serie->seriesid,$id, $serie->poster);
 			}
 			//print_r($serie_info);
 		}
@@ -111,7 +113,7 @@ class AnimeController extends AppController {
 		die();
 	}
 
-	private function showReference($where, $title, $id, $ourAnimeId){
+	private function showReference($where, $title, $id, $ourAnimeId, $image = ""){
 		$thetvdbSelected = "";
 		$anidbSelected = "";
 		$malSelected = "";
@@ -119,23 +121,25 @@ class AnimeController extends AppController {
 		$images = '';
 		$information = '';
 		$scrapeid = $id;
-		echo '<li>';
+		echo '<li class="well" style="list-style-type:none;">';
 		echo '<form action="/anime/addref/'.$ourAnimeId.'" method="post">';
-		echo '<button type="submit">Use this</button>';
+
 		if($where == "myanimelist"){
+			echo '<div class="span1"><img class="thumbnail" src="'.$this->addBeforeExtension("t",$image).'"></div><span class="span4">';
 			echo '
-				<a href="http://myanimelist.net/anime/'.$id.'">[MAL] ' . 
+				<a href="http://myanimelist.net/anime/'.$id.'">' . 
 					$title . 
 				'</a>
-			 	-';
+			 	';
 			$episodes = '';
 			$images = '';
 			$information = 'checked="checked"';
 			$malSelected = 'selected="selected"';
 		}
 		else if($where == "anidb"){
+			echo '<span class="span4">';
 			echo '
-				<a href="http://anidb.net/perl-bin/animedb.pl?show=anime&aid='.$id.'">[ANIDB] ' . 
+				<a href="http://anidb.net/perl-bin/animedb.pl?show=anime&aid='.$id.'">' . 
 					$title . 
 				'</a>
 			 	-';
@@ -145,8 +149,9 @@ class AnimeController extends AppController {
 			$anidbSelected = 'selected="selected"';
 		}
 		else if($where == "thetvdb"){
+			echo '<span class="span4">';
 			echo '
-				<a href="http://thetvdb.com/?tab=series&id='.$id.'">[THETVDB] ' . 
+				<a href="http://thetvdb.com/?tab=series&id='.$id.'">' . 
 					$title . 
 				'</a>
 			 	-';
@@ -164,9 +169,16 @@ class AnimeController extends AppController {
 		echo '<input type="checkbox" name="data[ScrapeInfo][fetch_episodes]" '.$episodes.' class="no-display" value="1" id="ScrapeInfoFetchEpisodes">';
 		echo '<input type="checkbox" name="data[ScrapeInfo][fetch_images]" '.$images.' class="no-display" value="1">';
 		echo '<input type="checkbox" name="data[ScrapeInfo][fetch_information]" '.$information.' class="no-display" value="1">';
-		echo '</form>';
+		echo '<br><button type="submit">Use this</button></form></span><br class="clear">';
 		echo '</li>';
 		
+	}
+
+	private function addBeforeExtension($extend, $url){
+		$pos = strrpos( $url, "." );
+		$result = "";
+		$result .= substr( $url, 0, $pos ) . $extend . substr( $url, $pos );
+		return $result;
 	}
 
 	function index() {
@@ -340,12 +352,15 @@ class AnimeController extends AppController {
 
 		$this->Anime->id = $id;
 		$this->Anime->read();
-
-		$this->set('anime', $this->Anime->find('first', array('conditions' => array('Anime.id' => $id))));
-
+		$anime = $this->Anime->find('first', array('conditions' => array('Anime.id' => $id)));
+		$this->set('anime', $anime );
+		$this->set('title_for_layout',$anime['Anime']['title']);
 		$this->pageTitle = $this->Anime->data['Anime']['title'];
 		$this->set('genres',$this->Anime->AnimeGenre->find('all',array('conditions' => array('anime_id' => $id))));
 		$this->set('animeuser',NULL);
+		
+		
+		
 		$this->set('animeActivities',$this->Activity->find('all',array('conditions' => array('object_id' => $id))));
 		$this->set('prequels', $this->AnimeRelationship->find('all', array('conditions' => array('anime1' => $id))));
 		$this->set('sequels', $this->AnimeRelationship->find('all', array('conditions' => array('anime2' => $id))));
@@ -391,15 +406,15 @@ class AnimeController extends AppController {
 	}
 
 	function scrape() {
-		$logfile = '/home/groenlid/Git/Sandbox_new/app/tmp/logs/scrape.log';
-		passthru("/usr/bin/php /home/groenlid/Git/Sandbox_new/lib/Cake/Console/cake.php scrape -app /home/groenlid/Git/Sandbox_new/app > " . $logfile . " &");
+		$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
+		passthru("/usr/bin/php /home/groenlid/Git/Uranime/lib/Cake/Console/cake.php scrape -app /home/groenlid/Git/Uranime/app > " . $logfile . " &");
 
 
 		$this->set('logfile',$logfile);
 	}
 
 	function getlogfile() {
-		$logfile = '/home/groenlid/Git/Sandbox_new/app/tmp/logs/scrape.log';
+		$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
 		$content = file($logfile);
 		for($i = count($content); $i > 0; $i--)
 			echo $content[$i-1];	
@@ -432,6 +447,7 @@ class AnimeController extends AppController {
 	}
 
 	function viewref($animeid = null) {
+		
 		if($animeid == null || !is_numeric($animeid) || $this->Auth->User('id') == null)
 		{
 			$this->Session->setFlash('Please log inn to visit this site','flash_warning');
@@ -454,6 +470,8 @@ class AnimeController extends AppController {
 			$this->getAnimeUser($animeid);
 		}
 
+
+
 	}
 
 	function addref($animeid = null){
@@ -468,10 +486,13 @@ class AnimeController extends AppController {
 		$scrape_id = $this->request->data['ScrapeInfo']['scrape_id'];
 		$scrape_episodes = isset($this->request->data['ScrapeInfo']['scrape_episodes']) ? $this->request->data['ScrapeInfo']['scrape_episodes'] : NULL;
 		$scrape_source = $this->request->data['ScrapeInfo']['scrape_source'];
-		$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) ? 1 : NULL;
-		$fetch_images = isset($this->request->data['ScrapeInfo']['fetch_images']) ? 1 : NULL;
-		$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) ? 1 : NULL;
-
+		//$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) ? 1 : NULL;
+		//$fetch_images = isset($this->request->data['ScrapeInfo']['fetch_images']) ? 1 : NULL;
+		//$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) ? 1 : NULL;
+		
+		$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) && $this->request->data['ScrapeInfo']['fetch_episodes'] == 1? 1 : NULL;
+		$fetch_images = isset($this->request->data['ScrapeInfo']['fetch_images']) && $this->request->data['ScrapeInfo']['fetch_images'] == 1 ? 1 : NULL;
+		$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) && $this->request->data['ScrapeInfo']['fetch_information'] == 1 ? 1 : NULL;
 		
 		if($scrape_id == '' || !is_numeric($scrape_id))
 		{
@@ -597,12 +618,12 @@ class AnimeController extends AppController {
 		return;
 	}
 
-	function setEpisodeScrape($id = null)
+	function setEpisodeScrape($id = null, $override = null)
 	{
 		// This is an automatic scraper that triggers when user
 		// updates their library.
 		//
-		if($id == null || !is_numeric($id) || $this->Auth->User('id') == NULL)
+		if($id == null || !is_numeric($id) || ($this->Auth->User('id') == NULL && $override != "true"))
 		{
 			$this->Session->setFlash('Could not update scrape for this anime.. We\'re Sorry','flash_error');
 			$this->redirect($this->referer());
@@ -655,24 +676,6 @@ class AnimeController extends AppController {
 		$this->Session->setFlash('This anime is set in queue to be scraped ;)','flash_success');
 		$this->redirect($this->referer());
 
-	}
-
-	function deleteEpisode($id = null){
-		if($id == null || !is_numeric($id) || $this->Auth->User('id') == NULL)
-		{
-			$this->Session->setFlash('Could not delete this episode.. We\'re Sorry','flash_error');
-			$this->redirect($this->referer());
-			return;	
-		}
-		$uid = $this->Auth->User('id');
-
-		if($uid == 1)
-		{
-			//$this->Episode->id = $id;
-			$this->Episode->delete($id);
-			$this->Session->setFlash('The episode has been deleted','flash_success');
-			$this->redirect($this->referer());
-		}
 	}
 
 }

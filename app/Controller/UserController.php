@@ -3,7 +3,10 @@ class UserController extends AppController {
 	var $helpers = array('Gravatar','Time');
 	var $uses = array('Activity');
 	var $name = 'User';
-	
+	var $paginate = array( 'Activity' => array(
+						'limit' => 50
+					)
+				);
 	var $components = array(
 		'Email',
 		'Auth' => array(
@@ -24,10 +27,11 @@ class UserController extends AppController {
 	function view($id = null){
 		$this->User->id = $id;
 		$this->set('user', $this->User->read());
-		$activities = $this->Activity->findAllBySubjectId($id);
+		//$activities = $this->Activity->findAllBySubjectId($id);
+		$activities = $this->paginate($this->User->Activity,array('Activity.subject_id' => $id));
+		//debug($this->User->Activity);
 		App::uses('Helper', 'Time');
 		$this->Anime->recursive = -1;
-
 		foreach($activities as $key => $activity)
 		{
 			if($activity['Activity']['object_type'] == 'episode')
@@ -39,6 +43,46 @@ class UserController extends AppController {
 		$this->set('activity',$activities);
 		//debug($activities);
 		//$this->set('activity',$this->Activity->findAllBySubjectId($id));	
+	}
+
+	function settings(){
+		$id = $this->Auth->user('id');
+		if($id == null)
+			$this->redirect($this->referer());
+
+		$this->User->recursive = -1;
+		$this->User->id = $id;
+		$this->set('user', $this->User->read(null,$id));
+		//$activities = $this->Activity->findAllBySubjectId($id);
+		$activities = $this->paginate($this->User->Activity,array('Activity.subject_id' => $id));
+		//debug($this->User->Activity);
+		App::uses('Helper', 'Time');
+		//debug($this->request->data);
+		if(!empty($this->request->data))
+		{
+			//print_r($this->User->data);
+			//echo AuthComponent::password($this->request->data['current_password']);
+			if($this->User->data['User']['password'] == AuthComponent::password($this->request->data['current_password']))
+			{
+				if($this->request->data['new_password'] == $this->request->data['confirm_password'] && trim($this->request->data['current_password']) != ""){
+					$this->User->set('password',AuthComponent::password($this->request->data['new_password']));
+					if($this->User->save())
+					{
+						$this->Session->setFlash("Changed the password","flash_success");
+						$this->redirect("/user/settings");
+					}
+					else{
+						$this->Session->setFlash("Could not change the password","flash_error");
+						$this->redirect("/user/settings");
+					}
+				}
+			}
+			else{
+				$this->Session->setFlash("Could not change the password","flash_error");
+				$this->redirect("/user/settings");
+			}
+			//$this->redirect($this->referer());
+		}
 	}
 	
 	function login($data = null){

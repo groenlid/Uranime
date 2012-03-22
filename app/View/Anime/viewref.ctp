@@ -3,7 +3,7 @@
 	extract($anime['Anime']);
 ?>
 
-<div class="span7">
+<div class="span8">
 	<h2><?= $title ?><span class="pull-right"><small><?=round($calc_rating['avg_rate'],2)?> <span class="subtle">( <?=$calc_rating['amount']?> votes )</small></span></span></h2>
 	<!-- ANIME MENU -->
 
@@ -134,12 +134,12 @@ echo $this->Form->end();
 </tbody>
 </table>
 <hr>
-<div class="actions">
+<div class="actions"><center>
 <?php
 echo $this->Html->link('<i class="icon-search"></i> Search myanimelist', $this->Html->url('/anime/searchReferences/myanimelist/'.$anime['Anime']['id'], false), array('class' => 'ajax btn','escape' => false)) . " ";
 echo $this->Html->link('<i class="icon-search"></i> Search anidb', $this->Html->url('/anime/searchReferences/anidb/'.$anime['Anime']['id'], false), array('class' => 'ajax btn', 'escape' => false)). " ";
 echo $this->Html->link('<i class="icon-search"></i> Search thetvdb', $this->Html->url('/anime/searchReferences/thetvdb/'.$anime['Anime']['id'], false), array('class' => 'ajax btn', 'escape' => false));
-?>
+?></center>
 </div>
 <div class="ajaxresults">
 </div>

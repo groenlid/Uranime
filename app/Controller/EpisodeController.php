@@ -89,6 +89,16 @@ class EpisodeController extends AppController {
 		foreach($episodes as $episode)
 			if(strtotime($episode['Episode']['aired']) < time())
 				$this->watchEpisode($episode['Episode']['id'], true);
+
+		$this->Activity->create();
+		$this->Activity->set('subject_type','user');
+		$this->Activity->set('subject_id',$this->Auth->User('id'));
+		$this->Activity->set('verb','watched');
+		$this->Activity->set('object_type','episode');
+		$this->Activity->set('object_id',$episodes[count($episodes)-1]['Episode']['id']);
+		//$this->Activity->set('option',$episode['Episode']['anime_id']);
+		$this->Activity->save();
+
 		$this->requestAction('/anime/setEpisodeScrape/'.$animeId);
 		$this->redirect($this->referer());
 	}
@@ -162,6 +172,26 @@ class EpisodeController extends AppController {
 		}
 		$this->set('userepisode',$userepisode);
 
+	}
+
+	function delete($id = null){
+		if($id == null || !is_numeric($id) || $this->Auth->User('id') == NULL|| $this->Auth->User('id') != 1)
+		{
+			$this->Session->setFlash('Could not delete this episode.. We\'re Sorry','flash_error');
+			$this->redirect($this->referer());
+			return;	
+		}
+		$uid = $this->Auth->User('id');
+		
+		$this->Episode->read(null,$id);
+		$aid = $this->Episode->data['Episode']['anime_id'];
+		$this->Activity->deleteAll(array('Activity.object_type' => 'episode', 'Activity.object_id' => $id));
+		$this->UserEpisode->deleteAll(array('UserEpisode.episode_id' => $id));
+		$this->Episode->delete($id);
+		
+		$this->Session->setFlash('The episode has been deleted','flash_success');
+		$this->redirect('/anime/view/'.$aid);
+		return;
 	}
 
 }

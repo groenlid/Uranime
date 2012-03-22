@@ -1,35 +1,48 @@
-
-<div id="left">
+<div class="row">
+<div class="span8">
 <?php
 $episodeDate = array();
-echo "<pre>";
-print_r($episodes);
-echo "</pre>";
+$last_date = "";
+function setDate($time)
+{
+	return date('l, d, M',$time);
+}
+$i = true;
 foreach($episodes as $episode)
 {
-	$date = $episode['Episode']['aired'];
-	if(!array_key_exists($date, $episodeDate))
-		$episodeDate[$date] = array();
-	array_push($episodeDate[$date],$episode);
 
-}
-foreach($episodeDate as $date => $episodes)
-{
-	if($this->Time->isToday(strtotime($date)))
-		echo '<h2>Today</h2>';
-	else if($this->Time->isTomorrow(strtotime($date)))
-		echo '<h2>Tomorrow</h2>';
+	$fanart = $episode['Anime']['fanart'];
+	if($fanart == "" || $fanart == null)
+		$fanart = "http://placehold.it/200x112/";
 	else
-		echo '<h2>' . date('l, d, M',strtotime($date)) . '</h2>';
+		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 
-	echo '<div id="anime-gallery">';
-	foreach($episodes as $episode)
+	$timeStr = strtotime($episode['Episode']['aired']);
+	$date = setDate($timeStr);
+	if($last_date != $date)
 	{
+		if(!$i)
+		{
+			echo '<br class="clear"></div>';
+		}
+		else
+			$i = false;
+
+		if($this->Time->isToday($timeStr))
+			echo '<h2>Today</h2>';
+		else if($this->Time->isTomorrow($timeStr))
+			echo '<h2>Tomorrow</h2>';
+		else
+			echo '<h2>' . $date . '</h2>';
+		
+		echo '<div id="anime-gallery">';
+	}
+
 		echo '<div class="anime-gallery-single">
 			<div class="anime-gallery-single-inner">'.
 		     	'<a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">';
 		if($episode['Anime']['fanart'] != null)
-			echo '<img src="http://src.sencha.io/200/'.$episode['Anime']['fanart'].'">';
+			echo '<img src="http://src.sencha.io/200/'.$fanart.'">';
 		else
 			echo '<img src="http://placehold.it/200x112">';
 		echo '</a>'.
@@ -38,21 +51,28 @@ foreach($episodeDate as $date => $episodes)
 			<p class="bold calendarinfo">'.$episode['Anime']['title']. ' ' . $episode['Episode']['number'] . '</p>
 			<p class="calendarinfo">'. $episode['Episode']['name'].'</p>
 			</div>';	
-	}
-	echo "<br class='clear'>";
-	echo '</div>';
+	
+
+
+
+	$last_date = $date;
 }
+if(count($episodes) != 0)
+	echo '<br class="clear"></div>';
 ?>
 </div>
 <?php
 
 //print_r($episodeDate);
 ?>
-	<div id="right">
+<div class="span3">
+	<div class="well">
 <?php
 if(isset($own))
-	echo '<p class="strong"><a href="/calendar/view/all">Show all anime</a></p>';
+	echo '<p class="strong"><a href="/calendar/view/all" class="btn info">Show all anime</a></p>';
 else
-	echo '<p class="strong"><a href="/calendar/view">Just show own anime</a></p>';
+	echo '<p class="strong"><a href="/calendar/view" class="btn info">Just show own anime</a></p>';
 ?>
+	</div>
+</div>
 </div>

@@ -6,6 +6,21 @@ if($image == null || $image == "")
 else
 	$image = IMAGE_PATH.$image;
 ?>
+<style type="text/css" rel="stylesheet">
+.fanart {
+	width:958px;
+	height:200px;
+	margin:-20px 0 10px -20px;
+	border-bottom:1px solid #eee;
+	box-shadow:inset 0 -1px 0 rgba(0,0,0,0.1);
+	display:none;
+}
+</style>
+
+<div class="fanart" style="background:url(/api/imageresize/<?=$fanart?>/960/0)">
+
+</div>
+
 <div class="span3 pull-right">
 	<?php
 	if($this->Session->check('Auth.User.id'))
@@ -42,7 +57,29 @@ foreach($anime['ScrapeInfo'] as $scrapeInfo)
 		"</li>";
 ?>
 	</ul>
-<br class="clear">
+<br class="clear">̈́
+<br>
+<?php
+$status_text = array(
+	'currently' => 'Currently airing',
+	'finished' => 'Finished airing',
+	'unaired' => 'Unaired'
+	);
+?>
+<table class="table table-striped table-condensed">
+	<tbody>
+		<tr>
+    		<td>Status</td>
+    		<td><?=(isset($status))?$status_text[$status]:"N/A"?></td>
+    	</tr>
+    	<tr>
+    		<td>Runtime</td>
+    		<td><?=(isset($runtime))?$runtime . " min":"N/A"?></td>
+    	</tr>
+    </tbody>
+</table>
+
+
 <?php
 
 

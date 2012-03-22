@@ -1,4 +1,9 @@
 <div class="row">
+	<!--<div class="subnav">
+		<ul class="nav">
+			<li></li>
+		</ul>
+	</div>-->
 <?php
 	//debug($episode);
 	//debug($neighbors);
@@ -49,6 +54,20 @@ foreach($episode['UserEpisode'] as $user)
 	';
 ?>
 </ul>
+<?php
+if($this->Session->check('Auth.User.id') == 1)
+{
+	echo "<div class='well'>";
+	echo $this->Html->link(
+		'<i class="icon-trash icon-white"></i> Delete Episode',
+		array('controller' => 'episode', 'action' => 'delete', $episode['Episode']['id']),
+		array('class' => 'btn btn-danger','escape' => false),
+		"Are you sure you wish to delete this episode?"
+	);
+	//echo '<a class="btn btn-danger"><i class="icon-trash icon-white"></i> Delete Episode</a>';
+	echo '</div>';
+}
+?>
 
 </div>
 <div class="span3 pull-right">
@@ -60,7 +79,7 @@ if($this->Session->check('Auth.User.id'))
 	if(!$userepisode)
 		echo '<a class="btn btn-primary btn-large span2" href="/episode/watch/'.$episode['Episode']['id'].'">Mark as seen</a>';
 	else
-		echo '<a class="btn btn-large btn-danger span2" href="/episode/unwatch/'.$episode['Episode']['id'].'">Mark as unseen</a>';
+		echo '<a class="btn btn-large btn-info span2" href="/episode/unwatch/'.$episode['Episode']['id'].'">Mark as unseen</a>';
 }
 ?>
 </div>

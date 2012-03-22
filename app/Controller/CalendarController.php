@@ -14,7 +14,9 @@ class CalendarController extends AppController {
 		
 		$this->layout = 'blank';
 	}
-
+	function view2($param = "own"){
+		$this->view($param);
+	}
 	function view($param = "own") {
 		$uid = $this->Auth->User('id');
 

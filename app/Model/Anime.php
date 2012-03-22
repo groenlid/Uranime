@@ -28,6 +28,7 @@ class Anime extends AppModel {
 						'order'		=> 'Episode.number ASC',
 						'dependent'	=> true
 					),
+					'AnimeSynonyms',
 					'ScrapeInfo'
 				);
 	public $validation = array(

@@ -1,8 +1,14 @@
 <?php
 class ScrapeShell extends AppShell {
-	var $uses = array('ScrapeInfo', 'Anime', 'AnimeGenre', 'Episode', 'Genre', 'AnimeRelationship');
-	
+	var $uses = array('AnimeSynonym', 'ScrapeInfo', 'Anime', 'AnimeGenre', 'Episode', 'Genre', 'AnimeRelationship');
+	var $stats = array();
 	function main(){
+		App::uses('Sanitize', 'Utility');
+		define('CLIENTNAME','calendar');
+		define('CLIENTVERSION','1');
+		define('SCRAPEDEBUG',FALSE);
+
+		// Variables to show at the end..
 
 		// Fetch all the items in the queue
 
@@ -16,20 +22,17 @@ class ScrapeShell extends AppShell {
 										);
 		foreach($queue as $item)
 		{
-			$this->out('Fetching item: ' . $item['Anime']['title']);
-
 			$source = $item['ScrapeInfo']['scrape_source'];
+			$this->out('Fetching item: ' . $item['Anime']['title'] . " from source: " . $source);
+
 			if($source == 'thetvdb')
 			{
-				$this->out("\t" . 'Fetching episodes:');
 				$this->thetvdbScrape($item);
 			} else if($source == 'mal')
 			{
-				$this->out("\t" . 'Fetching mal information');
 				$this->malScrape($item);
 			} else if($source == 'anidb')
 			{
-				$this->out("\t" . 'Fetching anidb information:');
 				$this->anidbScrape($item);
 			}
 
@@ -41,10 +44,12 @@ class ScrapeShell extends AppShell {
 			$this->ScrapeInfo->set('scrape_needed',NULL);
 			$this->ScrapeInfo->save();
 
-			$this->out('Finished item... Removed the scrape_needed flag');
+			print_r($this->stats);
+			$this->stats = array();
+			$this->out('Finished item..');
 			$this->out('----------------');
 		}
-
+		
 		$this->out('Finished parsing through queue');
 	}
 	
@@ -58,7 +63,8 @@ class ScrapeShell extends AppShell {
 		
 		if($item['ScrapeInfo']['fetch_information'] == '1')
 		{
-			$this->out("\t" . "\t" . 'Got information');
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Got information');
 
 			//$this->Anime->id = $item['ScrapeInfo']['anime_id'];
 			$dbAnime = $this->Anime->read(NULL, $item['ScrapeInfo']['anime_id']);
@@ -66,9 +72,11 @@ class ScrapeShell extends AppShell {
 			/* CHECK IF THE ANIME GOT DESCRIPTION OR STATUS BEFOREHAND */
 			if($dbAnime['Anime']['desc'] == '' || $dbAnime['Anime']['desc'] == NULL)
 			{
-				$this->out("\t" ."\t" . "\t" . 'Adding new synopsis/description to anime:' . $dbAnime['Anime']['title'] . ' Desc:' . $anime['synopsis']);
+				if(SCRAPEDEBUG)
+					$this->out("\t" ."\t" . "\t" . 'Adding new synopsis/description to anime:' . $dbAnime['Anime']['title'] . ' Desc:' . $anime['synopsis']);
 				$this->Anime->set('desc',$anime['synopsis']);
-				$this->Anime->save();
+				if($this->Anime->save())
+					$this->stats['Anime_changed']++;
 			}
 			$status = array(
 				'finished airing' => 'finished',
@@ -77,30 +85,39 @@ class ScrapeShell extends AppShell {
 			);
 			if($dbAnime['Anime']['status'] != $status[$anime['status']] || $dbAnime['Anime']['status'] == NULL || $dbAnime['Anime']['status'] == '')
 			{
-				$this->out("\t" ."\t" . "\t" . 'Adding new status to anime:' . $dbAnime['Anime']['title'] .'.'. ' Status:' . $dbAnime['Anime']['status'] . '->' . $status[$anime['status']]);
+				if(SCRAPEDEBUG)
+					$this->out("\t" ."\t" . "\t" . 'Adding new status to anime:' . $dbAnime['Anime']['title'] .'.'. ' Status:' . $dbAnime['Anime']['status'] . '->' . $status[$anime['status']]);
 
 				$this->Anime->set('status',$status[$anime['status']]);
-				$this->Anime->save();
+				if($this->Anime->save())
+					$this->stats['Anime_changed']++;
 			}
-			
-			$this->out("\t" . "\t" . 'Got genres: ' . implode(',',$anime['genres']));
+
+			if($dbAnime['Anime']['runtime'] == '' || $dbAnime['Anime']['runtime'] == null)
+			{
+				/** TODO: Implement runtime fetching from mal **/
+			}
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Got genres: ' . implode(',',$anime['genres']));
 			
 			foreach($anime['genres'] as $genre)
 			{
-				$this->addGenre($item, $genre);
+				$this->addGenre($item, $genre,'');
 			}
 			foreach($anime['tags'] as $tag)
 			{
-				$this->addGenre($item, $tag);
+				$this->addGenre($item, $tag,'');
 			}
 
-			$this->out("\t" . "\t" . 'Fetching information about relationships');
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Fetching information about relationships');
 			foreach($anime['prequels'] as $prequel)
 			{
 				// Fetch our animeid from mal id
 				if(($animeid = $this->getAnimeId($prequel['anime_id'])) == null)
 				{
-					$this->out("\t" . "\t" . "\t" . 'The anime "' . $prequel['title'] . '" with myanimelist id "' .$prequel['anime_id']. '" does not exists in the db. Skipping...');
+					if(SCRAPEDEBUG)
+						$this->out("\t" . "\t" . "\t" . 'The anime "' . $prequel['title'] . '" with myanimelist id "' .$prequel['anime_id']. '" does not exists in the db. Skipping...');
 					continue;
 				}
 				
@@ -112,15 +129,26 @@ class ScrapeShell extends AppShell {
 				// Fetch our animeid from mal id
 				if(($animeid = $this->getAnimeId($sequel['anime_id'])) == null)
 				{
-					$this->out("\t" . "\t" . "\t" . 'The anime "' . $sequel['title'] . '" with myanimelist id "' .$sequel['anime_id']. '" does not exists in the db. Skipping...');
+					if(SCRAPEDEBUG)
+						$this->out("\t" . "\t" . "\t" . 'The anime "' . $sequel['title'] . '" with myanimelist id "' .$sequel['anime_id']. '" does not exists in the db. Skipping...');
 					continue;
 				}
 				
 				$this->addRelationship($animeid,'sequel',$item['ScrapeInfo']['anime_id']);
 
-				
 			}
-
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Fetching synonyms');
+			$languages = array(
+				'english' => 'en'
+				);
+			foreach($anime['other_titles'] as $lang => $synonyms)
+			{
+				if(array_key_exists($lang,$languages))
+					foreach($synonyms as $synonym)
+						$this->addSynonym( $item, $synonym, $languages[$lang] );
+			}
+			$this->addSynonym( $item, $anime['title'] ,'x-jat');
 		}
 		
 	}
@@ -172,7 +200,8 @@ class ScrapeShell extends AppShell {
 
 		if($exists !== 0)
 		{
-			$this->out("\t" ."\t" . "\t" . 'Anime "'.$anime1.'" is already linked up with "'.$anime2.'" as "'.$type.'". Nothing done' );
+			if(SCRAPEDEBUG)
+				$this->out("\t" ."\t" . "\t" . 'Anime "'.$anime1.'" is already linked up with "'.$anime2.'" as "'.$type.'". Nothing done' );
 			return false;
 		}
 
@@ -181,7 +210,9 @@ class ScrapeShell extends AppShell {
 		$this->AnimeRelationship->set('type', $type);
 		$this->AnimeRelationship->set('anime2',$anime2);
 		$this->AnimeRelationship->save();
-		$this->out("\t" ."\t" . "\t" . 'Anime "'.$anime1.'" is now linked up with "'.$anime2.'" as "'.$type.'"' );
+		$this->stats['Relationship_added']++;
+		if(SCRAPEDEBUG)
+			$this->out("\t" ."\t" . "\t" . 'Anime "'.$anime1.'" is now linked up with "'.$anime2.'" as "'.$type.'"' );
 
 		return true;
 
@@ -203,43 +234,100 @@ class ScrapeShell extends AppShell {
 		return false;
 	}
 	
-	function addGenre($scrapeInfo, $genre)
+	function addGenre($scrapeInfo, $genre, $description)
 	{
+		$genre = Sanitize::clean(trim($genre));
+		$description = Sanitize::clean(trim($description));
+
 		// Check if the genre is in the database.
+		$this->Genre->recursive = -1;
 		$ant = $this->Genre->find('first',array('conditions' => array('LOWER(name)' => strtolower($genre))));
 		$genreid = $ant['Genre']['id'];
-		if(count($ant['Genre']) == 0){
+		
+		if($ant == NULL){
 				$this->Genre->create();
 				$this->Genre->set('name',$genre);
-				$this->Genre->save();
-				$genreid = $this->Genre->id;
-				$this->out("\t" . "\t" . 'Genre \''.$genre.'\' is added to the db....');
+				$this->Genre->set('description',$description);
+				if($this->Genre->save())
+				{
+					$genreid = $this->Genre->getInsertID();
+					$this->stats['Genre_added']++;
+					if(SCRAPEDEBUG)
+						$this->out("\t" . "\t" . 'Genre \''.$genre.'\' is added to the db....');
+				}
+				else{
+					if(SCRAPEDEBUG)
+						$this->out("\t" . "\t" . 'Could not add genre \''.$genre.'\' to the db....');
+					return;
+				}
+
+		}
+		else{
+			$genreid = $ant['Genre']['id'];
+		}
+		//echo $genreid;
+		if($ant['Genre']['description'] == '' && $description != '')
+		{
+			$this->Genre->read(NULL,$genreid);
+			$this->Genre->set('description',$description);
+			if($this->Genre->save()){
+				$this->stats['Genre_changed']++;
+				if(SCRAPEDEBUG)
+					$this->out("\t" . "\t" . 'Added description to genre \''.$genre.'\'....');
+			}
 		}
 		
 		$anime_database = $this->Anime->read(NULL, $scrapeInfo['Anime']['id']);
 		
 		// Check if the genre is already connected to the anime
 		if($this->in_array_r($genreid,'genre_id',$anime_database['AnimeGenre'])){
-			$this->out("\t" . "\t" . 'Genre \''.$genre.'\' is already connected to anime in db. Skipping...');
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Genre \''.$genre.'\' is already connected to anime in db. Skipping...');
 			return;
 		}
 		
 		// Connect the genre to the anime
+		$tjos->AnimeGenre->recursive = -1;
 		$this->AnimeGenre->create();
 		$this->AnimeGenre->set('anime_id',$scrapeInfo['Anime']['id']);
 		$this->AnimeGenre->set('genre_id',$genreid);
 		$this->AnimeGenre->save();
-		
-		$this->out("\t" . "\t" . 'Genre "'.$genre.'" is now linked up to the anime....');
+		$this->stats['Genre_linked']++;
+		if(SCRAPEDEBUG)
+			$this->out("\t" . "\t" . 'Genre "'.$genre.'" is now linked up to the anime....');
 		return;
+	}
+
+	function addSynonym($scrapeInfo, $synonym, $lang){
+		$synonym = trim($synonym);
+		//$synonyms = $this->AnimeSynonym->findAllByAnime_id($scrapeInfo['Anime']['id']);
+		$this->AnimeSynonym->recursive = -1;
+		$ant = $this->AnimeSynonym->find('count',array('conditions' => array('LOWER(AnimeSynonym.title)' => strtolower($synonym),'AnimeSynonym.anime_id' => $scrapeInfo['Anime']['id'])));
+		if($ant != 0 || strtolower(trim($scrapeInfo['Anime']['title']) == strtolower($synonym)))
+		{
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Synonym "'.$synonym.'" is already linked to the anime.... Nothing done');
+			return;
+		} 
+
+		// Create the synonym and link it to the anime
+		$this->AnimeSynonym->create();
+
+		$this->AnimeSynonym->set('anime_id', $scrapeInfo['Anime']['id']);
+		$this->AnimeSynonym->set('title', $synonym);
+		$this->AnimeSynonym->set('lang', $lang);
+
+		if($this->AnimeSynonym->save()){
+			$this->stats['Synonym_added']++;
+			if(SCRAPEDEBUG)
+				$this->out("\t" . "\t" . 'Synonym "'.$synonym.'" are created and linked up to the anime.');
+		}
 	}
 	
 	function anidbScrape($item){
 		
 		// we try not to use the session client
 		//$anidbSession = new anidb_Session($username, $password, $nat);
-		define('CLIENTNAME','calendar');
-		define('CLIENTVERSION','1');
 		$port = 9001;
 		$animeid = $item['ScrapeInfo']['scrape_id'];
 		$anidbURL = "http://api.anidb.net/httpapi?client=".CLIENTNAME."&clientver=".CLIENTVERSION."&protover=1&request=anime&aid=".$animeid;
@@ -267,7 +355,8 @@ class ScrapeShell extends AppShell {
 		{
 			// Ep type 1 = Regular Episode
 			// Ep type 4 = Trailer/Promo/Ads
-			$this->out("\t".'AnidbScraper is set to scrape episodes');
+			if(SCRAPEDEBUG)
+				$this->out("\t".'AnidbScraper is set to scrape episodes');
 			// Parse through the episodes
 			if($anime->count() !== 0)
 			foreach($anime->episodes->episode as $episode)
@@ -295,17 +384,63 @@ class ScrapeShell extends AppShell {
 				
 			}
 			else
-				$this->out("\t".'Xml size is 0.. Sorry');
+				if(SCRAPEDEBUG)
+					$this->out("\t".'Xml size is 0.. Sorry');
 			
 		}
+
+		// Define what kind of language we are fetching synonyms for
+		$language = array(
+				'en' => 'en',
+				'x-jat' => 'x-jat'
+			);
+
 		if($item['ScrapeInfo']['fetch_information'] == '1')
 		{
-			$this->out("\t".'AnidbScraper is set to scrape genres');
-			if($anime->count() !== 0)
-			foreach($anime->categories->category as $category)
-				$this->addGenre($item, (string)$category->name);
+			if(SCRAPEDEBUG)
+				$this->out("\t".'AnidbScraper is set to scrape genres');
+			if($anime->count() !== 0){
+				foreach($anime->categories->category as $category)
+					$this->addGenre($item, (string)$category->name, (string)$category->description);
+				foreach($anime->tags->tag as $tag)
+					$this->addGenre($item, (string)$tag->name, (string)$tag->description);
+			}
 			else
-				$this->out("\t". 'Xml size is 0.. Sorry');
+				if(SCRAPEDEBUG)
+					$this->out("\t". 'Xml size is 0.. Sorry');
+			
+			if(SCRAPEDEBUG)
+				$this->out("\t".'AnidbScraper is set to fetch episode runtime');
+			foreach($anime->episodes->episode as $episode)
+			{
+				// Check if right episode type
+				if((int)$episode->epno['type'] != 1)
+					continue;
+				// Always prefer information from anidb..
+				if($item['Anime']['runtime'] != $episode->length)
+				{
+					$this->Anime->read(NULL, $item['ScrapeInfo']['anime_id']);
+					$this->Anime->set('runtime',$episode->length);
+					if($this->Anime->save())
+					{
+						if(SCRAPEDEBUG)
+							$this->out("\t" . "\t" . 'Anime "'.$item['Anime']['title'].'" now have runtime "'.$episode->length.'".');
+					}
+				}
+				break;
+			}
+
+			if(SCRAPEDEBUG)
+				$this->out("\t".'AnidbScraper is set to scrape synonyms');
+			if($anime->count() !== 0)
+			{
+				foreach($language as $key => $value)
+					foreach ($anime->titles->xpath('title[@xml:lang="'.$key.'"]') as $title)
+				  		$this->addSynonym($item, (string)$title, $value);
+			}
+			else
+				if(SCRAPEDEBUG)
+					$this->out("\t". 'Xml size is 0.. Sorry');
 		}
 		if($item['ScrapeInfo']['fetch_images'] == '1')
 		{
@@ -332,10 +467,12 @@ class ScrapeShell extends AppShell {
 		 */
 		
 		$episodesInfo = trim($item['ScrapeInfo']['scrape_episodes']);
-		$this->out("\t".'Season information is set to: \'' . ($episodesInfo == NULL ? "NULL" : $episodesInfo) . '\'');
+		if(SCRAPEDEBUG)
+			$this->out("\t".'Season information is set to: \'' . ($episodesInfo == NULL ? "NULL" : $episodesInfo) . '\'');
 		
 		// Fetching all the episodes
-		$this->out("\t".'Fetching all episodes for series');
+		if(SCRAPEDEBUG)
+			$this->out("\t".'Fetching all episodes for series');
 		$serie_info = $tvdbapi->GetSerieData($item['ScrapeInfo']['scrape_id'],true);
 		
 		$episodes = array();
@@ -372,16 +509,19 @@ class ScrapeShell extends AppShell {
 			// if the episode is a special
 			if((int)$episode['season'] == 0 || $episode['season'] == '' || $episode['season'] == NULL)
 			{	
-				$this->out("\t" . "\t" . 'The episode is a special; endDate0:' . $latest_date . '; beginDate:'.$beginning_date);
+				if(SCRAPEDEBUG)
+					$this->out("\t" . "\t" . 'The episode is a special; endDate0:' . $latest_date . '; beginDate:'.$beginning_date);
 				if($latest_date != null && strtotime($episode['airdate']) > strtotime($latest_date))
 				{
-					$this->out("\t"."\t".'Skipping Ep:\'' . $episode['absolute'] . '\': \'' . $episode['name'].'\'. The airdate is after the last episode');
+					if(SCRAPEDEBUG)
+						$this->out("\t"."\t".'Skipping Ep:\'' . $episode['absolute'] . '\': \'' . $episode['name'].'\'. The airdate is after the last episode');
 					continue;
 				}
 				if($start != 0)	
 					if($beginning_date != null && strtotime($episode['airdate']) < strtotime($beginning_date))
 					{
-						$this->out("\t"."\t".'Skipping Ep:\'' . $episode['absolute'] . '\': \'' . $episode['name'].'\'. The airdate is before the first episode');
+						if(SCRAPEDEBUG)
+							$this->out("\t"."\t".'Skipping Ep:\'' . $episode['absolute'] . '\': \'' . $episode['name'].'\'. The airdate is before the first episode');
 						continue;
 					}
 			}
@@ -397,23 +537,32 @@ class ScrapeShell extends AppShell {
 
 		}
 	}
-	
+
 	function addEpisode($scrapeInfo, $animeid, $number, $aired, $name, $description = '' , $special = NULL)
 	{
+		if($number < 0){
+			if(SCRAPEDEBUG)
+				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because the episode number is negative');
+			return false;
+		}
+			
 		// We do not add episodes with no name from scraper.
 		if(strlen($name) == 0)
 		{
-			$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because it has no name');
+			if(SCRAPEDEBUG)
+				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because it has no name');
 			return false;
 		}
 		if($special == NULL && (int)$number == 0)
 		{
-			$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because it has no number');
+			if(SCRAPEDEBUG)
+				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because it has no number');
 			return false;
 		}
 		if((string)$aired == '')
 		{
-			$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because it has no date');
+			if(SCRAPEDEBUG)
+				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because it has no date');
 			return false;
 		}
 		
@@ -424,27 +573,42 @@ class ScrapeShell extends AppShell {
 			'number'	=> $number
 		)));
 		if(count($exact['Episode']) != 0){
-
+			$added = false;
 			if(strlen($exact['Episode']['description']) == 0 && strlen($description) != 0){
 				$this->Episode->read(NULL,$exact['Episode']['id']);
 				$this->Episode->set('description',$description);
 				$this->Episode->save();
-				$this->out("\t"."\t".'Added missing description to episode :\'' . $number . '\': \'' . $name.'\' ..');
-				return false;
+				$this->stats['Episodes_changed']++;
+				if(SCRAPEDEBUG)
+					$this->out("\t"."\t".'Added missing description to episode :\'' . $number . '\': \'' . $name.'\' ..');
+				$added = true;
 			}
 			// Sometimes anidb labels episodes with :Episode ## when it does not have a name.
-			else if(strpos(strtolower($exact['Episode']['name']),'episode') !== FALSE && strlen($exact['Episode']['name']) < 25 && $exact['Episode']['name'] != $name){
+			if(strpos(strtolower($exact['Episode']['name']),'episode') !== FALSE && strlen($exact['Episode']['name']) < 25 && $exact['Episode']['name'] != $name){
 				// Use the new name instead of old one.
 				$this->Episode->read(NULL,$exact['Episode']['id']);
 				$this->Episode->set('name',$name);
 				$this->Episode->save();
-				$this->out("\t"."\t".'Added missing name to episode :\'' . $number . '\': \'' . $name.'\' ..');
-				return false;
+				$this->stats['Episodes_changed']++;
+				if(SCRAPEDEBUG)
+					$this->out("\t"."\t".'Added missing name to episode :\'' . $number . '\': \'' . $name.'\' ..');
+				$added = true;
 			}
-			else {
+			// Check if date is different... Prefer dates from anidb over thetvdb
+			if($aired != $exact['Episode']['aired'] && $scrapeInfo['ScrapeInfo']['scrape_source'] == 'anidb'){
+				$this->Episode->read(NULL,$exact['Episode']['id']);
+				$this->Episode->set('aired',$aired);
+				$this->Episode->save();
+				$this->stats['Episodes_changed']++;
+				if(SCRAPEDEBUG)
+					$this->out("\t"."\t".'Changed aired date on episode [anidb] :\'' . $number . '\': \'' . $name.'\' ..');
+				$added = true;
+			}
+			if($added)
+				return false;
+			if(SCRAPEDEBUG)
 				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' already exists..');
-				return false;
-			}
+			return false;
 		}
 
 		// Create the episode
@@ -455,9 +619,10 @@ class ScrapeShell extends AppShell {
 		$this->Episode->set('name', $name);
 		$this->Episode->set('aired', $aired);
 		$this->Episode->set('description', $description);
-			
+		$this->stats['Episodes_added']++;
 		$this->Episode->save();
-		$this->out("\t"."\t".'Added :\'' . $number . '\': \'' . $name.'\'');
+		if(SCRAPEDEBUG)
+			$this->out("\t"."\t".'Added :\'' . $number . '\': \'' . $name.'\'');
 	}
 
 }

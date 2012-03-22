@@ -16,11 +16,11 @@
 		<div class="span4"> 
 		<?php
 		if($image == null || $image == "")
-			$image = "http://placehold.it/200x112/";
+			$image = "http://placehold.it/287x450/";
 		else 
 			$image = SERVER_PATH . IMAGE_PATH . $image;
 		?>
-		<img src="<?=$image?>" style="height:112px">
+		<img class="thumbnail" src="<?=$image?>" style="height:112px">
 		<?php 
 			echo $this->Form->create('Anime', array('type' => 'file', 'url' => '/anime/editImage/'.$id)); 
 			echo $this->Form->input('image', array('type' => 'file','div' => false, 'label' => false,'class' => ''));
@@ -38,7 +38,7 @@
 		else 
 			$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 		?>
-		<img src="<?=$fanart?>" style="height:112px">
+		<img class="thumbnail" src="<?=$fanart?>" style="height:112px">
 		<?php 
 			echo $this->Form->create('Anime', array('type' => 'file', 'url' => '/anime/editImage/'.$id)); 
 			echo $this->Form->input('fanart', array('type' => 'file','div' => false, 'label' => false,'class' => ''));

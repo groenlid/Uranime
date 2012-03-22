@@ -5,6 +5,6 @@
     RewriteRule ^(.*)$ index.php?/$1 [QSA,L]
 
 	# Adds AUTH support to Rest Plugin:
-	#RewriteRule .* - [env=HTTP_AUTHORIZATION:%{HTTP:Authorization},last]
+	RewriteRule .* - [env=HTTP_AUTHORIZATION:%{HTTP:Authorization},last]
 	
 </IfModule>

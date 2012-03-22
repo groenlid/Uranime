@@ -12,9 +12,7 @@ function searchy(inputString) {
 $(document).ready(function() { 
 	$('.dropdown-toggle').dropdown()
 	$(".alert-message").alert();
-	$('div#flashMessage').hide();
-	$('div#flashMessage').fadeIn(650);
-	$('div#flashMessage').delay(7000).fadeOut(550);
+	$('.genres li').tooltip({'placement':'bottom'});
 	/*$("input.scoreinput").hide();*/
 	$("#searchTable").tablesorter(); 
 	$('span.scorevalue').click(function(){
