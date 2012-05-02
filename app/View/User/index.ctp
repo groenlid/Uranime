@@ -11,7 +11,7 @@ foreach($users as $user)
 					'.$this->Gravatar->image($user['User']['email'], array('size' => '75', 'rating' => 'pg')).' 
 				</a>
 			</div>
-			<p class="bold calendarinfo">
+			<p class="bold calendarinfo" style="max-width: 75px;overflow: hidden;">
 				<a href="/user/view/'.$user['User']['id'].'/'.$user['User']['nick'].'">'.$user['User']['nick'].'</a>
 			</p>
 		</div>
