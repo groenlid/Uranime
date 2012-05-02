@@ -1,3 +1,23 @@
+<h2><?=ucfirst($nick['User']['nick'])?>'s Library</h2>
+<div class="btn-toolbar">
+<div class="btn-group">
+	<button class="btn">Sort by</button>
+	<a class="btn dropdown-toggle" href="#" data-toggle="dropdown">
+		<span class="caret"></span>
+	</a>
+	<ul class="dropdown-menu">
+		<li><a href="/library/view/<?=$nick['User']['id']?>">Entry age</a></li>
+		<li><a href="/library/view/<?=$nick['User']['id']?>/title">Title</a></li>
+	</ul>
+</div>
+</div>
+<hr>
+<?php
+if($animes == null || !isset($animes))
+{
+echo "<div class='alert alert-info'>This user does not have any anime in his/her's library</div>";
+}
+?>
 <div class="anime-gallery-poster">
 <?php
 //debug($anime);

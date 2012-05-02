@@ -16,12 +16,15 @@ class LibraryController extends AppController {
 		
 	}
 	
-	function view($id = null){
+	function view($id = null,$sort = null){
 		if($id == null || !is_numeric($id))
 			return;
 		
+		$this->User->recursive = -1;
+		$this->set('nick',$this->User->read(array('nick','id'),$id));
+		
 		$userEpisodes = $this->UserEpisode->find('all', array(
-			'order' => 'aired ASC',
+			
 			'fields' => 'DISTINCT Episode.anime_id, COUNT(*) as count, MAX(UserEpisode.timestamp) AS `when`',
 			'conditions' => array(
 				'user_id' => $id
@@ -48,10 +51,13 @@ class LibraryController extends AppController {
 			array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
 			//array_push($animes, $this->Episode->find('count',array('conditions' => array('anime_id' => $anime_id['Episode']['anime_id']))));
 		}
+		if($sort == 'title')
+			usort($animes, "cmpTitle");
 		$this->set('anime',$animes);
 		$this->set('stats',$userEpisodes);
 		$this->set(compact('animes'));
 	}
+
 
 	/*function view($id = null, $status = 'all') {
 		if($id == null)
@@ -186,4 +192,11 @@ class LibraryController extends AppController {
 		$this->redirect($this->referer());
 	}*/
 }
+	function cmpTitle($a, $b)
+	{
+	    if ($a['Anime']['title'] == $b['Anime']['title']) {
+	        return 0;
+	    }
+	    return ($a['Anime']['title'] < $b['Anime']['title']) ? -1 : 1;
+	}
 ?>

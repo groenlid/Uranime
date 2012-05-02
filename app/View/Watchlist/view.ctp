@@ -13,7 +13,7 @@
 </div>
 <hr>
 <?php
-if($watchlist == null)
+if($watchlist == null || !isset($watchlist))
 {
 echo "<div class='alert alert-info'>This user does not have any anime in his/her's watchfolder</div>";
 }
