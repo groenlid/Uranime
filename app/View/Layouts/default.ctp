@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,7 +7,9 @@
 	<?= $scripts_for_layout ?>
 	<?/*=$this->Html->css('style.css');*/?>
 	<?=$this->Html->css('bootstrap.css');?>
+	<?=''/*$this->Html->css('bootstrap-responsive.css');*/?>
 	<?=$this->Html->css('bootstrap-com.css');?>
+	<?=$this->Html->css('rickshaw.css');?>
 
 	<link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css' />
 	<link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
@@ -20,9 +23,23 @@
 	<?=$this->Html->script('jquery.toggleEdit.min');?>
 	<?=$this->Html->script('functions.js');?>
 	<?=$this->Html->script('jquery.form.js');?>
-	
+	<?=$this->Html->script('d3.min.js');?>
+	<?=$this->Html->script('d3.layout.min.js');?>
+	<?=$this->Html->script('rickshaw.js');?>
 	<?=$this->Html->script('jquery.timeago.js');?>
-	
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-31318797-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </head>
 <body>
 	<div class="navbar navbar-fixed-top">
@@ -43,7 +60,13 @@
           			<li><?=$this->Html->link('Anime','/anime/')?></li>
           			<li><?=$this->Html->link('View all','/search/basic')?></li>
           			<li class="divider"></li>
-          			<li><?=$this->Html->link('Add anime','/anime/add')?></li>
+          			<?php
+          			if($this->Session->read('Auth.User.id') == '1')
+          				echo "<li>".$this->Html->link('Add anime','/anime/add')."</li>";
+          			else 
+          				echo "<li>".$this->Html->link('Request anime','/anime/add')."</li>";
+          			?>
+          			
           		</ul>
           	</li>
           	<li class='<?=($this->request->params['controller'] == 'user' && $this->request->params['action'] == 'index') ? 'active' : '' ?>'><?=$this->Html->link('Community','/user/')?></li>
@@ -70,6 +93,9 @@
 						<li class='".(($this->request->params['controller'] == 'library') ? 'active' : '' )."'>".
 							$this->Html->link('Library','/library/view/'.$this->Session->read('Auth.User.id').'/'.$this->Session->read('Auth.User.nick'))."
 						</li>
+						<li class='".(($this->request->params['controller'] == 'watchlist') ? 'active' : '' )."'>".
+							$this->Html->link('Watchlist','/watchlist/view/'.$this->Session->read('Auth.User.id').'/'.$this->Session->read('Auth.User.nick'))."
+						</li>
 						<li>
 							".$this->Html->link('Settings','/user/settings/')."
 						</li>
@@ -83,7 +109,7 @@
 				}
 				else{
 					echo "
-				<li><a href='#'>Register</a></li>
+				<li>".$this->Html->link('Register','/user/register')."</li>
 				<li>".$this->Html->link('Login','/user/login')."</li>
 					";
 				}

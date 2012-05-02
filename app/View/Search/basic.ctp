@@ -1,6 +1,7 @@
 
 <h2>You searched for: <?= $query ?></h2>
 <?php
+
 if(count($animes) == 0)
 {
 	echo "No results matches your criteria";
@@ -28,6 +29,14 @@ foreach($animes as $anime)
 }
 echo "</div>";
 ?> <br class="clear">
+
+	<div class="pagination pageepisodes">
+		<?php echo $this->Paginator->prev('Previous', null, null, array('class' => 'disabled')); ?>
+		<?php echo $this->Paginator->numbers(array('separator'=> '')); ?>
+		<?php echo $this->Paginator->next('Next', null, null, array('class' => 'disabled')); ?>
+	</div> 
+	
+<br class="clear">
 <div class="well">
 <strong>WHAT?</strong> We don't have the anime you want? Why not <a href="/anime/add">add it</a> then?
 </div>

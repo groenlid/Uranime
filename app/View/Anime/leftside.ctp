@@ -6,7 +6,7 @@ if($image == null || $image == "")
 else
 	$image = IMAGE_PATH.$image;
 ?>
-<style type="text/css" rel="stylesheet">
+<!--<style type="text/css" rel="stylesheet">
 .fanart {
 	width:958px;
 	height:200px;
@@ -20,7 +20,7 @@ else
 <div class="fanart" style="background:url(/api/imageresize/<?=$fanart?>/960/0)">
 
 </div>
-
+-->
 <div class="span3 pull-right">
 	<?php
 	if($this->Session->check('Auth.User.id'))
@@ -58,7 +58,6 @@ foreach($anime['ScrapeInfo'] as $scrapeInfo)
 ?>
 	</ul>
 <br class="clear">̈́
-<br>
 <?php
 $status_text = array(
 	'currently' => 'Currently airing',
@@ -66,7 +65,7 @@ $status_text = array(
 	'unaired' => 'Unaired'
 	);
 ?>
-<table class="table table-striped table-condensed">
+<table class="table table-striped table-condensed table-small">
 	<tbody>
 		<tr>
     		<td>Status</td>
@@ -76,17 +75,39 @@ $status_text = array(
     		<td>Runtime</td>
     		<td><?=(isset($runtime))?$runtime . " min":"N/A"?></td>
     	</tr>
+    	<tr>
+    		<td>Episodes</td>
+    		<td><?=(isset($anime['Episode']))?count($anime['Episode']):"0"?></td>
+    	</tr>
+    	<tr>
+    		<td>Time</td>
+    		<td><?=(isset($anime['Episode']) && isset($runtime))? ($runtime * count($anime['Episode']). " min"):"N/A"?></td>
+    	</tr>
+    	<tr>
+    		<td>Aired</td>
+    		<td><?=(isset($anime['Episode'][0])) ? $anime['Episode'][0]['aired'] . " - " : "N/A" ?>
+    			<?=(isset($anime['Episode']) && $anime['Anime']['status'] == 'finished') ? $anime['Episode'][count($anime['Episode'])-1]['aired'] : ""; ?>
+    	</tr>
+    	<tr>
+    		<td>Class</td>
+    		<td><?=(isset($classification))? $classification: 'N/A' ?></td>
+    	</tr>
     </tbody>
 </table>
-
-
 <?php
 
-
+// Add to watchlist
+if($this->Session->check('Auth.User.id'))
+{
+	if($watchlist != null)
+		echo $this->Html->link('Remove from watchlist','/watchlist/remove/'.$id,array('class' => 'btn btn-warning'));
+	else
+		echo $this->Html->link('Add to watchlist','/watchlist/add/'.$id,array('class' => 'btn btn-primary'));
+}
 if($this->Session->check('Auth.User.id') && $this->Session->check('Auth.User.id') == 1)
 {
 	echo '<h3> Admin info </h3>';
-	echo $this->Html->link('Scrape', '/anime/setScrape/'.$id, array('class' => 'btn success'));
+	echo $this->Html->link('Scrape', '/anime/setScrape/'.$id, array('class' => 'btn btn-success'));
 	
 }
 

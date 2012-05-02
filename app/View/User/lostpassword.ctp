@@ -2,7 +2,7 @@
 <?php
 
 echo $this->Form->create(null, array('type' => 'post','urk' => '/user/forgotpassword/','class' => 'stylish'));
-echo $this->Form->input('email');
+echo $this->Form->input('User.email');
 echo $this->Form->submit('Request new password',array('class' => 'button'));
 echo $this->Form->end();
 ?>

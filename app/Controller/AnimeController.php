@@ -1,11 +1,17 @@
 <?php
 class AnimeController extends AppController {
 	var $helpers = array('Text','Form','Html','Gravatar');
-	var $uses = array('User','Anime','Episode','Activity','AnimelistEntry','ScrapeInfo','AnimeGenre', 'AnimeRelationship','UserEpisode','AnimeRating','AnimeSynonym');
+	var $uses = array('User','Anime','Episode','Activity',
+					'ScrapeInfo','AnimeRequest','AnimeGenre', 'AnimeRelationship',
+					'UserEpisode','AnimeRating','AnimeSynonym','AnimeRatingBayes',
+					'UserWatchlist','Comment');
 	var $paginate = array( 'Episode' => array(
 						'limit' => 50,
 						'order' => array(
 							'Episode.number' => 'desc'
+						),
+						'Activity' => array(
+							'limit' => 10
 						)
 					)
 				);
@@ -19,7 +25,194 @@ class AnimeController extends AppController {
 		$code_entities_replace = array('%20','-','','','','','','','','','','','','','','','','','','','','','','','');
 		$text = str_replace($code_entities_match, $code_entities_replace, $text); 
 		return $text; 
-	} 
+	}
+	
+	function info()
+	{
+		phpinfo();
+		die();
+	}
+
+	function useImage($id = null, $type = null)
+	{
+
+		if($this->Auth->User('id') == NULL)
+			$this->redirect($this->referer());
+
+		if($type == null || $id == null || !is_numeric($id))
+		{
+			$this->redirect($this->referer());
+			return;
+		}
+
+		if($type != "image" && $type != "fanart"){
+			$this->redirect($this->referer());
+			return;
+		}
+		if(!$this->request->data)
+			$this->redirect($this->referer());
+
+		$requestData = $this->request->data;
+		$url = $requestData['imageUrl'];
+		//debug($this->request->data);
+		//die();
+		$file = fopen($url,"rb");
+		if($file){
+			
+			$this->Anime->read(null,$id);
+			
+			if($type == 'image')
+				$oldImage = $this->Anime->data['Anime']['image'];
+			else if($type == 'fanart')
+				$oldImage = $this->Anime->data['Anime']['fanart'];
+
+			//debug($oldImage);
+			//die();
+			$valid_exts = array("jpg","jpeg","gif","png");
+			$ext = end(explode(".",strtolower(basename($url))));
+			if(in_array($ext,$valid_exts)){
+
+				$filename = String::uuid() . '.' . $ext;
+
+				$newfile = fopen(WWW_ROOT . IMAGE_PATH . $filename, "wb");
+
+				if($newfile){
+
+					while(!feof($file)){
+
+						fwrite($newfile,fread($file,1024 * 8),1024 * 8); // write the file to the new directory at a rate of 8kb/sec. until we reach the end.
+					
+					}
+					//$this->Anime->read(null,$id);
+					
+					if($type == 'image')
+						$this->Anime->set('image',$filename);
+					else if($type == 'fanart')
+						$this->Anime->set('fanart',$filename);
+
+					if($this->Anime->save())
+					{
+						if(file_exists(WWW_ROOT.IMAGE_PATH . $oldImage) && $oldImage != NULL)
+						{
+							if(unlink(WWW_ROOT.IMAGE_PATH . $oldImage))
+								$this->Session->setFlash("The new image/poster has been uploaded + old one removed! Thank you for contributing",'flash_success');
+						}
+						else
+							$this->Session->setFlash("The new image/poster has been uploaded! Thank you for contributing",'flash_success');
+						$this->redirect($this->referer());
+					}
+				}
+			}
+
+		}
+
+	}
+
+	function searchImage($where = null, $id = null){
+		if($where == null || $id == null || !is_numeric($id) || trim($where) == "")
+			die();
+		if($this->Auth->User('id') == NULL)
+			die();
+		
+		// Check if scrape info exists
+		$scrapeInfo = $this->ScrapeInfo->find('first',array('conditions' => array(
+			'anime_id' => $id,
+			'scrape_source' => $where
+			)));
+		if($scrapeInfo == null)
+		{
+
+			echo "No link to " . $where . " is found";
+			die();
+		}
+		$scrape_id = $scrapeInfo['ScrapeInfo']['scrape_id'];
+
+		if($where == 'mal')
+		{
+			$url = "http://mal-api.com/anime/";
+			$json = file_get_contents( $url . $scrape_id );
+			
+			$anime = json_decode($json, TRUE);
+
+			echo '<form action="/anime/useImage/'.$id.'/image" method="post">';
+			echo '<div class="thumbnail" style="float:left;">';
+			echo '<input type="hidden" value="'.$anime['image_url'].'" name="imageUrl">';
+			echo '<img src="http://src.sencha.io/0/150/'.$anime['image_url'].'">';
+			echo '<input type="submit" class="btn btn-primary" value="Use as poster" name="submit">';
+			echo '</div>';
+			echo '</form>';
+
+		}
+		else if($where == 'thetvdb')
+		{
+			App::import('Vendor','Thetvdb', array('file' => 'class.thetvdb.php'));
+			$tvdbapi = new Thetvdb('992BDB755BA8805D');
+
+			$serieData = $tvdbapi->GetSerieFanart($scrape_id);
+			
+			
+			$imgUrl = "http://thetvdb.com/banners/";
+			foreach($serieData as $image){
+				if($image['BannerType'] == "fanart")
+				{
+					
+					echo '<form action="/anime/useImage/'.$id.'/fanart" method="post">';
+					echo '<div class="thumbnail" style="float:left;">';
+					echo '<input type="hidden" value="'.$imgUrl.$image['BannerPath'].'" name="imageUrl">';
+					echo '<img src="http://src.sencha.io/0/150/'.$imgUrl.$image['BannerPath'].'">';
+					echo '<input type="submit" class="btn btn-primary" value="Use as fanart" name="submit">';
+					echo '</div>';
+					echo '</form>';
+				}
+				else if($image['BannerType'] == "poster")
+				{
+					echo '<form action="/anime/useImage/'.$id.'/image" method="post">';
+					echo '<div class="thumbnail" style="float:left;">';
+					echo '<input type="hidden" value="http://src.sencha.io/225/'.$imgUrl.$image['BannerPath'].'" name="imageUrl">';
+					echo '<img src="http://src.sencha.io/0/150/'.$imgUrl.$image['BannerPath'].'">';
+					echo '<input type="submit" class="btn btn-primary" value="Use as poster" name="submit">';
+					echo '</div>';
+					echo '</form>';
+				}
+			}
+		}
+		else if($where == 'anidb'){
+
+			$CLIENTNAME = 'calendar';
+			$CLIENTVERSION = '1';
+			$port = 9001;
+			
+			$anidbURL = "http://api.anidb.net/httpapi?client=".$CLIENTNAME."&clientver=".$CLIENTVERSION."&protover=1&request=anime&aid=".$scrape_id;
+			
+			// Blocked access for this---- hmmm
+			//$response = file_get_contents($anidbURL);
+
+			$crl = curl_init();
+			$timeout = 20;
+			curl_setopt($crl, CURLOPT_URL,$anidbURL);
+			curl_setopt($crl, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($crl, CURLOPT_ENCODING,'gzip');
+			curl_setopt($crl, CURLOPT_HEADER,0);
+			curl_setopt($crl, CURLOPT_FRESH_CONNECT, 1);
+			curl_setopt($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
+			curl_setopt($crl, CURLOPT_PORT, $port);
+			$response = curl_exec($crl) or die(curl_error());
+
+			$anime = new SimpleXMLElement($response);
+			curl_close($crl);
+			$imgUrl = "http://img7.anidb.net/pics/anime/";
+
+			echo '<form action="/anime/useImage/'.$id.'/image" method="post">';
+			echo '<div class="thumbnail" style="float:left;">';
+			echo '<input type="hidden" value="'.$imgUrl.$anime->picture.'" name="imageUrl">';
+			echo '<img src="http://src.sencha.io/0/150/'.$imgUrl.$anime->picture.'">';
+			echo '<input type="submit" class="btn btn-primary" value="Use as poster" name="submit">';
+			echo '</div>';
+			echo '</form>';
+		}
+		die();
+	}
+
 	function searchReferences($where = null, $id = null){
 		if($where == null || $id == null || !is_numeric($id) || trim($where) == "")
 			die();
@@ -184,12 +377,55 @@ class AnimeController extends AppController {
 	function index() {
 		$this->Anime->recursive = -1;
 		$this->set('anime', $this->Anime->find('all'));
+		//$this->AnimeRatingBayes->recursive = 1;
+		$this->set('animerating',$this->AnimeRatingBayes->getHighestRated(5));
+
 	}
 	
 	function add() {
 		if($this->Auth->User('id') == NULL)
 			$this->redirect($this->referer());
-		if(!empty($this->request->data)){
+		if($this->Auth->User('id') != 1)
+		{
+			// Add new request for anime
+			if(!empty($this->request->data)){
+				App::uses('Sanitize', 'Utility');
+				$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
+				// Check if the request for this anime has already been sendt.
+				//print_r($this->request->clientIp);
+				$request_exists = $this->AnimeRequest->find('count',array('conditions' =>
+					array('LOWER(title)' => trim(strtolower($this->request->data['AnimeRequest']['title'])))));
+				$anime_exists = $this->Anime->find('count',array('conditions' =>
+					array('LOWER(title)' => trim(strtolower($this->request->data['AnimeRequest']['title'])))));
+
+				/*print_r($request_exists);
+				print_r($anime_exists);*/
+
+				if($request_exists == 0 && $anime_exists == 0)
+				{
+					$this->AnimeRequest->create();
+					$this->AnimeRequest->set('title',$this->request->data['AnimeRequest']['title']);
+					$this->AnimeRequest->set('comment',$this->request->data['AnimeRequest']['comment']);
+					$this->AnimeRequest->set('ip_adress',$_SERVER["REMOTE_ADDR"]);
+					$this->AnimeRequest->set('user_id',$this->Auth->User('id'));
+					if($this->AnimeRequest->save())
+						$this->Session->setFlash("A request for this anime has been sendt. Thank you for contributing ;)",'flash_success');
+
+				}
+				else if($request_exists != 0){
+					$this->Session->setFlash("A request for this anime has already been sendt!",'flash_error');
+				}
+				else if($anime_exists != 0){
+					$this->Session->setFlash("Anime already exists in the database!",'flash_error');
+
+				}
+				$this->redirect($this->referer());
+			}
+			return;
+		}
+		else if(!empty($this->request->data)){
+				App::uses('Sanitize', 'Utility');
+				$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
 			if($this->Anime->save($this->request->data)) {
 
 				// ADDING ACTIVITY
@@ -200,6 +436,12 @@ class AnimeController extends AppController {
 				$this->Activity->set('object_type','anime');
 				$this->Activity->set('object_id',$this->Anime->id);
 				$this->Activity->save();
+
+				// Create new animesynonym with the title
+				$this->AnimeSynonym->create();
+				$this->AnimeSynonym->set('title',$this->request->data['Anime']['title']);
+				$this->AnimeSynonym->set('anime_id',$this->Anime->id);
+				$this->AnimeSynonym->save();
 
 				$this->Session->setFlash("Anime Saved!",'flash_success');
 				$this->redirect('/anime/view/'.$this->Anime->id.'/'.$this->Anime->title);
@@ -220,7 +462,8 @@ class AnimeController extends AppController {
 		
 		if(!empty($this->request->data))
 		{
-			
+			App::uses('Sanitize', 'Utility');
+			$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
 			
 			
 			$this->Anime->read(null,$id);
@@ -281,7 +524,9 @@ class AnimeController extends AppController {
 	
 	private function getAnimeUser($id = null)
 	{
-
+		if(!is_numeric($id))
+			$this->redirect($this->referer());
+		
 		$rate = $this->AnimeRating->find('first',array(
 			'fields' => array(
 				'anime_id',
@@ -306,7 +551,13 @@ class AnimeController extends AppController {
 					'user_id' => $uid
 				)
 			));
-
+			$this->UserWatchlist->recursive = -1;
+			$this->set('watchlist',$this->UserWatchlist->find('first',array(
+				'conditions' => array(
+						'user_id' => $uid,
+						'anime_id' => $id
+					)
+				)));
 			$this->set('user_rate',$animeuser);
 		}
 	}
@@ -359,14 +610,14 @@ class AnimeController extends AppController {
 		$this->set('genres',$this->Anime->AnimeGenre->find('all',array('conditions' => array('anime_id' => $id))));
 		$this->set('animeuser',NULL);
 		
+		$this->set('user_email',$this->Auth->User('email'));
+		$this->set('user_id',$this->Auth->User('id'));
 		
-		
-		$this->set('animeActivities',$this->Activity->find('all',array('conditions' => array('object_id' => $id))));
 		$this->set('prequels', $this->AnimeRelationship->find('all', array('conditions' => array('anime1' => $id))));
 		$this->set('sequels', $this->AnimeRelationship->find('all', array('conditions' => array('anime2' => $id))));
 
 		$this->getAnimeUser($id);
-		
+
 		if($this->Auth->User('id') != null)
 		{
 			$userepisodes = $this->UserEpisode->find('all',array(
@@ -377,6 +628,35 @@ class AnimeController extends AppController {
 			));	
 			$this->set('userepisodes',$userepisodes);
 		}
+
+		$this->Activity->recursive = 0;
+		//$animeActivities = $this->Activity->find('all',array('conditions' => array('object_id' => $id)));
+		$animeActivities_episodes = $this->Activity->find('all', array('conditions' => array(
+			"(object_id=".$id." AND object_type IN('fanart','image','anime','reference')) OR (object_type='episode' AND object_id IN (SELECT episodes.id FROM episodes WHERE episodes.anime_id=".$id."))"
+			)));
+
+		//$activities = $this->Anime->Episode->UserEpisode;
+		
+		$this->UserEpisode->recursive = 0;
+		$ep_seen = $this->UserEpisode->find('all',array(
+			'fields' => array('COUNT(*) as amount,User.email, UserEpisode.user_id'),
+			'conditions' => array('episode_id IN (SELECT episodes.id FROM episodes WHERE episodes.anime_id='.$id.')'),
+			'group' => array('UserEpisode.user_id'),
+			'order' => array('UserEpisode.id DESC')
+			));
+		$this->set('ep_seen', $ep_seen);
+		$activities = $this->Anime->getActivity($id);
+		//debug($ep_seen);
+		$this->Episode->recursive = -1;
+		$this->Anime->recursive = -1;
+
+		$this->Comment->recursive = -1;
+		$comments = $this->Comment->findAllByAnime_id($id);
+		$this->set("comments",$comments);
+
+		;
+		
+		$this->set('activities',$activities);
 	}
 	function viewepisodes($id = null)
 	{
@@ -406,15 +686,17 @@ class AnimeController extends AppController {
 	}
 
 	function scrape() {
-		$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
-		passthru("/usr/bin/php /home/groenlid/Git/Uranime/lib/Cake/Console/cake.php scrape -app /home/groenlid/Git/Uranime/app > " . $logfile . " &");
 
-
+		$logfile = '/home/groenlid/public_html/app/tmp/logs/scrape.log';
+		//passthru("/usr/bin/php /home/groenlid/Git/Uranime/lib/Cake/Console/cake.php scrape -app /home/groenlid/Git/Uranime/app > " . $logfile . " &");
+		//passthru('/home/content/00/8758600/html/app/Console/cake scrape > ' . $logfile . ' &');
+		//passthru('which php5 > '. $logfile );
+		passthru('php5 /home/groenlid/public_html/lib/Cake/Console/cake.php scrape -app /home/groenlid/public_html/app > '. $logfile . ' &'); 
 		$this->set('logfile',$logfile);
 	}
 
 	function getlogfile() {
-		$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
+		$logfile = '/home/groenlid/public_html/app/tmp/logs/scrape.log';
 		$content = file($logfile);
 		for($i = count($content); $i > 0; $i--)
 			echo $content[$i-1];	

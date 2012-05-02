@@ -1,6 +1,6 @@
 <?php
 class ApiController extends AppController {
-	var $uses = array('AnimeSynonym','User','Anime','Episode','AnimelistEntry','Activity','UserEpisode');
+	var $uses = array('AnimeSynonym','User','ScrapeInfo','Anime','Episode','AnimelistEntry','Activity','UserEpisode','AnimeRatingBayes','UserWatchlist');
 	var $paginate = array( 'Episode' => array(
 						'limit' => 25,
 						'order' => array(
@@ -24,6 +24,9 @@ class ApiController extends AppController {
 				'animelist' => array(
 					'extract' => array('animes.{n}' => 'animelist'),
 				),
+				'watchlist' => array(
+					'extract' => array('animes.{n}' => 'animelist'),
+				),
 				'search' => array(
 					'extract' => array('animes.{n}.Anime' => 'animelist'),
 				),
@@ -43,6 +46,21 @@ class ApiController extends AppController {
 					'extract' => array('id')
 				),
 				'watchepisode' => array(
+					'extract' => array('status')
+				),
+				'trendingAnime' => array(
+					'extract' => array('anime.{n}' => 'animelist')
+				),
+				'latestAnime' => array(
+					'extract' => array('anime.{n}.Anime' => 'animelist')
+				),
+				'setanimescrape' => array(
+					'extract' => array('status')
+				),
+				'animeWatchlist' => array(
+					'extract' => array('status')
+				),
+				'watchanime' => array(
 					'extract' => array('status')
 				)
 			),
@@ -154,6 +172,40 @@ class ApiController extends AppController {
 	function index() {
 
 	}
+
+	function userEpisodeGraph($id = null){
+		$this->UserEpisode->recursive = -1;
+		$res = $this->UserEpisode->find('all',array(
+			'fields' => array(
+				'count(*) as amount',
+				'DATE_FORMAT(timestamp,"%Y-%m-%d") as day'
+				),
+			'conditions' => array(
+				'user_id' => $id
+				),
+			'group' => array(
+				'day'
+				),
+			'order' => array(
+				'day ASC'
+				)
+			)
+		);
+		$results = array(array('color' => 'blue','data' => array()));
+
+
+		foreach($res as $ue)
+		{
+			//print_r($ue);
+			$results[0]['data'][] = array(
+					'y' => (int)$ue[0]['amount'],
+					'x' => strtotime($ue[0]['day']) 
+				);
+		}
+
+		print json_encode($results);
+		die();
+	}
 	
 	function user($id = null){
 		$this->login();
@@ -205,17 +257,6 @@ class ApiController extends AppController {
 			if($this->UserEpisode->save())
 			{
 				$this->set('status','Success');
-								// ADDING ACTIVITY
-				if(!$bulk){
-					$this->Activity->create();
-					$this->Activity->set('subject_type','user');
-					$this->Activity->set('subject_id',$userid);
-					$this->Activity->set('verb','watched');
-					$this->Activity->set('object_type','episode');
-					$this->Activity->set('object_id',$id);
-					//$this->Activity->set('option',$episode['Episode']['anime_id']);
-					$this->Activity->save();
-				}
 				//$this->Episode->id = $id;
 				$this->Episode->read(null, $id);
 				if(!$bulk)
@@ -227,6 +268,71 @@ class ApiController extends AppController {
 				return false;
 			}
 		}
+
+	}
+	
+	function watchanime($userid = null, $id = null,$bulk = false)
+	{
+		$this->login();
+		/*if($this->requestAction('/Episode/watchEpisode/'.$id))
+			$this->set('status','Success');
+		else
+			$this->set('status','Fail');*/
+		if($id == null || !is_numeric($id)){
+			$this->set('status','Fail');
+			return false;
+		}
+
+		if($userid == NULL)
+		{
+			$this->set('status','Fail what');
+			return false;
+		}	
+
+		$this->Episode->recursive = -1;
+		$episodes = $this->Episode->find('all',array(
+			'conditions' => array(
+					'anime_id' => $id
+				)
+			));
+		$amount = 0;
+		foreach($episodes as $episode)
+			if(strtotime($episode['Episode']['aired']) < time()){
+				
+				$count = $this->UserEpisode->find('count',array(
+					'conditions' => array(
+							'user_id' => $userid,
+							'episode_id' => $episode['Episode']['id']
+						)
+					));
+				if($count != 0)
+				{
+						$this->set('status','Fail');
+						continue;
+				}
+				else {
+
+					$this->UserEpisode->create();
+					$this->UserEpisode->set('user_id',$userid);
+					$this->UserEpisode->set('episode_id',$episode['Episode']['id']);
+					$this->UserEpisode->set('timestamp',DboSource::expression('NOW()'));
+					if($this->UserEpisode->save())
+					{
+						$this->set('status','Success');
+						//$this->Episode->id = $id;
+						$amount++;
+						$continue;
+					}
+					else{
+						
+						continue;
+					}
+				}	
+			}
+			if($amount != 0)
+				$this->requestAction('/api/setanimescrape/'.$id);
+			else
+				$this->set('status','Fail');
 
 	}
 
@@ -302,6 +408,28 @@ class ApiController extends AppController {
 		//$this->set('_serialize',array('animes'));
 	}
 
+	function watchlist($userid = null)
+	{
+		$this->login();
+		if($userid == null)
+			return false;
+		$watchList = $this->UserWatchlist->find('all', array(
+			'conditions' => array(
+				'user_id' => $userid
+			)
+		));
+		
+		$animes = array();
+		$this->Anime->recursive = -1;
+		foreach($watchList as $watchItem)
+		{
+			$anime = $this->Anime->read(null,$watchItem['UserWatchlist']['anime_id']);
+			array_push($animes, $anime['Anime']);
+		}
+		$this->set(compact('animes'));
+		//$this->set('_serialize',array('animes'));
+	}
+
 	function newsfeed($limit = 10){
 		$this->login();
 		$results;
@@ -337,7 +465,7 @@ class ApiController extends AppController {
 		die();
 	}
 
-	function lastAnime($number = 5, $offset = 0)
+	function latestAnime($number = 5, $offset = 0)
 	{
 		if($number > 10)
 			$number = 10;
@@ -348,17 +476,35 @@ class ApiController extends AppController {
 		$anime = $this->Anime->find('all', array('limit' => $number, 'offset' => $offset,'order' => array('Anime.id DESC')));
 
 		$this->set(compact('anime'));
-		$this->set('_serialize',array('anime'));
+		//$this->set('_serialize',array('anime'));
+	}
+
+	function trendingAnime($number = 5){
+		$animeList = $this->AnimeRatingBayes->getHighestRated($number);
+		$anime = array();
+		foreach($animeList as $single)
+		{
+			$a = $single['Anime'];
+			$a['bayes'] = $single[0]['real_rating'];
+			array_push($anime,$a);
+		}
+		//debug($anime);
+		$this->set(compact('anime'));
 	}
 
 	function imageresize($file = null, $newWidth = 0, $newHeight = 0){
+
+		
 		$imagick = new Imagick();
 		$imagick->readImage(SERVER_PATH.IMAGE_PATH.$file);
 
 		// Find the largest dimension to determine orientation
 		$height = $imagick->getImageHeight();
 		$width = $imagick->getImageWidth();
-
+		$filepath = SERVER_PATH.IMAGE_PATH.$file;
+		
+		//list($width, $height) = getimagesize($filepath);
+		
 		if($newHeight > $height)
 			$newHeight = $height;
 		if($newWidth > $width)
@@ -379,13 +525,93 @@ class ApiController extends AppController {
 			$newHeight = intval($height/$scaleRatio);
 		}
 
+		
 		//echo $newWidth . " " . $newHeight;
 		$imagick->resizeImage($newWidth, $newHeight, Imagick::FILTER_LANCZOS, 1);
+		/*$size = getimagesize($filepath);
 		
+		header('Content-Type:'.$size['mime']);
+		
+		$image = imagecreatefromstring(file_get_contents($filepath));
+		$result = imagecreatetruecolor($newWidth, $newHeight);
+		
+		imagecopyresampled($result, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+		
+		imagejpeg($result, null, 100);*/
+		
+		//$tmpPlace = '/home/content/00/8758600/html/app/tmp/imageresize/'.uniqid();
+		//$shellTxt = 'convert '.SERVER_PATH.IMAGE_PATH.$file.' -resize '.$newWidth.'x'.$newHeight.' '.$tmpPlace;
+		//echo $shellTxt;
+		//shell_exec($shellTxt);
+		
+		//$fileStream = fopen($tmpPlace,'r');
+		//echo $fileStream;
+		//echo($imagick);
 		header('Content-Type: image/'.$imagick->getImageFormat());
 
 		echo($imagick);
 		die();
+	}
+
+	// This is a public method meant to be used for android-app
+	function setanimescrape($animeid = null)
+	{
+		$this->set('status','nothing done');
+		if($animeid == null || !is_numeric($animeid))
+			return false;
+		// Check if anime exists 
+		$anime = $this->Anime->findById($animeid);
+		if($anime == null)
+			return false;
+		
+		if($anime['Anime']['status'] != 'currently' && $anime['Anime']['status'] != NULL)
+			return false;
+
+		$this->ScrapeInfo->updateAll(
+			array('ScrapeInfo.scrape_needed' => 1),
+			array('ScrapeInfo.anime_id' => $animeid)
+		);
+		$this->set('status','changed scrapeinfo');
+	}
+
+	function animeWatchlist($userid = null, $animeid = null, $newValue = null)
+	{
+		$this->login();
+		if($userid == null || $animeid == null || $newValue == null
+		|| !is_numeric($userid) || !is_numeric($animeid))
+			return false;
+		$anime = $this->Anime->findById($animeid);
+		if($anime == null)
+			return false;
+		$exists = $this->UserWatchlist->find('first',
+			array('conditions' =>
+				array(
+					'user_id' => $userid,
+					'anime_id' => $animeid
+				)
+			)
+		);
+
+		$this->set('status','nothing done');
+
+		if($newValue == "true")
+		{
+			// Check if user already have it in watchlist
+			if($exists != null)
+				return;
+			$this->UserWatchlist->create();
+			$this->UserWatchlist->set('user_id',$userid);
+			$this->UserWatchlist->set('anime_id',$animeid);
+			$this->UserWatchlist->save();
+			$this->set('status','added to watchlist');
+		}
+		else {
+			// Delete already existing watchlistentry
+			if($exists == null)
+				return;
+			$this->UserWatchlist->delete($exists['UserWatchlist']['id'],false);
+			$this->set('status','removed from watchlist');	
+		}
 	}
 }
 

@@ -15,7 +15,7 @@
 		foreach($users as $user){
 			echo "<tr>";
 			echo "<td>";
-			echo $this->Gravatar->image($user['User']['email'], array('class' => 'animeimage', 'size' => '50', 'rating' => 'r'));
+			echo $this->Gravatar->image($user['User']['email'], array('class' => 'animeimage', 'size' => '50', 'rating' => 'pg'));
 			echo "</td>";
 			echo "<td><a href='/user/view/".$user['User']['id']."/".$user['User']['nick']."'>".$user['User']['nick']."</a></td>";
 			echo "<td>".$user['User']['joined']."</td>";

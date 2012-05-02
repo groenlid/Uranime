@@ -4,6 +4,7 @@ class SearchController extends AppController {
 	var $uses = array('Anime','AnimeSynonym');
 	var $components = array(
 		'RequestHandler',
+		'Paginator',
 		'Rest.Rest' => array(
 			'catchredir' => false,
 			'actions' =>array(
@@ -22,9 +23,11 @@ class SearchController extends AppController {
 	}
 	
 	function basic($search = '') {
+		App::uses('Sanitize', 'Utility');
 		//$this -> render('basic');
 		App::uses('Helper','Text'); 
 		//$this->Text = new TextHelper();
+		$search = Sanitize::clean($search, array('encode' => false));
 		$search = trim($search);
 		//$this->Anime->recursive = -1;
 
@@ -51,8 +54,8 @@ class SearchController extends AppController {
 						)
 					)
 				)
-			);*/
-		$animes = $this->AnimeSynonym->find('all',
+			);*///$this->set('episodes', $this->paginate($this->Anime->Episode, array('Anime.id' => $id)));	
+		/*$animes = $this->AnimeSynonym->find('all',
 			array(
 				'fields' => array(
 					'DISTINCT(anime_id)',
@@ -62,10 +65,27 @@ class SearchController extends AppController {
 					),
 				'order' => 'Anime.title ASC'
 			)
-		);
+		);*/
+		
+		$this->paginate = array(
+        		'fields' => array(
+					/*'DISTINCT(anime_id)',*/
+					'Anime.*'),
+				'from' => array(
+					'Anime',
+					'AnimeSynonym'
+				),
+				'conditions' => array(
+						'LOWER(AnimeSynonym.title) LIKE' => "%".strtolower($search)."%",
+					),
+				'order' => 'Anime.title ASC',
+				'group' => 'Anime.id',
+        		'limit' => 25
+    	);
 
-		$this->set(compact('animes'));
-		$this->set('animes',$animes);
+		//$this->set(compact('animes'));
+		$this->set('animes',$this->paginate('AnimeSynonym'));
+		
 		$this->set('query',$search);
 		/*echo '<div id="arrow"></div>';
 		

@@ -1,0 +1,15 @@
+[28-Apr-2012 21:25:55] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 21:26:49] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 21:27:13] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 492
+[28-Apr-2012 21:27:52] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 21:27:52] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 715
+[28-Apr-2012 21:28:28] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 21:33:01] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 21:36:19] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 21:36:19] PHP Parse error:  syntax error, unexpected $end in /home/groenlid/public_html/app/Controller/AnimeController.php on line 264
+[28-Apr-2012 22:49:35] PHP Fatal error:  Call to undefined method SimpleXMLElement::count() in /home/groenlid/public_html/app/Console/Command/ScrapeShell.php on line 396
+[28-Apr-2012 22:51:04] PHP Parse error:  syntax error, unexpected T_ELSE in /home/groenlid/public_html/app/Console/Command/ScrapeShell.php on line 421
+[28-Apr-2012 22:53:29] PHP Fatal error:  Call to undefined method SimpleXMLElement::count() in /home/groenlid/public_html/app/Console/Command/ScrapeShell.php on line 438
+[28-Apr-2012 22:54:25] PHP Fatal error:  Call to undefined method SimpleXMLElement::count() in /home/groenlid/public_html/app/Console/Command/ScrapeShell.php on line 439
+[01-May-2012 13:03:55] PHP Parse error:  syntax error, unexpected ';' in /home/groenlid/public_html/app/Controller/UserController.php on line 190
+[01-May-2012 13:03:56] PHP Parse error:  syntax error, unexpected ';' in /home/groenlid/public_html/app/Controller/UserController.php on line 190

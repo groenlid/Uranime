@@ -13,7 +13,8 @@
 		<li class="active"><a href="/anime/viewref/<?=$id . '/' . $title?>">References</a></li>
 		<li><a href="/anime/viewtags/<?=$id . '/' . $title?>">Tags/Genres</a></li>
 	</ul>
-<table id="searchTable" class="episodelist table table-striped table-bordered table-condensed">
+<a href="#" id="showHidden" class="pull-right">Show the references list</a><br class="clear">
+<table id="searchTable" class="hidden episodelist table table-striped table-bordered table-condensed">
 <thead>
 <?php
 echo $this->Html->tableHeaders(array('Source','Source ID','Scrape Episodes','Use for episodes','Use for images','Use for information','Edit / Delete'));

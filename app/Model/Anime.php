@@ -19,7 +19,10 @@ class Anime extends AppModel {
 					)
 			)
 		);*/
-		
+	public $hasOne = array( 'AnimeRatingBayes' => array(
+		'associationForeignKey'  => 'anime_id',
+		)
+	);	
 	public $hasMany = array( 
 					'AnimeGenre',
 					'Episode' => array(
@@ -29,7 +32,8 @@ class Anime extends AppModel {
 						'dependent'	=> true
 					),
 					'AnimeSynonyms',
-					'ScrapeInfo'
+					'ScrapeInfo',
+					'UserWatchlist'
 				);
 	public $validation = array(
 			'image' => array(
@@ -43,6 +47,74 @@ class Anime extends AppModel {
 						)
 				)
 		);
+
+	public function getActivity($id = null){
+		
+		$this->Activity = ClassRegistry::init('Activity');
+		$this->Comment = ClassRegistry::init('Comment');
+		$this->User = ClassRegistry::init('User');
+		$this->recursive = -1;
+		$this->User->recursive = -1;
+
+		$activities = $this->Activity->find('all', array('conditions' => array(
+			"(object_id=".$id." AND object_type IN('fanart','image','anime','reference')) OR (object_type='episode' AND object_id IN (SELECT episodes.id FROM episodes WHERE episodes.anime_id=".$id."))"
+			)));
+
+		$this->Comment->recursive = -1;
+		$comments = $this->Comment->findAllByAnime_id($id);
+		$this->set("comments",$comments);
+
+		$comments = array_reverse($comments);
+		$pos = 0;
+		$mergedActivities = array();
+		$commentPos = 0;
+		foreach($activities as $key => $activity)
+		{
+			// Check if there exists a comment with earlier timestamp
+			while($commentPos < count($comments) && 
+				strtotime($comments[$commentPos]['Comment']['timestamp']) > strtotime($activity['Activity']['timestamp']))
+				{
+					$u = $this->User->find('first',array('conditions' => array('id' => $comments[$commentPos]['Comment']['user_id'])));
+					$mergedActivities[$pos] = array(
+						'subject' => 
+							$u['User'],
+						'object' => 
+							$comments[$commentPos],
+						'Activity' => array(
+							'verb' => 'comment'
+							)
+						); 
+					//$comments[$commentPos];
+					$commentPos++;
+					$pos++;
+				}
+			$mergedActivities[$pos] = $activity;
+			if($activity['Activity']['object_type'] == 'episode')
+				$mergedActivities[$pos]['object'] = $this->Episode->findById($activity['Activity']['object_id']);
+			else
+				$mergedActivities[$pos]['object'] = Model::findById($activity['Activity']['object_id']);
+			$pos++;
+		}
+		// Add the rest of the comments
+		while($commentPos < count($comments))
+		{
+			$u = $this->User->find('first',array('conditions' => array('id' => $comments[$commentPos]['Comment']['user_id'])));
+
+			$mergedActivities[$pos] = array(
+						'subject' => 
+							$u['User'],
+						'object' => 
+							$comments[$commentPos],
+						'Activity' => array(
+							'verb' => 'comment'
+							)
+						); 
+			//$comments[$commentPos];
+			$commentPos++;
+			$pos++;
+		}
+		return $mergedActivities;
+	}
 	
 }
 ?>

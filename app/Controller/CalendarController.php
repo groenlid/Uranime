@@ -2,7 +2,7 @@
 class CalendarController extends AppController {
 	var $helpers = array('Text','Time');
 	var $components = array('RequestHandler','Auth');
-	var $uses = array('Anime','Episode','User','ScrapeInfo','UserEpisode');
+	var $uses = array('Anime','Episode','User','ScrapeInfo','UserEpisode','UserWatchlist');
 	
 
 	
@@ -54,6 +54,13 @@ class CalendarController extends AppController {
 					'user_id' => $uid
 				)
 			));
+			$this->UserWatchlist->recursive = -1;
+			$userWatchList = $this->UserWatchlist->find('all', array(
+				'conditions' => array(
+					'user_id' => $uid
+					)
+				)
+			);
 			$i = 0;
 			//debug($episodes);
 			foreach($episodes as $episode)
@@ -61,6 +68,11 @@ class CalendarController extends AppController {
 				$found = false;
 				foreach($userEpisodes as $userEpisode)
 					if($userEpisode['Episode']['anime_id'] == $episode['Episode']['anime_id']){
+						$found = true;
+						break;
+					}
+				foreach($userWatchList as $watchItem)
+					if($watchItem['UserWatchlist']['anime_id'] == $episode['Episode']['anime_id']){
 						$found = true;
 						break;
 					}

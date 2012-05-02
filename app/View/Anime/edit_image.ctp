@@ -12,8 +12,23 @@
 		<li><a href="/anime/viewref/<?=$id . '/' . $title?>">References</a></li>
 		<li><a href="/anime/viewtags/<?=$id . '/' . $title?>">Tags/Genres</a></li>
 	</ul>
+		<h2>Automatic image retrieving</h2>
+	<div class="actions"><center>
+	<?php
+	foreach($anime['ScrapeInfo'] as $scrapeInfo){
+		echo $this->Html->link('<i class="icon-search"></i> Search '.$scrapeInfo['scrape_source'], $this->Html->url('/anime/searchImage/'.$scrapeInfo['scrape_source'].'/'.$anime['Anime']['id'], false), array('class' => 'ajax btn','escape' => false)) . " ";
+	}
+	?></center>
+	</div>
+	<hr>
+	<div class="ajaxresults">
+	</div>
+	<br class="clear">
+	<hr>
 	<div class="row">
-		<div class="span4"> 
+		<a href="#" id="showHidden" class="pull-right">Show the existing image/poster</a><br class="clear">
+		<div class="span4 hidden"> 
+
 		<?php
 		if($image == null || $image == "")
 			$image = "http://placehold.it/287x450/";
@@ -30,7 +45,7 @@
 			echo $this->Form->end();
 			?>
 		</div>
-		<div class="span4">
+		<div class="span4 hidden">
 		
 		<?php
 		if($fanart == null || $fanart == "")
@@ -49,11 +64,13 @@
 			?>
 		</div>
 	</div>
-	<div class="notif">
+	<div class="notif hidden">
 		<p><strong>Resolutions:</strong></p>
 		<p>Poster: 287 x 450 (Follow myanimelist, anidb guidelines)</p>
 		<p>Fanart: 1920 x 1080, 1280 x 720 (Follow the thetvdb guidelines)</p>
 	</div>
+	
+
 </div>
 
 <?php

@@ -59,7 +59,7 @@ class Thetvdb
    public function SearchSeries($seriename)
    {
       $seriename = urlencode($seriename);
-      $url = $this->tvdbapiurl . 'GetSeries.php?seriesname=' . $seriename;
+      $url = $this->tvdbapiurl . 'GetSeries.php?seriesname=' . $seriename . '&language=all';
       
       $feed = self::DownloadUrl($url);
       $xml = simplexml_load_string($feed);
@@ -96,6 +96,27 @@ class Thetvdb
       }
    }
    
+   public function GetSerieFanart($serieid){
+      $url = $this->tvdbapiurl . $this->api_key. '/series/' . $serieid . '/banners.xml';
+      $feed = self::DownloadUrl($url);
+      if($feed){
+         $xml = simplexml_load_string($feed);
+         $banners = array();
+         foreach($xml->Banner as $banner)
+         {
+            $tmp['id'] = (int)$banner->id;
+            $tmp['BannerPath'] = (string) $banner->BannerPath;
+            $tmp['BannerType'] = (string) $banner->BannerType;
+            $tmp['BannerType2'] = (string) $banner->BannerType2;
+            $tmp['Language'] = (string) $banner->Language;
+            $tmp['Season'] = (string) $banner->Season;
+            $banners[] = $tmp;
+         }
+         return $banners;
+      }else{
+         return false;
+      }
+   }
    
    /*
     * This method returns information about the specified serie

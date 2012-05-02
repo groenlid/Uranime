@@ -82,7 +82,7 @@ extract($anime['Anime']);
 		if($next_episode != null)
 			echo "<!--<p class='subtle big'>Next unseen episode:</p>--><div class='episode'>
 				<span class='episodeImage'>
-					<img src='http://src.sencha.io/117/".$fanart."'>
+					".$this->Html->link("<img src='http://src.sencha.io/117/".$fanart."'>",'/episode/view/'.$next_episode['id'],array('escape' => false))."
 				</span>
 				<span class='episodeContent'>
 					<span class='episodeName'>"
@@ -131,11 +131,33 @@ $i = 0;
 	</tbody>
 	</table>-->
 <?php
+
+if(isset($ep_seen) && count($ep_seen) != 0)
+	echo '<hr>
+	<p class="subtle big">Seen last by:</p>
+	<ul class="thumbnails">';
+
+foreach($ep_seen as $animeEp)
+{
+	//debug($animeEp);
+	echo '
+	<li class="span1">
+		<a class="thumbnail" rel="tooltip" title="has seen '.$animeEp[0]['amount'].' episodes" href="/user/view/'.$animeEp['UserEpisode']['user_id'].'">
+			'.$this->Gravatar->image($animeEp['User']['email'], array('size' => '100', 'rating' => 'r')).'
+		</a>
+	</li>
+	';
+}
+if(isset($ep_seen) && count($ep_seen) != 0)
+	echo '</ul>';
+?>
+<hr>
+<?php
 if(count($sequels) != 0 || count($prequels) != 0)
 {
 	echo '
 	<p class="subtle big">Related Anime</p>
-	<ul class="thumbnails">
+	<div id="anime-gallery">
 	';
 }
 ?>
@@ -152,14 +174,19 @@ foreach($sequels as $sequel)
 		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 
 	echo '
-		<li class="thumbnail">
-			<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'" class="">
-				<img src="http://src.sencha.io/200/'.$fanart.'">
-				<div class="caption">
-					<h4>'.$animeSeq['title'].'</h4>
-				</div>
+		<div class="anime-gallery-single">
+			<div class="anime-gallery-single-inner">
+				<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'" class="">
+					<img src="http://src.sencha.io/200/'.$fanart.'">
 				</a>
-		</li>';	
+				<span class="anime-gallery-single-hover">
+					<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'" class="">View Sequel</a>
+				</span>
+			</div>
+			<span class="anime-gallery-single-name">
+			'.$animeSeq['title'].'
+			</span>
+		</div>';	
 }
 foreach($prequels as $prequel)
 {
@@ -171,33 +198,66 @@ foreach($prequels as $prequel)
 	else
 		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 
-	echo '
-		<li class="thumbnail">
-			<a href="/anime/view/'.$animePreq['id'].'/'.$animePreq['title'].'" class="">
-				<img src="http://src.sencha.io/200/'.$fanart.'">
-				<div class="caption">
-					<h4>'.$animePreq['title'].'</h4>
-				</div>
+	echo '<div class="anime-gallery-single">
+			<div class="anime-gallery-single-inner">
+				<a href="/anime/view/'.$animePreq['id'].'/'.$animePreq['title'].'" class="">
+					<img src="http://src.sencha.io/200/'.$fanart.'">
 				</a>
-		</li>';	
+				<span class="anime-gallery-single-hover">
+					<a href="/anime/view/'.$animePreq['id'].'/'.$animePreq['title'].'" class="">View Prequel</a>
+				</span>
+			</div>
+			<span class="anime-gallery-single-name">
+			'.$animePreq['title'].'
+			</span>
+		</div>';	
 }
 if(count($sequels) != 0 || count($prequels) != 0)
 {
 	echo '
 	<br class="clear">
-	</ul>
+	</div>
+	<hr>
 	';
 }
 ?>
 <br class="clear">
 <div id="newsfeed">
+
 <?php
-	foreach($animeActivities as $activity)
+
+if($this->Session->check('Auth.User.id'))
+{
+	echo '
+	<div class="comment-container">
+		<div class="comment-avatar">
+		'.
+		$this->Html->link(
+						$this->Gravatar->image(
+							$user_email, 
+							array('class' => 'animeimage', 'size' => '30', 'rating' => 'pg')
+						),
+						'/user/view/'.$user_id,
+						array('escape' => false)
+					)
+		.'
+		</div>
+		<div class="comment"><form style="margin:0;padding:0" action="/comment/add/'.$id.'" method="post">
+			<div class="comment-meta">Write a new comment <span class="comment-time"><input type="submit" class="btn" value="Comment"></span></div>
+			<div class="comment-text"><textarea name="comment"></textarea></div>
+		</div></form>
+	</div>
+	';
+}
+?>
+
+<?php
+	foreach($activities as $activity)
 	{
-			/*echo $this->element('activity', array(
+			echo $this->element('activity', array(
     			"activity" => $activity,
     			"kindOfObject" => "anime"
-    		));*/
+    		));
 		//print_r($activity);
 	}
 	

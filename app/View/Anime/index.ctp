@@ -24,11 +24,38 @@ if($fanart == null || $fanart == "")
 	</div>
 </div>
 
-<h3>New Anime</h3>
+<h3>Latest added anime</h3>
 <div class="anime-gallery-poster">
 <?php
 foreach($lastAnime as $animeSingle)
 {
+	$image = $animeSingle['image'];
+	if($image == null || $image == "")
+		$image = "http://placehold.it/225x112";
+	else
+		$image = IMAGE_PATH.$image;
+
+	echo "<div class='anime-gallery-single'>
+		<div class='anime-gallery-single-inner'>"
+		.$this->Html->link(
+			$this->Html->image($image,array('style' => 'height:225px; width:150px;')),
+			'/anime/view/'.$animeSingle['id'].'/'.$animeSingle['title'],
+			array('escape' => false)
+		)."
+		</div>
+		<span class='anime-gallery-single-name'>".$this->Text->truncate($animeSingle['title'],20)."</span>
+	</div>";
+}
+?>
+<br class="clear">
+</div>
+
+<h3>Top anime</h3>
+<div class="anime-gallery-poster">
+<?php
+foreach($animerating as $anime)
+{
+	$animeSingle = $anime['Anime'];
 	$image = $animeSingle['image'];
 	if($image == null || $image == "")
 		$image = "http://placehold.it/225x112";

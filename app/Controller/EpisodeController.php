@@ -45,16 +45,6 @@ class EpisodeController extends AppController {
 			{
 				$this->Session->setFlash('<strong>Watched</strong> status is saved','flash_success');
 								// ADDING ACTIVITY
-				if(!$bulk){
-					$this->Activity->create();
-					$this->Activity->set('subject_type','user');
-					$this->Activity->set('subject_id',$this->Auth->User('id'));
-					$this->Activity->set('verb','watched');
-					$this->Activity->set('object_type','episode');
-					$this->Activity->set('object_id',$id);
-					//$this->Activity->set('option',$episode['Episode']['anime_id']);
-					$this->Activity->save();
-				}
 				//$this->Episode->id = $id;
 				$this->Episode->read(null, $id);
 				if(!$bulk)
@@ -66,6 +56,40 @@ class EpisodeController extends AppController {
 				return false;
 			}
 		}
+	}
+
+	/**
+	 * This is to be used on the mal import page
+	 */
+	function watchEpisodeFromTo($animeId = null,$from = null, $to = null)
+	{
+		if(!is_numeric($animeId) || !is_numeric($from) || !is_numeric($to))
+			die();
+
+		$anime = $this->Anime->find('first', array('conditions' => array('id' => $animeId)));
+		if($anime == null)
+			die();
+		
+		$added = 0;
+		$rejected = 0;
+
+		foreach($anime['Episode'] as $episode)
+		{
+			if($episode['number'] < $from || $episode['number'] > $to)
+				continue;
+			if($this->watchEpisode($episode['id'],true))
+				$added++;
+			else
+				$rejected++;
+			//if($)
+		}
+		if($added != 0)
+			echo "<span class='label label-success'>".$added." added</span> ";
+		if($rejected != 0)
+			echo "<span class='label label-important'>".$rejected." rejected</span> ";
+		if($rejected == 0 && $added == 0)
+			echo "<span class='label label-warning'>Noting done</span> ";
+		die();
 	}
 
 	function watchall($animeId = null){
@@ -90,14 +114,6 @@ class EpisodeController extends AppController {
 			if(strtotime($episode['Episode']['aired']) < time())
 				$this->watchEpisode($episode['Episode']['id'], true);
 
-		$this->Activity->create();
-		$this->Activity->set('subject_type','user');
-		$this->Activity->set('subject_id',$this->Auth->User('id'));
-		$this->Activity->set('verb','watched');
-		$this->Activity->set('object_type','episode');
-		$this->Activity->set('object_id',$episodes[count($episodes)-1]['Episode']['id']);
-		//$this->Activity->set('option',$episode['Episode']['anime_id']);
-		$this->Activity->save();
 
 		$this->requestAction('/anime/setEpisodeScrape/'.$animeId);
 		$this->redirect($this->referer());

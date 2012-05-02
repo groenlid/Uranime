@@ -2,7 +2,7 @@
 <div class="span7">
 <h2>What are people doing?</h2>
 <div id="newsfeed">
-	<img src="/img/loading.gif"> Loading newsfeed...
+	<img src="/img/loading2.gif">
 </div>
 </div>
 
@@ -11,6 +11,7 @@
 	var last = 0;
 	var amount = 0;
 	var startAmount = 10;
+	localStorage.clear();
 	setInterval("getNewsFeed()",5000);
 
 	function decider(){
@@ -123,13 +124,13 @@
 	}
 
 	function getAnimeInfo(id){
-		return	synchronousAJAX("/api/anime/" + id +".json").data.anime;
+		//return	synchronousAJAX("/api/anime/" + id +".json").data.anime;
 		// This is not used anymore
 		var retrievedObject = localStorage.getItem('anime_'+id);
-		var result;
+		//var result;
 		if(retrievedObject == undefined)
 		{
-			var animeData = synchronousAJAX("/api/anime/" + id +".json");
+			var animeData = synchronousAJAX("/api/anime/" + id +".json").data.anime;
 			localStorage.setItem('anime_'+id, JSON.stringify(animeData));
 			result = animeData;
 		}
@@ -139,10 +140,10 @@
 	}
 
 	function getEpisodeInfo(id){
-		return synchronousAJAX("/api/episode/" + id +".json");
+		//return synchronousAJAX("/api/episode/" + id +".json");
 		// This is not used anymore
 		var retrievedObject = localStorage.getItem('episode_'+id);
-		var result;
+		//var result;
 		if(retrievedObject == undefined)
 		{
 			var episodeData = synchronousAJAX("/api/episode/" + id +".json");
@@ -188,7 +189,7 @@
 
     var size = size || 80;
 
-    return 'http://www.gravatar.com/avatar/' + MD5(email) + '.jpg?s=' + size;
+    return 'http://www.gravatar.com/avatar/' + MD5(email) + '.jpg?s=' + size + "&rating=pg";
 }
 </script>
 <div class="span4">

@@ -11,7 +11,8 @@ body {
 	/*font-family:"Questrial",Helvetica,Arial,sans-serif !important; */
 }
 div.container {
-	width:960px;	
+	max-width:960px;
+	width:100%;	
 }
 
 p {
@@ -301,7 +302,7 @@ div.pageepisodes {
 	left:6px;
 	height:112px;
 	line-height:112px;
-	width:200px;
+	width:198px;
 	font-weight:bold;
 	border:1px solid rgba(0,0,0,0.8);
 	background:rgba(0,0,0,0.6);
@@ -330,6 +331,14 @@ div.pageepisodes {
 	display:block;
 	text-align:center;
 	margin-top:10px;
+}
+
+#anime-gallery p.calendarinfo {
+	margin: 0 5px;
+}
+
+.bold {
+	font-weight:bold;
 }
 
 .media-grid a {
@@ -623,7 +632,8 @@ br.clear {
 	color:#545655;
 	display:block;
 	text-align:center;
-	margin-top:10px;
+	margin-top:5px;
+	font-size:0.9em;
 }
 
 .anime-gallery-poster .anime-gallery-single img {
@@ -677,6 +687,11 @@ a.brand {
 
 .small-text {
 	font-size:0.9em;
+}
+
+.table-small {
+	font-size:0.9em;
+	font-family: "Questrial",Helvetica,Arial,sans-serif !important;
 }
 
 /* Subnav */
@@ -772,3 +787,101 @@ a.brand {
             border-radius: 0;
   }
 }
+
+
+.hidden {
+	display:none;
+}
+
+/* Comment system */
+.comment-container {
+	padding: 2px;
+	background: #efefef;
+	border-radius: 3px;
+	margin-left:90px;
+	position:relative;
+	margin-bottom:20px;
+}
+
+.comment-meta {
+	height: 33px;
+	padding: 0 10px;
+	position:relative;
+	border-bottom: 1px solid #CCC;
+	background: #F8F8F8;
+	background: -moz-linear-gradient(#F8F8F8,#E1E1E1);
+	background: -webkit-linear-gradient(#f0f0f0,#ddd);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#f8f8f8',endColorstr='#e1e1e1')";
+	margin: 0;
+	max-width: 600px;
+	font-size: 12px !important;
+	height: 33px;
+	line-height: 33px;
+	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.comment-text {
+	position: relative;
+	padding: 0;
+	color: #333;
+	font-size: 12px;
+	background: #FBFBFB;
+	padding:10px;
+}
+
+.comment {
+	border: 1px solid #CACACA;
+	/*-webkit-border-radius: 0 0 3px 3px;
+	-moz-border-radius: 0 0 3px 3px;
+	border-radius: 0 0 3px 3px;
+	-webkit-box-shadow: 0 1px 0 rgba(101,101,101,.1);
+	-moz-box-shadow: 0 1px 0 rgba(101,101,101,.1);
+	box-shadow: 0 1px 0 rgba(101,101,101,.1);
+	background-color: #F8F8F8;
+	border: 1px solid #D5D5D5;
+	margin: 0 2px;
+	position: relative;
+	top: -3px;*/
+	/*border-bottom: 0 solid #DDD;
+	border-left: 0 solid #4D90F0;
+	border-top: 0 solid #DDD;*/
+}
+
+.comment-avatar {
+	position:absolute;
+	left:-85px;
+}
+
+.comment-avatar img {
+	padding:2px;
+	border:3px solid rgb(245, 244, 249);
+	border-radius:3px;
+	max-width:200px;
+	max-height:50px;
+}
+.comment-time {
+	color:#AAA;
+	background: #F8F8F8;
+	background: -moz-linear-gradient(#F8F8F8,#E1E1E1);
+	background: -webkit-linear-gradient(#f0f0f0,#ddd);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#f8f8f8',endColorstr='#e1e1e1')";
+	max-width:150px;
+	position:absolute;
+	right:0;
+	text-align:right;
+	padding-right:10px;
+}
+
+.comment-text textarea {
+	max-width:98%;
+	width:480px;
+	padding:10px;
+}
+
+.comment-meta .btn {
+	margin-top:3px;
+}
+

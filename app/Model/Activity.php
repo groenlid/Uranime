@@ -12,7 +12,7 @@ class Activity extends AppModel
 		'subject' => array(
 			'foreignKey' => 'subject_id',
 			'className'	=> 'User',
-			'fields' => array('subject.id','subject.nick','subject.desc','subject.email')
+			'fields' => array('subject.id','subject.nick','subject.email')
 			)
 		);
 }

@@ -46,10 +46,10 @@ foreach($episodes as $episode)
 		else
 			echo '<img src="http://placehold.it/200x112">';
 		echo '</a>'.
-			'<span class="anime-gallery-single-hover"><a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">View Anime</a></span>'.
+			'<span class="anime-gallery-single-hover"><a href="/episode/view/'.$episode['Episode']['id'].'/">View Episode</a></span>'.
 			'</div>
-			<p class="bold calendarinfo">'.$episode['Anime']['title']. ' ' . $episode['Episode']['number'] . '</p>
-			<p class="calendarinfo">'. $episode['Episode']['name'].'</p>
+			<p class="bold calendarinfo"><a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">'.$episode['Anime']['title']. '</a> ' . $episode['Episode']['number'] . '</p>
+			<p class="calendarinfo">'. $this->Text->truncate($episode['Episode']['name'],35).'</p>
 			</div>';	
 	
 

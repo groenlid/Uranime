@@ -1,10 +1,10 @@
 <?php
 class UserController extends AppController {
 	var $helpers = array('Gravatar','Time');
-	var $uses = array('Activity');
+	var $uses = array('Activity','UserEpisode');
 	var $name = 'User';
 	var $paginate = array( 'Activity' => array(
-						'limit' => 50
+						'limit' => 20
 					)
 				);
 	var $components = array(
@@ -20,16 +20,29 @@ class UserController extends AppController {
 
 	function index(){
 		$this->User->recursive = -1;
-		
+		//echo $this->Auth->password('testing');
 		$this->set('users',$this->User->find('all'));
 	}
 
 	function view($id = null){
+		if($id == null || !is_numeric($id))
+		{
+			$id = $this->Auth->user('id');
+			if($id != null)
+				$this->redirect('/user/view/'.$this->Auth->user('id'));
+			else
+				$this->redirect('/front');
+		}
 		$this->User->id = $id;
 		$this->set('user', $this->User->read());
 		//$activities = $this->Activity->findAllBySubjectId($id);
+		//debug($this->User);
 		$activities = $this->paginate($this->User->Activity,array('Activity.subject_id' => $id));
-		//debug($this->User->Activity);
+		
+		/*$episodes = $this->UserEpisode->find('all',array('conditions' => array('user_id' => $id)));
+		echo "<pre>";
+		print_r($episodes);
+		echo "</pre>";*/
 		App::uses('Helper', 'Time');
 		$this->Anime->recursive = -1;
 		foreach($activities as $key => $activity)
@@ -41,6 +54,10 @@ class UserController extends AppController {
 			
 		}
 		$this->set('activity',$activities);
+
+		// Variables for user graphs
+
+
 		//debug($activities);
 		//$this->set('activity',$this->Activity->findAllBySubjectId($id));	
 	}
@@ -60,6 +77,10 @@ class UserController extends AppController {
 		//debug($this->request->data);
 		if(!empty($this->request->data))
 		{
+			App::uses('Sanitize', 'Utility');
+
+			//$this->Text = new TextHelper();
+			$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
 			//print_r($this->User->data);
 			//echo AuthComponent::password($this->request->data['current_password']);
 			if($this->User->data['User']['password'] == AuthComponent::password($this->request->data['current_password']))
@@ -86,6 +107,10 @@ class UserController extends AppController {
 	}
 	
 	function login($data = null){
+		App::uses('Sanitize', 'Utility');
+
+		$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
+		$this->Auth->loginRedirect = array('controller' => 'user', 'action' => 'view');
 		/*$this->autoRender = false;*/
 		Configure::write('debug', 0);
 		if ($this->request->is('post')) {
@@ -118,11 +143,69 @@ class UserController extends AppController {
 		
 	}
 
+	function register(){
+		
+		App::uses('Sanitize', 'Utility');
+		$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
+		
+		if($this->request->data)
+		{
+			$email = $this->request->data['email'];
+			if(trim($email) == "")
+				return false;
+				
+			$user = $this->User->findByEmail($email);
+			if($user != null)
+			{
+				$this->Session->setFlash('Could not create user. It already exists','flash_error');
+				$this->redirect($this->referer());
+				return; 
+			}
+			
+			$this->User->create();
+			$this->User->set('email',$email);
+			$this->User->set('nick',$this->request->data['nickname']);
+			
+			$newPassword = $this->genRandomString(10);
+
+			$newPasswordHashed = $this->Auth->password($newPassword);
+			$this->User->set('joined', DboSource::expression('NOW()'));
+			$this->User->set('password',$newPasswordHashed);
+			
+			
+			if ($this->User->validates()) {
+				if($this->User->save())
+				{
+					$this->sendResetEmail($email);
+					return true;
+				}
+				else{
+					$this->Session->setFlash('Could not create user','flash_error');
+					$this->redirect($this->referer());
+				}
+			}
+			else
+			{
+				$this->Session->setFlash('Could not validate input','flash_error');
+				foreach($this->User->validationErrors as $error)
+					$this->Session->setFlash($error[0],'flash_error');
+				//print_r($this->User->validationErrors);
+				$this->redirect($this->referer());
+			}
+			//print_r($this->request->data);
+			// Find the user in question
+			
+		}
+	}
+
 	function lostpassword($user = null, $resetKey = null){
 		if($user == null || $resetKey == null)
 		{
-			if(!empty($this->request->data))
+			//print_r($this->request->data);
+			if(isset($this->request->data['User']['email']))
 			{
+				App::uses('Sanitize', 'Utility');
+				$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
 				$email = $this->request->data['User']['email'];
 				if(trim($email) == "")
 					return false;
@@ -137,7 +220,7 @@ class UserController extends AppController {
 		
 		$user = $this->User->findByNick($user);
 		if($user == null){
-			$this->Session->setFlash('Wrong parameters. No such user.');
+			$this->Session->setFlash('Wrong parameters. No such user.','flash_error');
 			return false;
 		}
 		
@@ -178,7 +261,7 @@ class UserController extends AppController {
 		App::uses('CakeEmail', 'Network/Email');
 		//$this->Email->delivery = 'debug';
 		$email = new CakeEmail();
-		$email->from(array('me@example.com' => 'Urani.me'));
+		$email->from(array('no-reply@urani.me' => 'Urani.me'));
 		$email->to($emailStr);
 		$email->subject('New password for user ' . $emailStr);
 		$email->send('Your new password is "'.$newPassword.'".<br> Please change your password when logging in for the first time since the change.');
@@ -212,7 +295,8 @@ class UserController extends AppController {
 	{
 		if($email == null || trim($email) == "")
 			return false;
-
+		App::uses('Sanitize', 'Utility');
+		$email = Sanitize::clean($email, array('encode' => false));
 		// Find the user based on the email-adress
 		$this->User->recursive = -1;
 		$user = $this->User->findByEmail($email);
@@ -225,10 +309,12 @@ class UserController extends AppController {
 		App::uses('CakeEmail', 'Network/Email');
 		//$this->Email->delivery = 'debug';
 		$email = new CakeEmail();
-		$email->from(array('me@example.com' => 'Urani.me'));
+		$email->from(array('no-reply@urani.me' => 'Urani.me'));
 		$email->to($user['User']['email']);
 		$email->subject('Password reset for user ' . $user['User']['nick']);
-		$email->send('You have requested a password reset. Please click this link if that is true. <a href="">http://158.39.171.120/user/lostpassword/'.$user['User']['nick'].'/'.$resetKey.'</a>');
+		$email->send('You have requested a password reset. Please click this link if that is true. <a href="">http://urani.me/user/lostpassword/'.$user['User']['nick'].'/'.$resetKey.'</a>');
+
+		//print_r($email);
 
 		/*$this->Email->from  	= 'urani.me';
 		$this->Email->to 		= $user['User']['email'];
@@ -240,7 +326,7 @@ class UserController extends AppController {
 	}
 	
 	function logout(){
-		$this->Session->setFlash('Logout');
+		$this->Session->setFlash('Logout','flash_success');
 		$this->redirect($this->Auth->logout());
 	}
 }

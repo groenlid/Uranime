@@ -1,5 +1,6 @@
 <div class="anime-gallery-poster">
 <?php
+//debug($anime);
 $i = 0;
 foreach($anime as $animeSingle)
 {
@@ -7,8 +8,7 @@ foreach($anime as $animeSingle)
 	if($image == null || $image == "")
 		$image = "http://placehold.it/225x112";
 	else
-		$image = IMAGE_PATH.$image;
-
+	 	$image = "http://src.sencha.io/200/".SERVER_PATH.IMAGE_PATH.$image;
 	echo "
 	<div class='anime-gallery-single'>
 		<div class='anime-gallery-single-inner'>"
