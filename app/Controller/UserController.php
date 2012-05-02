@@ -21,7 +21,14 @@ class UserController extends AppController {
 	function index(){
 		$this->User->recursive = -1;
 		//echo $this->Auth->password('testing');
-		$this->set('users',$this->User->find('all'));
+		$this->paginate = array(
+				'order' => 'User.nick ASC',
+        		'limit' => 25
+    	);
+
+		//$this->set(compact('animes'));
+		$this->set('animes',$this->paginate('User'));
+		$this->set('users',$this->User->find('all',array('order' => 'nick')));
 	}
 
 	function view($id = null){

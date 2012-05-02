@@ -1,29 +1,33 @@
-<pre>This page is under construction and will therefore change.</pre>
 <div class="row">
 	<div class="span11">
-		<table class="table table-striped table-bordered">
-			<thead>
-				<tr>
-					<th class="span1"></th>
-					<th>Nick</th>
-					<th>Joined</th>
-				<tr>
-			</thead>
-		<tbody>
-		<?php
+<div id="anime-gallery">
+<?php
+foreach($users as $user)
+{
+	echo '
+		<div class="anime-gallery-single">
+			<div class="anime-gallery-single-inner">
+				<a href="/user/view/'.$user['User']['id'].'/'.$user['User']['nick'].'">
+					'.$this->Gravatar->image($user['User']['email'], array('size' => '75', 'rating' => 'pg')).' 
+				</a>
+			</div>
+			<p class="bold calendarinfo">
+				<a href="/user/view/'.$user['User']['id'].'/'.$user['User']['nick'].'">'.$user['User']['nick'].'</a>
+			</p>
+		</div>
+	';
+}
+?>
 
-		foreach($users as $user){
-			echo "<tr>";
-			echo "<td>";
-			echo $this->Gravatar->image($user['User']['email'], array('class' => 'animeimage', 'size' => '50', 'rating' => 'pg'));
-			echo "</td>";
-			echo "<td><a href='/user/view/".$user['User']['id']."/".$user['User']['nick']."'>".$user['User']['nick']."</a></td>";
-			echo "<td>".$user['User']['joined']."</td>";
-			echo "</tr>";
-		}
-		?>
-		</tbody>
-		</table>
+
+</div>	
+<br class="clear">	
+	<div class="pagination pageepisodes">
+		<?php echo $this->Paginator->prev('Previous', null, null, array('class' => 'disabled')); ?>
+		<?php echo $this->Paginator->numbers(array('separator'=> '')); ?>
+		<?php echo $this->Paginator->next('Next', null, null, array('class' => 'disabled')); ?>
+	</div> 
+	<br class="clear">	
 	</div>
 </div>
  
