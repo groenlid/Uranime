@@ -311,6 +311,11 @@ div.pageepisodes {
 }
 .anime-gallery-single-inner a,.anime-gallery-single-inner a:hover {
 	color:#fff;
+	top:6px;
+	left:6px;
+	height:100%px;
+	width:100%;
+	display:block;
 	text-decoration:none;
 }
 
