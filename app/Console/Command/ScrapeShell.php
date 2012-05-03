@@ -366,7 +366,7 @@ class ScrapeShell extends AppShell {
 		//$anidbURL = "http://api.anidb.net/httpapi?client=".CLIENTNAME."&clientver=".CLIENTVERSION."&protover=1&request=anime&aid=".$animeid;
 
 		// Temporary server
-		$anidbURL = "http://158.39.171.120/anidb.php?aid=".$animeid."&client=".CLIENTNAME."&version=".CLIENTVERSION;
+		$anidbURL = "http://158.39.171.120/anidb/anidb.php?aid=".$animeid."&client=".CLIENTNAME."&version=".CLIENTVERSION;
 		$port = 80;
 		$sleepTime = 3;
 		// Blocked access for this---- hmmm
