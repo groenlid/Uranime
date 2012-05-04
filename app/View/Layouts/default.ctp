@@ -84,6 +84,12 @@
           	<?php
 				if($this->Session->check('Auth.User.id'))
 				{
+					if($isAdmin){
+						echo '<li>';
+							echo $this->Html->link('Admin <span class="label label-success">'.$animerequestsCount.'</span>','/admin/',array('escape' => false));
+						echo '</li>';
+					}
+					
 					echo "
 				<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>".$this->Session->read('Auth.User.nick')."<b class='caret'></b></a>
 					<ul class='dropdown-menu'>
@@ -102,7 +108,8 @@
 						<li class='divider'></li>
 						<li>".
 							$this->Html->link('Logout','/user/logout')."
-						</li>
+						</li>";
+				echo "
 					</ul>
 				</li>
 					";
@@ -117,6 +124,7 @@
          </ul> 
 
           <?php
+          
 			/*if(!$this->Session->check('Auth.User.id')){
 				echo $this->Form->create('User', array(
 					'url' => array(

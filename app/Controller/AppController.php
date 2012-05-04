@@ -39,7 +39,7 @@ class AppController extends Controller {
         'Session',
         'Auth'
     );
-    public $uses = array('Anime','Episode','User');
+    public $uses = array('Anime','Episode','User','AnimeRequest');
 
 	function beforeFilter(){
 		parent::beforeFilter();
@@ -63,9 +63,18 @@ class AppController extends Controller {
 		$this->set('numberAnime',$numberAnime);
 		$this->set('numberEpisodes', $numberEpisodes);
 		$this->set('numberUsers', $numberUsers);
+		
 /*
 		$this->set('numberAnime',0);
 		$this->set('numberEpisodes', 0);
 		$this->set('numberUsers', 0);*/
-	 }
+		if($this->isAdmin())
+			$this->set('animerequestsCount',$this->AnimeRequest->find('count'));
+		$this->set('isAdmin',$this->isAdmin());
+	}
+	
+	private function isAdmin(){
+		return ($this->Auth->User('id') == 1);
+	}
+	
 }

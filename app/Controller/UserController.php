@@ -60,6 +60,7 @@ class UserController extends AppController {
 				$activities[$key]['object'] = $this->Anime->findById($activity['Activity']['object_id']);
 			
 		}
+		
 		$this->set('activity',$activities);
 
 		// Variables for user graphs
