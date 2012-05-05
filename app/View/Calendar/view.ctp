@@ -1,5 +1,19 @@
 <div class="row">
-<div class="span8">
+	<div class="span3">
+		<ul class="nav nav-pills">
+			<li <?=(isset($own))?'class="active"':''?>>
+				<a href="/calendar/view">
+					My anime
+				</a>
+			</li>
+			<li <?=(!isset($own))?'class="active"':''?>>
+				<a href="/calendar/view/all">
+					All anime
+				</a>
+			</li>
+		</ul>
+	</div>
+<div class="span11">
 <?php
 $episodeDate = array();
 $last_date = "";
@@ -29,11 +43,11 @@ foreach($episodes as $episode)
 			$i = false;
 
 		if($this->Time->isToday($timeStr))
-			echo '<h2>Today</h2>';
+			echo '<h2 class="calendar">Today</h2>';
 		else if($this->Time->isTomorrow($timeStr))
-			echo '<h2>Tomorrow</h2>';
+			echo '<h2 class="calendar">Tomorrow</h2>';
 		else
-			echo '<h2>' . $date . '</h2>';
+			echo '<h2 class="calendar">' . $date . '</h2>';
 		
 		echo '<div id="anime-gallery">';
 	}
@@ -65,14 +79,4 @@ if(count($episodes) != 0)
 
 //print_r($episodeDate);
 ?>
-<div class="span3">
-	<div class="well">
-<?php
-if(isset($own))
-	echo '<p class="strong"><a href="/calendar/view/all" class="btn info">Show all anime</a></p>';
-else
-	echo '<p class="strong"><a href="/calendar/view" class="btn info">Just show own anime</a></p>';
-?>
-	</div>
-</div>
 </div>
