@@ -13,7 +13,7 @@
 			</li>
 		</ul>
 	</div>
-<div class="span11">
+<div class="span12">
 <?php
 $episodeDate = array();
 $last_date = "";

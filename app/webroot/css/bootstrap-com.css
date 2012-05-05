@@ -25,6 +25,7 @@ h2 {
 
 h2.calendar {
 	padding: 0 10px;
+	width:95%;
 	background:#fafafa;
 	border:1px solid #eee;
 }
