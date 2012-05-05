@@ -881,6 +881,7 @@ a.brand {
 	background: -webkit-linear-gradient(#f0f0f0,#ddd);
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#f8f8f8',endColorstr='#e1e1e1')";
 	max-width:150px;
+	min-width:100px;
 	position:absolute;
 	right:0;
 	text-align:right;
