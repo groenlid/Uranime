@@ -10,6 +10,13 @@
 	</div>
 	<div class="anime-gallery-single">
 		<div class="anime-gallery-single-inner">
+			<a href="/img/splash/calendar.png" rel="lightbox[splash]">
+				<img src="/img/splash/calendar.png" style="width:300px">
+			</a>
+		</div>
+	</div>
+	<div class="anime-gallery-single">
+		<div class="anime-gallery-single-inner">
 			<a href="/img/splash/library.png" rel="lightbox[splash]">
 				<img src="/img/splash/library.png" style="width:300px">
 			</a>
