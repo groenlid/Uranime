@@ -5,7 +5,8 @@ class ScrapeShell extends AppShell {
 		'Anime_changed' => 0,
 		'Episodes_changed' => 0,
 		'Genre_linked' => 0,
-		
+		'Characters_changed' => 0,
+		'Characters_added' => 0
 		);
 	function main(){
 		App::uses('Sanitize', 'Utility');
@@ -178,6 +179,9 @@ class ScrapeShell extends AppShell {
 						$this->addSynonym( $item, $synonym, $languages[$lang] );
 			}
 			$this->addSynonym( $item, $anime['title'] ,'x-jat');
+			
+			// Fetch chacters from myanimelist
+			
 		}
 		
 	}

@@ -6,7 +6,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<?= $scripts_for_layout ?>
 	<?/*=$this->Html->css('style.css');*/?>
-	<?=$this->Html->css('bootstrap.css');?>
+	<?=$this->Html->css('bootstrap.min.css');?>
+	<?=$this->Html->css('lightbox.css');?>
 	<?=''/*$this->Html->css('bootstrap-responsive.css');*/?>
 	<?=$this->Html->css('bootstrap-com.css');?>
 	<?=$this->Html->css('rickshaw.css');?>
@@ -27,6 +28,8 @@
 	<?=$this->Html->script('d3.layout.min.js');?>
 	<?=$this->Html->script('rickshaw.js');?>
 	<?=$this->Html->script('jquery.timeago.js');?>
+	<?=$this->Html->script('jquery.smooth-scroll.min.js');?>
+	<?=$this->Html->script('lightbox.js');?>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -48,7 +51,7 @@
           <a class="brand" href="/">Urani.me</a>
           
           <form action="/search/redir/" id="search" class="navbar-search pull-left" method="post">
-			<input type="text" class="search-query" name="mainsearch" value="Search for stuff" id="mainsearch" autocomplete="off" onkeyup="searchy(this.value)" onclick='this.value=""'>
+			<input type="text" class="search-query" name="mainsearch" value="Search for anime" id="mainsearch" autocomplete="off" onkeyup="searchy(this.value)" onclick='this.value=""'>
 			
 			<div class="popover below" id="results"></div>
           </form>
