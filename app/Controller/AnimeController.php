@@ -233,7 +233,9 @@ class AnimeController extends AppController {
 			$anime = new SimpleXMLElement($response);
 			curl_close($crl);
 			$imgUrl = "http://img7.anidb.net/pics/anime/";
-
+			
+			debug($anime);
+			
 			echo '<form action="/anime/useImage/'.$id.'/image" method="post">';
 			echo '<div class="thumbnail" style="float:left;">';
 			echo '<input type="hidden" value="'.$imgUrl.$anime->picture.'" name="imageUrl">';
