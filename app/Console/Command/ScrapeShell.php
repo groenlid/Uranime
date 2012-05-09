@@ -252,6 +252,7 @@ class ScrapeShell extends AppShell {
 		if($anime1 == null || $anime2 == null || $type == null)
 			return false;
 
+		$this->out("\t" . "Checking if relationship already exists for anime " . $anime1 . " with type " . $type . " for anime " . $anime2);
 		// Check if this relationship already exists;
 		//
 		$exists = $this->AnimeRelationship->find('count', array(
@@ -269,7 +270,7 @@ class ScrapeShell extends AppShell {
 				$this->out("\t" ."\t" . "\t" . 'Anime "'.$anime1.'" is already linked up with "'.$anime2.'" as "'.$type.'". Nothing done' );
 			return false;
 		}
-
+		
 		$this->AnimeRelationship->create();
 		$this->AnimeRelationship->set('anime1',$anime1);
 		$this->AnimeRelationship->set('type', $type);
