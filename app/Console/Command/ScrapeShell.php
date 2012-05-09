@@ -263,7 +263,7 @@ class ScrapeShell extends AppShell {
 				)
 			)
 		);
-
+		print_r($exists);
 		if($exists !== 0)
 		{
 			if(SCRAPEDEBUG)
