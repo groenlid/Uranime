@@ -199,6 +199,30 @@ class ScrapeShell extends AppShell {
 				$this->addRelationship($animeid,'sequel',$item['ScrapeInfo']['anime_id']);
 
 			}
+			foreach($anime['side_stories'] as $sideStory)
+			{
+				// Fetch our animeid from mal id
+				if(($animeid = $this->getAnimeId($sideStory['anime_id'])) == null)
+				{
+					if(SCRAPEDEBUG)
+						$this->out("\t" . "\t" . "\t" . 'The anime "' . $sideStory['title'] . '" with myanimelist id "' .$sideStory['anime_id']. '" does not exists in the db. Skipping...');
+					continue;
+				}
+				
+				$this->addRelationship($animeid,'side-story',$item['ScrapeInfo']['anime_id']);
+			}
+			foreach($anime['parent_story'] as $parentStory)
+			{
+				// Fetch our animeid from mal id
+				if(($animeid = $this->getAnimeId($parentStory['anime_id'])) == null)
+				{
+					if(SCRAPEDEBUG)
+						$this->out("\t" . "\t" . "\t" . 'The anime "' . $parentStory['title'] . '" with myanimelist id "' .$parentStory['anime_id']. '" does not exists in the db. Skipping...');
+					continue;
+				}
+				
+				$this->addRelationship($item['ScrapeInfo']['anime_id'],'side-story',$animeid);
+			}
 			if(SCRAPEDEBUG)
 				$this->out("\t" . "\t" . 'Fetching synonyms');
 			$languages = array(
