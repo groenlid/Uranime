@@ -257,8 +257,8 @@ class ScrapeShell extends AppShell {
 		//
 		$exists = $this->AnimeRelationship->find('count', array(
 				'conditions' => array(
-					'Anime1' => $anime1,
-					'Anime2' => $anime2,
+					'anime1' => $anime1,
+					'anime2' => $anime2,
 					'type'	=> $type
 				)
 			)
