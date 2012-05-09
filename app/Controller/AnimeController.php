@@ -663,8 +663,16 @@ class AnimeController extends AppController {
 		$this->set('user_email',$this->Auth->User('email'));
 		$this->set('user_id',$this->Auth->User('id'));
 		
-		$this->set('prequels', $this->AnimeRelationship->find('all', array('conditions' => array('anime1' => $id))));
-		$this->set('sequels', $this->AnimeRelationship->find('all', array('conditions' => array('anime2' => $id))));
+		$this->set('relationships', $this->AnimeRelationship->find('all', array(
+			'conditions' => array(
+				'OR' => array(
+					'anime1' => $id,
+					'anime2' => $id
+						)
+					)
+				)
+			)
+		);
 
 		$this->getAnimeUser($id);
 

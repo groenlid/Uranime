@@ -172,7 +172,7 @@ if(isset($ep_seen) && count($ep_seen) != 0)
 ?>
 <hr>
 <?php
-if(count($sequels) != 0 || count($prequels) != 0)
+if(count($relationships) != 0)
 {
 	echo '
 	<p class="subtle big">Related Anime</p>
@@ -182,11 +182,34 @@ if(count($sequels) != 0 || count($prequels) != 0)
 ?>
 
 <?php
-foreach($sequels as $sequel)
+//debug($relationships);
+foreach($relationships as $relationship)
 {
-	$animeSeq = ($sequel['anime1']['id'] == $id) ? $sequel['anime2'] : $sequel['anime1'];
-
-	$fanart = $animeSeq['fanart'];
+	$left = false;
+	$animeCurrent = $relationship['anime1'];
+	if($relationship['anime1']['id'] == $id)
+	{
+		$left = true;
+		$animeCurrent = $relationship['anime2'];
+	}
+	
+	$linkText = "";
+	
+	if($relationship['AnimeRelationship']['type'] == 'sequel')
+	{
+		if($left)
+			$linkText = "View Prequel";
+		else 
+			$linkText = "View Sequel";
+	}else if($relationship['AnimeRelationship']['type'] == 'side-story')
+	{
+		if($left)
+			$linkText = "View Side-Story";
+		else
+			$linkText = "View Parent-Story";
+	}
+	
+	$fanart = $animeCurrent['fanart'];
 	if($fanart == "" || $fanart == null)
 		$fanart = "http://placehold.it/200x112/";
 	else
@@ -195,19 +218,19 @@ foreach($sequels as $sequel)
 	echo '
 		<div class="anime-gallery-single">
 			<div class="anime-gallery-single-inner">
-				<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'" class="">
+				<a href="/anime/view/'.$animeCurrent['id'].'/'.$animeCurrent['title'].'" class="">
 					<img src="http://src.sencha.io/200/'.$fanart.'">
 				</a>
 				<span class="anime-gallery-single-hover">
-					<a href="/anime/view/'.$animeSeq['id'].'/'.$animeSeq['title'].'" class="">View Sequel</a>
+					<a href="/anime/view/'.$animeCurrent['id'].'/'.$animeCurrent['title'].'" class="">'.$linkText.'</a>
 				</span>
 			</div>
 			<span class="anime-gallery-single-name">
-			'.$animeSeq['title'].'
+			'.$animeCurrent['title'].'
 			</span>
 		</div>';	
 }
-foreach($prequels as $prequel)
+/*foreach($relationship_anime2 as $prequel)
 {
 	$animePreq = ($prequel['anime1']['id'] == $id) ? $prequel['anime2'] : $prequel['anime1'];
 	
@@ -230,8 +253,8 @@ foreach($prequels as $prequel)
 			'.$animePreq['title'].'
 			</span>
 		</div>';	
-}
-if(count($sequels) != 0 || count($prequels) != 0)
+}*/
+if(count($relationships) != 0)
 {
 	echo '
 	<br class="clear">
