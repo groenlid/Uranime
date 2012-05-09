@@ -204,9 +204,9 @@ foreach($relationships as $relationship)
 	}else if($relationship['AnimeRelationship']['type'] == 'side-story')
 	{
 		if($left)
-			$linkText = "View Side-Story";
-		else
 			$linkText = "View Parent-Story";
+		else
+			$linkText = "View Side-Story";
 	}
 	
 	$fanart = $animeCurrent['fanart'];
