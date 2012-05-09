@@ -591,6 +591,7 @@ class ScrapeShell extends AppShell {
 			}
 			
 			// Check how many episodes exists for anime movie
+			$this->Episode->recursive = -1;
 			$epCount = $this->Episode->find('all',array('conditions' => array(
 						'anime_id' => $dbAnime['Anime']['id']
 					)
@@ -600,13 +601,13 @@ class ScrapeShell extends AppShell {
 			if(count($epCount) != 1)
 			{
 				if(SCRAPEDEBUG)
-					$this->out("\t". 'Deleting '.$epCount.' episodes from anime');
+					$this->out("\t". 'Deleting '.count($epCount).' episodes from anime');
 				// remove all other episodes
-				$this->Episode->deleteAll(array('Episode.anime_id' => $dbAnime['Anime']['id']),true);
+				$this->Episode->deleteAll(array('Episode.anime_id' => $dbAnime['Anime']['id']),false);
 				
 				
 				foreach($epCount as $tmpEpisode)
-					$this->UserEpisode->deleteAll(array('UserEpisode.episode_id' => $tmpEpisode['Episode']['id']));
+					$this->UserEpisode->deleteAll(array('UserEpisode.episode_id' => $tmpEpisode['Episode']['id']),false);
 				if(SCRAPEDEBUG)
 					$this->out("\t". 'Inserting the movie as one episodes');
 				$this->addEpisode($item, $dbAnime['Anime']['id'],1,
