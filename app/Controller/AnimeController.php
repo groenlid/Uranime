@@ -234,7 +234,7 @@ class AnimeController extends AppController {
 			curl_close($crl);
 			$imgUrl = "http://img7.anidb.net/pics/anime/";
 			
-			var_dump($anime);
+			//var_dump($anime);
 			
 			echo '<form action="/anime/useImage/'.$id.'/image" method="post">';
 			echo '<div class="thumbnail" style="float:left;">';
