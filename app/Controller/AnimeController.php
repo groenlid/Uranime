@@ -227,7 +227,7 @@ class AnimeController extends AppController {
 			curl_setopt($crl, CURLOPT_FRESH_CONNECT, 1);
 			curl_setopt($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
 			curl_setopt($crl, CURLOPT_PORT, $port);
-			$response = curl_exec($crl) or die(curl_error());
+			$response = curl_exec($crl) or die(curl_error($crl));
 
 			$anime = new SimpleXMLElement($response);
 			curl_close($crl);
