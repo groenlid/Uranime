@@ -211,10 +211,11 @@ class AnimeController extends AppController {
 
 			$CLIENTNAME = 'calendar';
 			$CLIENTVERSION = '1';
-			$port = 9001;
+			//$port = 9001;
 			
-			$anidbURL = "http://api.anidb.net/httpapi?client=".$CLIENTNAME."&clientver=".$CLIENTVERSION."&protover=1&request=anime&aid=".$scrape_id;
-			
+			//$anidbURL = "http://api.anidb.net/httpapi?client=".$CLIENTNAME."&clientver=".$CLIENTVERSION."&protover=1&request=anime&aid=".$scrape_id;
+			$anidbURL = "http://158.39.171.120/anidb/anidb.php?aid=".$scrape_id."&client=".CLIENTNAME."&version=".CLIENTVERSION;
+			$port = 80;
 			// Blocked access for this---- hmmm
 			//$response = file_get_contents($anidbURL);
 
