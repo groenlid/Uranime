@@ -7,7 +7,7 @@ for($i = 0; $i < 5; $i++)
 {
 	array_push($lastAnime,$anime[count($anime)-$i-1]['Anime']);
 }
-	$randomAnimeId = mt_rand(0,count($anime)-1);
+	$randomAnimeId = (int)(time()/3600) % count($anime)-1; //mt_rand(0,count($anime)-1);
 
 $fanart = $anime[$randomAnimeId]['Anime']['fanart'];
 if($fanart == null || $fanart == "")

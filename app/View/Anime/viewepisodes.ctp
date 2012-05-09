@@ -6,14 +6,9 @@
 include('leftside.ctp');
 ?>
 <div class="span8">
-	<h2><?= $title ?><span class="pull-right"><small><?=round($calc_rating['avg_rate'],2)?> <span class="subtle">( <?=$calc_rating['amount']?> votes )</small></span></span></h2>
-	<!-- ANIME MENU -->
-	<ul class="nav nav-tabs">
-		<li><a href="/anime/view/<?=$id . '/' . $title?>">Summary</a></li>
-		<li class="active"><a href="/anime/viewepisodes/<?=$id . '/' . $title?>">Episodes</a></li>
-		<li><a href="/anime/viewref/<?=$id . '/' . $title?>">References</a></li>
-		<li><a href="/anime/viewtags/<?=$id . '/' . $title?>">Tags/Genres</a></li>
-	</ul>
+<?php
+	include('sub_menu.php');
+?>
 	<div class="actions">
 		<a href="/episode/watchall/<?=$id?>" class="btn primary">Seen all up to date</a>
 	</div>

@@ -26,20 +26,35 @@ class ScrapeShell extends AppShell {
 														)
 													)
 										);
-		foreach($queue as $item)
+		$lastAnidb = false;
+		foreach($queue as $itemOutdated)
 		{
+			//echo "id: '" . $itemOutdated['ScrapeInfo']['id'] . "'";
+			// We need to use the updated item in case of editing
+			$item = $this->ScrapeInfo->read(null,$itemOutdated['ScrapeInfo']['id']);
+			//print_r($item);
 			$source = $item['ScrapeInfo']['scrape_source'];
 			$this->out('Fetching item: ' . $item['Anime']['title'] . " from source: " . $source);
-
+			
+			
 			if($source == 'thetvdb')
 			{
 				$this->thetvdbScrape($item);
+				$lastAnidb = false;
 			} else if($source == 'mal')
 			{
 				$this->malScrape($item);
+				$lastAnidb = false;
 			} else if($source == 'anidb')
 			{
+				if($lastAnidb)
+					sleep(3);
 				$this->anidbScrape($item);
+				$lastAnidb = true;
+			} else if($source == 'themoviedb')
+			{
+				$this->themoviedbScrape($item);
+				$lastAnidb = false;
 			}
 
 			// Remove the scrape_needed on the queue
@@ -104,6 +119,23 @@ class ScrapeShell extends AppShell {
 			if($dbAnime['Anime']['runtime'] == '' || $dbAnime['Anime']['runtime'] == null)
 			{
 				/** TODO: Implement runtime fetching from mal **/
+			}
+			
+			$type = array(
+				'TV' => 'tv',
+				'OVA' => 'ova',
+				'ONA' => 'ona',
+				'Special' => 'special',
+				'Movie' => 'movie'
+			);
+			
+			if($dbAnime['Anime']['type'] == '' || $dbAnime['Anime']['type'] == null || $dbAnime['Anime']['type'] != $type[$anime['type']])
+			{
+				if(SCRAPEDEBUG)
+					$this->out("\t" ."\t" . "\t" . 'Adding new type to anime:' . $dbAnime['Anime']['title'] .'.'. ' Type:' . $dbAnime['Anime']['type'] . '->' . $type[$anime['type']]);
+				$this->Anime->set('type',$type[$anime['type']]);
+				if($this->Anime->save())	
+					$this->stats['Anime_changed']++;
 			}
 
 			// Fetch anime rating PG-13 etc..
@@ -399,6 +431,62 @@ class ScrapeShell extends AppShell {
 		
 		// CHECK WHAT WE WANT TO FETCH
 		//$this->out($anidbURL);
+
+		// Define what kind of language we are fetching synonyms for
+		$language = array(
+				'en' => 'en',
+				'x-jat' => 'x-jat'
+			);
+
+		if($item['ScrapeInfo']['fetch_information'] == '1')
+		{
+			if(SCRAPEDEBUG)
+				$this->out("\t".'AnidbScraper is set to scrape genres');
+			//if($anime->count() !== 0){
+			if(count($anime->children()) !== 0){
+				foreach($anime->categories->category as $category)
+					$this->addGenre($item, (string)$category->name, (string)$category->description);
+				foreach($anime->tags->tag as $tag)
+					$this->addGenre($item, (string)$tag->name, (string)$tag->description);
+			}
+			else
+				if(SCRAPEDEBUG)
+					$this->out("\t". 'Xml size is 0.. Sorry');
+
+			if(SCRAPEDEBUG)
+				$this->out("\t".'AnidbScraper is set to scrape synonyms');
+			//if($anime->count() !== 0)
+			if(count($anime->children()) !== 0)
+			{
+				foreach($language as $key => $value)
+					foreach ($anime->titles->xpath('title[@xml:lang="'.$key.'"]') as $title)
+				  		$this->addSynonym($item, (string)$title, $value);
+			}
+			else
+				if(SCRAPEDEBUG)
+					$this->out("\t". 'Xml size is 0.. Sorry');
+			if(SCRAPEDEBUG)
+				$this->out("\t"."Fetching type from anidb");
+			
+			$types = array(
+				'TV Series' => 'tv',
+				'OVA' => 'ova',
+				'Movie' => 'movie',
+				'TV Special' => 'special',
+				'Other' => 'other'
+			);
+			$newType = (String)$anime->type;
+			
+			if(($dbAnime['Anime']['type'] == '' || $dbAnime['Anime']['type'] == null) && !empty($newType))
+			{
+				if(SCRAPEDEBUG)
+					$this->out("\t" ."\t" . "\t" . 'Adding new type to anime:' . $dbAnime['Anime']['title'] .'.'. ' Type:' . $dbAnime['Anime']['type'] . '->' . $types[$newType]);
+				$this->Anime->set('type',$types[$newType]);
+				if($this->Anime->save())	
+					$this->stats['Anime_changed']++;
+			}
+		}
+
 		if($item['ScrapeInfo']['fetch_episodes'] == '1')
 		{
 			// Ep type 1 = Regular Episode
@@ -436,29 +524,6 @@ class ScrapeShell extends AppShell {
 				if(SCRAPEDEBUG)
 					$this->out("\t".'Xml size is 0.. Sorry');
 			
-		}
-
-		// Define what kind of language we are fetching synonyms for
-		$language = array(
-				'en' => 'en',
-				'x-jat' => 'x-jat'
-			);
-
-		if($item['ScrapeInfo']['fetch_information'] == '1')
-		{
-			if(SCRAPEDEBUG)
-				$this->out("\t".'AnidbScraper is set to scrape genres');
-			//if($anime->count() !== 0){
-			if(count($anime->children()) !== 0){
-				foreach($anime->categories->category as $category)
-					$this->addGenre($item, (string)$category->name, (string)$category->description);
-				foreach($anime->tags->tag as $tag)
-					$this->addGenre($item, (string)$tag->name, (string)$tag->description);
-			}
-			else
-				if(SCRAPEDEBUG)
-					$this->out("\t". 'Xml size is 0.. Sorry');
-			
 			if(SCRAPEDEBUG)
 				$this->out("\t".'AnidbScraper is set to fetch episode runtime');
 			foreach($anime->episodes->episode as $episode)
@@ -479,27 +544,83 @@ class ScrapeShell extends AppShell {
 				}
 				break;
 			}
-
-			if(SCRAPEDEBUG)
-				$this->out("\t".'AnidbScraper is set to scrape synonyms');
-			//if($anime->count() !== 0)
-			if(count($anime->children()) !== 0)
-			{
-				foreach($language as $key => $value)
-					foreach ($anime->titles->xpath('title[@xml:lang="'.$key.'"]') as $title)
-				  		$this->addSynonym($item, (string)$title, $value);
-			}
-			else
-				if(SCRAPEDEBUG)
-					$this->out("\t". 'Xml size is 0.. Sorry');
-		}
-		if($item['ScrapeInfo']['fetch_images'] == '1')
-		{
-
+			
 		}
 		
-		sleep(3);
 		//print_r($response);
+	}
+	
+	function themoviedbScrape($item){
+		// Should only be used when anime is a movie
+		if($item['Anime']['type'] != 'movie' && $item['Anime']['type'] != null && $item['Anime']['type'] != ""){
+			if(SCRAPEDEBUG)
+					$this->out("\t".'Not classified as a movie. Quitting');
+			return false;
+		}
+			
+		App::import('Vendor','Themoviedb', array('file' => 'class.themoviedb.php'));
+		$moviedb = new TMDBv3('ab6e5238babff326babdd34cc8060d4b');
+		
+		if($item['ScrapeInfo']['fetch_episodes'] == '1')
+		{
+			
+			// Check if the only scraper used for episodes is themoviedb
+			// If it is, it should remove all unessesary episodes
+			$countScrapers = $this->ScrapeInfo->find('count',array(
+				'conditions' => array(
+						'anime_id' => $item['ScrapeInfo']['anime_id'],
+						'fetch_episodes' => '1'
+					)
+				)
+			);
+				
+			if($countScrapers > 1){
+				return;
+			}
+			
+			// Here we set movie runtime and insert the move as 1 episode.
+			$animeinfo = $moviedb->movieDetail($item['ScrapeInfo']['scrape_id']);
+			$dbAnime = $this->Anime->read(NULL, $item['ScrapeInfo']['anime_id']);
+			
+			if($dbAnime['Anime']['runtime'] != $animeinfo['runtime'])
+			{
+				if(SCRAPEDEBUG)
+					$this->out("\t".'Changing anime movie runtime:"'.$dbAnime['Anime']['runtime'] . '" => "' . $animeinfo['runtime'] . '"');
+				$this->Anime->set('runtime',$animeinfo['runtime']);
+				$this->Anime->save();
+			}
+			
+			// Check how many episodes exists for anime movie
+			$epCount = $this->Episode->find('all',array('conditions' => array(
+						'anime_id' => $dbAnime['Anime']['id']
+					)
+				)
+			);
+			
+			if(count($epCount) != 1)
+			{
+				if(SCRAPEDEBUG)
+					$this->out("\t". 'Deleting '.$epCount.' episodes from anime');
+				// remove all other episodes
+				$this->Episode->deleteAll(array('Episode.anime_id' => $dbAnime['Anime']['id']),true);
+				
+				
+				foreach($epCount as $tmpEpisode)
+					$this->UserEpisode->deleteAll(array('UserEpisode.episode_id' => $tmpEpisode['Episode']['id']));
+				if(SCRAPEDEBUG)
+					$this->out("\t". 'Inserting the movie as one episodes');
+				$this->addEpisode($item, $dbAnime['Anime']['id'],1,
+									$animeinfo['release_date'],$dbAnime['Anime']['title']);
+									
+			}
+			
+			
+			
+		}
+		if($item['ScrapeInfo']['fetch_information'] == '1')
+		{
+			
+		}
 	}
 	
 	function thetvdbScrape($item){
@@ -593,6 +714,14 @@ class ScrapeShell extends AppShell {
 
 	function addEpisode($scrapeInfo, $animeid, $number, $aired, $name, $description = '' , $special = NULL)
 	{
+		// We do not add episodes to items classified as movies
+		/*if($scrapeInfo['Anime']['type'] == 'movie')
+		{
+			if(SCRAPEDEBUG)
+				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because the anime type is movie');
+			return false;
+		}*/
+		
 		if($number < 0){
 			if(SCRAPEDEBUG)
 				$this->out("\t"."\t".'Episode :\'' . $number . '\': \'' . $name.'\' was not added because the episode number is negative');
@@ -681,6 +810,8 @@ class ScrapeShell extends AppShell {
 		if(SCRAPEDEBUG)
 			$this->out("\t"."\t".'Added :\'' . $number . '\': \'' . $name.'\'');
 	}
+
+	
 
 }
 ?>

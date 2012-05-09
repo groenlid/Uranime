@@ -6,15 +6,9 @@ extract($anime['Anime']);
 ?>
 <div class="row">
 <div class="span8">
-	<h2><?= $title ?><span class="pull-right"><small><?=round($calc_rating['avg_rate'],2)?> <span class="subtle">( <?=$calc_rating['amount']?> votes )</small></span></span></h2>
-	<!-- ANIME MENU -->
-	<!--<div class="actions no-padding">-->
-		<ul class="nav nav-tabs">
-			<li class="active"><a href="/anime/view/<?=$id . '/' . $title?>">Summary</a></li>
-			<li><a href="/anime/viewepisodes/<?=$id . '/' . $title?>">Episodes</a></li>
-			<li><a href="/anime/viewref/<?=$id . '/' . $title?>">References</a></li>
-			<li><a href="/anime/viewtags/<?=$id . '/' . $title?>">Tags/Genres</a></li>
-		</ul>
+<?php
+	include('sub_menu.php');
+?>
 	<!--</div>-->
 	<blockquote>
 		<p class="animedesc">
@@ -79,7 +73,30 @@ extract($anime['Anime']);
 		else
 			$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 		
-		if($next_episode != null)
+		if($type == 'movie'){
+			$episode = $anime['Episode'][0];
+			echo "<div class='episode'>
+				<span class='episodeImage'>
+					".$this->Html->link("<img src='http://src.sencha.io/117/".$fanart."'>",'/episode/view/'.$episode['id'],array('escape' => false))."
+				</span>
+				<span class='episodeContent'>
+					<span class='episodeName'>"
+						.$this->Html->link($this->Text->truncate($next_episode['name'],45),'/episode/view/'.$next_episode['id'])."
+					</span>";
+			if($next_episode != null)
+				echo "<span class='episodeTime'>
+						<a href='/episode/watch/".$episode['id']."' class='btn btn-primary'>Mark as watched</a>	
+						</span>";
+			else {
+				echo "<span class='episodeTime'>
+						<a href='/episode/unwatch/".$episode['id']."' class='btn btn-warning'>Mark as unseen</a>	
+						</span>";
+			}
+			echo "
+				</span>
+			</div><br class='clear'>";
+		}
+		else if($next_episode != null){
 			echo "<!--<p class='subtle big'>Next unseen episode:</p>--><div class='episode'>
 				<span class='episodeImage'>
 					".$this->Html->link("<img src='http://src.sencha.io/117/".$fanart."'>",'/episode/view/'.$next_episode['id'],array('escape' => false))."
@@ -87,14 +104,16 @@ extract($anime['Anime']);
 				<span class='episodeContent'>
 					<span class='episodeName'>"
 						.$this->Html->link($this->Text->truncate($next_episode['name'],45),'/episode/view/'.$next_episode['id'])."
-					</span>
-					<span class='episodeTime'>
-						Episode ".$next_episode['number']."
-						".((strtotime($next_episode['aired']) < time()) ? 'aired ' : 'airs ') . $next_episode['aired'] .
-					"</span>
+					</span>";
+				echo "<span class='episodeTime'>
+							Episode ".$next_episode['number']."
+							".((strtotime($next_episode['aired']) < time()) ? 'aired ' : 'airs ') . $next_episode['aired'] .
+						"</span>";
+			echo "
 				</span>
 			
 			</div><br class='clear'>";
+		}
 	}
 	?>
 <!--

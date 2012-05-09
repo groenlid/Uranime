@@ -4,20 +4,14 @@
 ?>
 
 <div class="span8">
-	<h2><?= $title ?><span class="pull-right"><small><?=round($calc_rating['avg_rate'],2)?> <span class="subtle">( <?=$calc_rating['amount']?> votes )</small></span></span></h2>
-	<!-- ANIME MENU -->
-
-	<ul class="nav nav-tabs">
-		<li><a href="/anime/view/<?=$id . '/' . $title?>">Summary</a></li>
-		<li><a href="/anime/viewepisodes/<?=$id . '/' . $title?>">Episodes</a></li>
-		<li class="active"><a href="/anime/viewref/<?=$id . '/' . $title?>">References</a></li>
-		<li><a href="/anime/viewtags/<?=$id . '/' . $title?>">Tags/Genres</a></li>
-	</ul>
+<?php
+	include('sub_menu.php');
+?>
 <a href="#" id="showHidden" class="pull-right">Show the references list</a><br class="clear">
 <table id="searchTable" class="hidden episodelist table table-striped table-bordered table-condensed">
 <thead>
 <?php
-echo $this->Html->tableHeaders(array('Source','Source ID','Scrape Episodes','Use for episodes','Use for images','Use for information','Edit / Delete'));
+echo $this->Html->tableHeaders(array('Source','Source ID','Scrape Episodes','Use for episodes','Use for information','Edit / Delete'));
 ?>
 </thead>
 <tbody>
@@ -40,7 +34,7 @@ echo $this->Html->tableCells(
 			$this->Form->input('ScrapeInfo.scrape_source', array(
 				'default' => $scrape_source, 
 				'label' => false,
-				'options' => array('anidb'=>'anidb','thetvdb'=>'thetvdb','mal'=>'mal'),
+				'options' => array('anidb'=>'anidb','thetvdb'=>'thetvdb','mal'=>'mal','themoviedb' => 'themoviedb'),
 				'id' => $id, 
 				'class' => 'span2')),
 			$this->Form->input('ScrapeInfo.scrape_id', array(
@@ -66,13 +60,6 @@ echo $this->Html->tableCells(
 				'id' => $id,
 				'class' => 'fetch_episodes span1'
 			)),
-			$this->Form->input('ScrapeInfo.fetch_images', array(
-				'type'	=> 'checkbox',
-				'label' => false,
-				'checked' => ($fetch_images == NULL) ? false : true,
-				'id' => $id,
-				'class' => 'fetch_images span1'
-			)),
 			$this->Form->input('ScrapeInfo.fetch_information', array(
 				'type'	=> 'checkbox',
 				'label' => false,
@@ -93,7 +80,7 @@ echo $this->Html->tableCells(
 			// Make the dropdown
 			$this->Form->input('ScrapeInfo.scrape_source', array(
 				'label' => false,
-				'options' => array('anidb'=>'anidb','thetvdb'=>'thetvdb','mal'=>'mal'),
+				'options' => array('anidb'=>'anidb','thetvdb'=>'thetvdb','mal'=>'mal','themoviedb' => 'themoviedb'),
 				'class' => 'span2')),
 			
 			$this->Form->input('ScrapeInfo.scrape_id', array(
@@ -112,12 +99,6 @@ echo $this->Html->tableCells(
 				'label' => false,
 				'checked' => false,
 				'class' => 'fetch_episodes span1'
-			)),
-			$this->Form->input('ScrapeInfo.fetch_images', array(
-				'type'	=> 'checkbox',
-				'label' => false,
-				'checked' => false,
-				'class' => 'fetch_images span1'
 			)),
 			$this->Form->input('ScrapeInfo.fetch_information', array(
 				'type'	=> 'checkbox',
@@ -139,7 +120,8 @@ echo $this->Form->end();
 <?php
 echo $this->Html->link('<i class="icon-search"></i> Search myanimelist', $this->Html->url('/anime/searchReferences/myanimelist/'.$anime['Anime']['id'], false), array('class' => 'ajax btn','escape' => false)) . " ";
 echo $this->Html->link('<i class="icon-search"></i> Search anidb', $this->Html->url('/anime/searchReferences/anidb/'.$anime['Anime']['id'], false), array('class' => 'ajax btn', 'escape' => false)). " ";
-echo $this->Html->link('<i class="icon-search"></i> Search thetvdb', $this->Html->url('/anime/searchReferences/thetvdb/'.$anime['Anime']['id'], false), array('class' => 'ajax btn', 'escape' => false));
+echo $this->Html->link('<i class="icon-search"></i> Search thetvdb', $this->Html->url('/anime/searchReferences/thetvdb/'.$anime['Anime']['id'], false), array('class' => 'ajax btn', 'escape' => false)). " ";
+echo $this->Html->link('<i class="icon-search"></i> Search themoviedb', $this->Html->url('/anime/searchReferences/themoviedb/'.$anime['Anime']['id'], false), array('class' => 'ajax btn', 'escape' => false));
 ?></center>
 </div>
 <div class="ajaxresults">

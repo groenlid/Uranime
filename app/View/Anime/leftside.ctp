@@ -48,7 +48,8 @@ else
 $links = array(
 	'mal' => 'http://myanimelist.net/anime/',
 	'anidb' => 'http://anidb.net/perl-bin/animedb.pl?show=anime&aid=',
-	'thetvdb' => 'http://thetvdb.com/?tab=series&id='
+	'thetvdb' => 'http://thetvdb.com/?tab=series&id=',
+	'themoviedb' => 'http://themoviedb.org/movie/'
 );
 
 foreach($anime['ScrapeInfo'] as $scrapeInfo)
@@ -75,14 +76,22 @@ $status_text = array(
     		<td>Runtime</td>
     		<td><?=(isset($runtime))?$runtime . " min":"N/A"?></td>
     	</tr>
+<?php
+if($type != 'movie')
+{
+echo '
     	<tr>
     		<td>Episodes</td>
-    		<td><?=(isset($anime['Episode']))?count($anime['Episode']):"0"?></td>
+    		<td>'.((isset($anime['Episode']))?count($anime['Episode']):"0").'</td>
     	</tr>
     	<tr>
     		<td>Time</td>
-    		<td><?=(isset($anime['Episode']) && isset($runtime))? ($runtime * count($anime['Episode']). " min"):"N/A"?></td>
+    		<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * count($anime['Episode']). " min"):"N/A").'</td>
     	</tr>
+    	';
+}
+?>
+
     	<tr>
     		<td>Aired</td>
     		<td><?=(isset($anime['Episode'][0])) ? $anime['Episode'][0]['aired'] . " - " : "N/A" ?>
@@ -91,6 +100,10 @@ $status_text = array(
     	<tr>
     		<td>Class</td>
     		<td><?=(isset($classification))? $classification: 'N/A' ?></td>
+    	</tr>
+    	<tr>
+    		<td>Type</td>
+    		<td><?=(isset($type))? $type : 'N/A' ?></td>
     	</tr>
     </tbody>
 </table>
