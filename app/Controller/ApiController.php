@@ -21,6 +21,12 @@ class ApiController extends AppController {
 				'newsfeedAfter' => array(
 					'extract' => array('data'),
 				),
+				'lastseen' => array(
+					'extract' => array('data'),
+				),
+				'lastseenAfter' => array(
+					'extract' => array('data'),
+				),
 				'animelist' => array(
 					'extract' => array('animes.{n}' => 'animelist'),
 				),
@@ -450,6 +456,33 @@ class ApiController extends AppController {
 		$this->set(compact('data'));
 		//$this->set('_serialize',array('data'));
 
+	}
+	
+	function lastseen($limit = 10){
+		$this->login();
+		$results;
+
+		if($limit > 50 || $limit < 0)
+			$limit = 10;
+		$data = $this->UserEpisode->find('all', array('limit' => $limit,'fields' => array('UserEpisode.*','User.nick','Episode.*,User.id,User.email'),'order' => 'UserEpisode.id DESC'));
+		$this->set(compact('data'));
+	}
+	
+	function lastseenAfter($id = null){
+		$this->login();
+		if($id == null || !is_numeric($id))
+			return;
+		$data = $this->UserEpisode->find('all', array(
+			'limit' => 50,
+			'conditions' => array(
+				'UserEpisode.id >' => $id
+				),
+			'fields' => array('UserEpisode.*','User.nick','Episode.*,User.id,User.email'),
+			'order' => 'UserEpisode.id DESC'
+			)
+		);
+		//debug($data);
+		$this->set(compact('data'));
 	}
 
 	function gravatar($userid = null)

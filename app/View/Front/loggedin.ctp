@@ -24,9 +24,9 @@
 	function getNewsFeed(){
 		var url = "";
 		if(last == 0)
-			url = "/api/newsfeed/"+startAmount+".json";
+			url = "/api/lastseen/"+startAmount+".json";
 		else
-			url = '/api/newsfeedAfter/'+last+'.json';
+			url = '/api/lastseenAfter/'+last+'.json';
 		$.getJSON(url, function(data) {
 		  var items = [];
 		  $.each(data.data, function(key2, val2) {
@@ -56,7 +56,7 @@
 
 	function activityItem(item,append){
 		var printable = "";
-		last = (item.Activity.id > last)? item.Activity.id : last;
+		last = (item.UserEpisode.id > last)? item.UserEpisode.id : last;
 		if(append == true)
 			printable += "<div style='display:none' class='row newsfeed'>";
 		else
@@ -70,12 +70,9 @@
 
 		// First we find the subject
 		printable += "<div class='span1'>";
-		
-		if( item.Activity.subject_type == "user" )
-		{
-			subject_name = "<a href='/user/view/"+item.subject.id+"'><strong>" + item.subject.nick + "</strong></a>";
-			printable += "<img src='"+get_gravatar(item.subject.email,50)+"'>";
-		}
+
+			subject_name = "<a href='/user/view/"+item.User.id+"'><strong>" + item.User.nick + "</strong></a>";
+			printable += "<img src='"+get_gravatar(item.User.email,50)+"'>";
 
 		printable += "</div>";
 		
@@ -86,7 +83,11 @@
 
 		printable += "<div class='span5'><p>";
 		var statusText = "";
-		switch(item.Activity.object_type)
+		
+		episodeData = getEpisodeInfo(item.Episode.id);
+		anime = getAnimeInfo(episodeData.data.episode.anime_id);
+		statusText = ' <strong><a href="/episode/view/' + episodeData.data.episode.id + '">episode ' + episodeData.data.episode.number + '</a></strong> of anime <strong><a href="/anime/view/'+anime.id+'">' + anime.title + '</a></strong>';
+		/*switch(item.Activity.object_type)
 		{
 			case "fanart":
 				anime = getAnimeInfo(item.Activity.object_id);
@@ -109,10 +110,10 @@
 				anime = getAnimeInfo(item.Activity.object_id);
 				statusText = ' a spear through the whale\'s blowhole and added a new anime <strong><a href="/anime/view/'+item.Activity.object_id+'">' + anime.title + '</a></strong>';
 			break;
-		}
+		}*/
 
-		printable += subject_name + verb[item.Activity.verb] + statusText;
-		printable += "</p><p class='subtle'>"+jQuery.timeago(item.Activity.timestamp)+"</p></div>";
+		printable += subject_name + ' just watched ' + statusText;
+		printable += "</p><p class='subtle'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</p></div>";
 
 		/*printable += "<div class='span1'>";
 		printable += "<img src='http://src.sencha.io/150/50/http://158.39.171.120/attachments/photos/orginal/"+animeData.data.anime.fanart+"'>"
