@@ -163,14 +163,14 @@ ul.referencelinks li a, ul.genres li a {
 /* ANIME IMAGES */
 #fanart {
 	height:300px;
-	width:860px;
-	margin:0 auto 20px auto;
-	border:1px solid #FFF;
+	width:954px;
+	margin:-24px -20px 20px -20px;
+	border:0px solid #FFF;
 	border-radius:0px;
 	box-shadow:0 0 3px #ccc;
 	position:relative;
 	background:#fdfdfd;
-	padding:5px;
+	padding:1px;
 }
 
 #transparrentLayer {
@@ -181,9 +181,9 @@ ul.referencelinks li a, ul.genres li a {
 	color:#fff;
 	position:absolute;
 	box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 3px rgba(0,0,0,0.3);
-	bottom:5px;
-	left:6px;
-	width:860px;
+	bottom:0px;
+	left:2px;
+	width:954px;
 	padding:20px 0;
 	text-align:center;
 }

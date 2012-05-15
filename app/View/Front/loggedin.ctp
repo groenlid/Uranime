@@ -1,6 +1,6 @@
 <div class="row">
 <div class="span7">
-<h2>What are people doing?</h2>
+<h2>What are people watching right now?</h2>
 <div id="newsfeed">
 	<img src="/img/loading2.gif">
 </div>

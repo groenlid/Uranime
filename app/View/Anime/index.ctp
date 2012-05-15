@@ -16,7 +16,7 @@ if($fanart == null || $fanart == "")
 		$fanart = SERVER_PATH . IMAGE_PATH.$fanart;
 ?>
 <div id="fanart">
-	<div style="box-shadow:inset 0 0 5px rgba(0,0,0,0.3);border:1px solid #fff;background:url('http://src.sencha.io/860/<?= $fanart?>'); width:100%; height:100%"></div>
+	<div style="box-shadow:inset 0 0 5px rgba(0,0,0,0.3);border:1px solid #fff;background:url('http://src.sencha.io/954/<?= $fanart?>'); width:100%; height:100%"></div>
 	<div id="transparrentLayer" style="display:block;">
 		<a href="/anime/view/<?=$anime[$randomAnimeId]['Anime']['id']?>/<?=$anime[$randomAnimeId]['Anime']['title']?>">
 			<?= $anime[$randomAnimeId]['Anime']['title']?>
