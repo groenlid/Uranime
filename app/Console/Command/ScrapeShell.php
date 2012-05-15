@@ -737,6 +737,8 @@ class ScrapeShell extends AppShell {
 				$this->addEpisode( $item, $item['Anime']['id'], $episodeNumber, $episode['airdate'], $episode['name'], $episode['description'], $special );
 
 		}
+
+		// Here we should get the images for each episode...
 	}
 
 	function addEpisode($scrapeInfo, $animeid, $number, $aired, $name, $description = '' , $special = NULL)
