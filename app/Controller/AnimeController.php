@@ -745,17 +745,18 @@ class AnimeController extends AppController {
 
 	function scrape() {
 		//$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
-		$logfile = '/home/groenlid/public_html/app/tmp/logs/scrape.log';
+		$logfile = SCRAPE_LOGFILE;//'/home/groenlid/public_html/app/tmp/logs/scrape.log';
 		//passthru("/usr/bin/php /home/groenlid/Git/Uranime/lib/Cake/Console/cake.php scrape -app /home/groenlid/Git/Uranime/app > " . $logfile . " &");
 		//passthru('/home/content/00/8758600/html/app/Console/cake scrape > ' . $logfile . ' &');
 		//passthru('which php5 > '. $logfile );
-		passthru('php5 /home/groenlid/public_html/lib/Cake/Console/cake.php scrape -app /home/groenlid/public_html/app > '. $logfile . ' &'); 
+		//passthru('php5 /home/groenlid/public_html/lib/Cake/Console/cake.php scrape -app /home/groenlid/public_html/app > '. $logfile . ' &'); 
+		passthru(SCRAPE_PATH . ' > '. SCRAPE_LOGFILE . ' & ');
 		$this->set('logfile',$logfile);
 	}
 
 	function getlogfile() {
 		//$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
-		$logfile = '/home/groenlid/public_html/app/tmp/logs/scrape.log';
+		$logfile = SCRAPE_LOGFILE;//'/home/groenlid/public_html/app/tmp/logs/scrape.log';
 		$content = file($logfile);
 		for($i = count($content); $i > 0; $i--)
 			echo $content[$i-1];	
