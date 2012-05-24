@@ -103,7 +103,7 @@ echo '
     	</tr>
     	<tr>
     		<td>Type</td>
-    		<td><?=(isset($type))? $type : 'N/A' ?></td>
+    		<td><?=(isset($type))? strtoupper($type) : 'N/A' ?></td>
     	</tr>
     </tbody>
 </table>

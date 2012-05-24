@@ -1,7 +1,8 @@
-
-<h2>You searched for: <?= $query ?></h2>
 <?php
-
+if(empty($query))
+	echo "<h2>View all anime</h2>";
+else
+	echo "<h2>You searched for:". $query ."</h2>";
 if(count($animes) == 0)
 {
 	echo "No results matches your criteria";
