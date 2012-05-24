@@ -214,7 +214,7 @@ class AnimeController extends AppController {
 			//$port = 9001;
 			
 			//$anidbURL = "http://api.anidb.net/httpapi?client=".$CLIENTNAME."&clientver=".$CLIENTVERSION."&protover=1&request=anime&aid=".$scrape_id;
-			$anidbURL = "http://158.39.171.120/anidb/anidb.php?aid=".$scrape_id."&client=".$CLIENTNAME."&version=".$CLIENTVERSION;
+			$anidbURL = "http://groenlid.no-ip.org/anidb/anidb.php?aid=".$scrape_id."&client=".$CLIENTNAME."&version=".$CLIENTVERSION;
 			$port = 80;
 			// Blocked access for this---- hmmm
 			//$response = file_get_contents($anidbURL);
@@ -525,7 +525,6 @@ class AnimeController extends AppController {
 				//debug($this->request->data);
 				// Delete the old image
 				$oldImage = $this->Anime->read('image',$id);
-				echo "delete ". $oldImage['Anime']['image'];
 				$this->Attachment->delete_files($oldImage['Anime']['image']);
 
 				$this->Anime->set('image',$this->request->data['Anime']['image_file_path']);
@@ -656,7 +655,7 @@ class AnimeController extends AppController {
 		$anime = $this->Anime->find('first', array('conditions' => array('Anime.id' => $id)));
 		$this->set('anime', $anime );
 		$this->set('title_for_layout',$anime['Anime']['title']);
-		$this->pageTitle = $this->Anime->data['Anime']['title'];
+		//$this->pageTitle = $this->Anime->data['Anime']['title'];
 		$this->set('genres',$this->Anime->AnimeGenre->find('all',array('conditions' => array('anime_id' => $id))));
 		$this->set('animeuser',NULL);
 		
@@ -711,8 +710,6 @@ class AnimeController extends AppController {
 		$this->Comment->recursive = -1;
 		$comments = $this->Comment->findAllByAnime_id($id);
 		$this->set("comments",$comments);
-
-		;
 		
 		$this->set('activities',$activities);
 	}
@@ -721,6 +718,7 @@ class AnimeController extends AppController {
 		$this->Anime->id = $id;
 		$anime = $this->Anime->read();
 		$this->set('anime', $anime);
+		$this->set('title_for_layout',$anime['Anime']['title'] . ' - Episodes');
 		$this->set('genres', $this->Anime->AnimeGenre->find('all', array('conditions' => array('anime_id' => $id))));
 		$this->set('animeuser', NULL);
 		$this->getAnimeUser($id);
@@ -766,10 +764,10 @@ class AnimeController extends AppController {
 	function viewtags($id = null)
 	{
 		$this->Anime->id = $id;
-		$this->Anime->read();
-
+		$anime = $this->Anime->read();
+		
 		$this->set('anime', $this->Anime->find('first', array('conditions' => array('Anime.id' => $id))));
-
+		$this->set('title_for_layout',$anime['Anime']['title'] . ' - Tags/Genres');
 		$this->pageTitle = $this->Anime->data['Anime']['title'];
 		$this->set('genres',$this->Anime->AnimeGenre->find('all',array('conditions' => array('anime_id' => $id))));
 		$this->set('animeuser',NULL);
@@ -1016,25 +1014,4 @@ class AnimeController extends AppController {
 
 }
 
-/*
-require_once('class.thetvdbapi.php');
-
-// create object
-$tvapi = new Thetvdb('apikey');
-
-// get serie id for 'fringe'
-$serieid = $tvapi->GetSerieId('fringe');
-
-// get episode id for fringe S01E01
-$episodeid = $tvapi->GetEpisodeId($serieid,1,1);
-
-// get information about the episode
-$ep_info = $tvapi->GetEpisodeData($episodeid);
-
-// get information about the serie, without the episodes
-$serie_info = $tvapi->GetSerieData($serieid);
-
-// get information about the serie, including the episodes
-$serie_info = $tvapi->GetSerieData($serieid,true);
-*/
 ?>
