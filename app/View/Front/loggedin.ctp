@@ -1,4 +1,42 @@
 <div class="row">
+	<div class="span12">
+<?php
+
+if(count($episodes) != 0)
+	echo '<h2 class="calendar">Episodes airing today <small><span class="smaller subtle pull-right"><a href="/calendar/view">see more</a></span></small></h2><div id="anime-gallery">';
+foreach($episodes as $episode)
+{
+
+	$fanart = $episode['Anime']['fanart'];
+	if($fanart == "" || $fanart == null)
+		$fanart = "http://placehold.it/200x112/";
+	else
+		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
+
+	$timeStr = strtotime($episode['Episode']['aired']);
+		
+
+		echo '<div class="anime-gallery-single">
+			<div class="anime-gallery-single-inner">'.
+		     	'<a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">';
+		if($episode['Anime']['fanart'] != null)
+			echo '<img src="http://src.sencha.io/200/'.$fanart.'">';
+		else
+			echo '<img src="http://placehold.it/200x112">';
+		echo '</a>'.
+			'<span class="anime-gallery-single-hover"><a href="/episode/view/'.$episode['Episode']['id'].'/">View Episode</a></span>'.
+			'</div>
+			<p class="bold calendarinfo"><a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">'.$episode['Anime']['title']. '</a> ' . $episode['Episode']['number'] . '</p>
+			<p class="calendarinfo">'. $this->Text->truncate($episode['Episode']['name'],35).'</p>
+			</div>';	
+}
+if(count($episodes) != 0)
+	echo '<br class="clear"></div>';
+?>
+</div>
+</div>
+
+<div class="row">
 <div class="span7">
 <h2>What are people watching right now?</h2>
 <div id="newsfeed">

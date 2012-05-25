@@ -1,10 +1,67 @@
 <?php
 class FrontController extends AppController {
-	//var $helpers = array('Text','Time');
-	var $uses = array('Anime');
+	var $helpers = array('Text','Time');
+	var $uses = array('Anime','Episode','UserEpisode','UserWatchlist');
 	
 	function index() {
 		$this->set('page','home');
+		
+		if($this->Auth->User('id') != NULL){
+			$uid = $this->Auth->User('id');
+			$this->Episode->recursive = 0;
+			/*$episodes = $this->Episode->find('all', array(
+				'order' => 'aired ASC',
+				'conditions' => array(
+					'Episode.aired BETWEEN CURDATE() AND DATE_ADD(NOW(),INTERVAL 7 DAY) AND anime_id IN (
+						SELECT anime_id FROM episodes WHERE id IN (
+							SELECT episode_id FROM user_episodes WHERE user_id='.$uid.'
+							)
+						)'
+				)
+			));*/
+
+			$episodes = $this->Episode->find('all', array(
+				'order' => 'aired ASC',
+				'conditions' => array(
+					'Episode.aired = CURDATE()'
+				)
+			));
+
+			$userEpisodes = $this->UserEpisode->find('all', array(
+				'order' => 'aired ASC',
+				'fields' => 'DISTINCT Episode.anime_id',
+				'conditions' => array(
+					'user_id' => $uid
+				)
+			));
+			$this->UserWatchlist->recursive = -1;
+			$userWatchList = $this->UserWatchlist->find('all', array(
+				'conditions' => array(
+					'user_id' => $uid
+					)
+				)
+			);
+			$i = 0;
+			//debug($episodes);
+			foreach($episodes as $episode)
+			{
+				$found = false;
+				foreach($userEpisodes as $userEpisode)
+					if($userEpisode['Episode']['anime_id'] == $episode['Episode']['anime_id']){
+						$found = true;
+						break;
+					}
+				foreach($userWatchList as $watchItem)
+					if($watchItem['UserWatchlist']['anime_id'] == $episode['Episode']['anime_id']){
+						$found = true;
+						break;
+					}
+				if(!$found)
+					unset($episodes[$i]);
+				$i++;
+			}
+			$this->set('episodes',$episodes);
+		}
 		/*$episodes = $this->Episode->find('all', array(
 			'order' => 'aired ASC',
 			'conditions' => array(
