@@ -73,7 +73,7 @@
 	}
 	if($activity['Activity']['verb'] == 'comment'){
 		$time = $activity['object']['Comment']['timestamp'];
-		$commentText = $activity['object']['Comment']['comment'];
+		$commentText = $this->Text->autoLink($activity['object']['Comment']['comment']);
 	}
 	else
 		$time = $activity['Activity']['timestamp'];

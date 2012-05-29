@@ -443,6 +443,8 @@ class ApiController extends AppController {
 		if($limit > 50 || $limit < 0)
 			$limit = 10;
 		$data = $this->Activity->find('all', array('limit' => $limit));
+		foreach($data as $singleData)
+			$singleData['Activity']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($singleData['Activity']['timestamp']));
 		$this->set(compact('data'));
 		//$this->set('_serialize',array('data'));
 	}
@@ -452,6 +454,8 @@ class ApiController extends AppController {
 		if($id == null || !is_numeric($id))
 			return;
 		$data = $this->Activity->find('all', array('limit' => 50,'conditions' => array('Activity.id >' => $id)));
+		foreach($data as $singleData)
+			$singleData['Activity']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($singleData['Activity']['timestamp']));
 		//debug($data);
 		$this->set(compact('data'));
 		//$this->set('_serialize',array('data'));
