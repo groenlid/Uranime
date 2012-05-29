@@ -23,7 +23,7 @@
 	{
 		echo '
 		<tr>
-			<td>'.$request['AnimeRequest']['title'].'</td>
+			<td><a href="/animeRequest/view/'.$request['AnimeRequest']['id'].'">'.$request['AnimeRequest']['title'].'</a></td>
 			<td>'.$this->Html->link($request['user']['nick'],"/user/view/".$request['user']['id']."/".$request['user']['nick']).'</td>
 			<td>'.$request['AnimeRequest']['ip_adress'].'</td>
 			<td>'.
