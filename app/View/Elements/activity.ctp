@@ -78,7 +78,7 @@
 	else
 		$time = $activity['Activity']['timestamp'];
 	
-	$time = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($time));
+	$time = strftime("%Y-%m-%dT%H:%M:%S%z",strtotime($time));
 	$result = "";
 	/*$result .= "<div class='row newsfeed'>";
 	// The image

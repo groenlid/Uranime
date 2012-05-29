@@ -444,7 +444,7 @@ class ApiController extends AppController {
 			$limit = 10;
 		$data = $this->Activity->find('all', array('limit' => $limit));
 		for($i = 0; $i < count($data);$i++)
-			$data[$i]['Activity']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($data[$i]['Activity']['timestamp']));
+			$data[$i]['Activity']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%S%z",strtotime($data[$i]['Activity']['timestamp']));
 		$this->set(compact('data'));
 		//$this->set('_serialize',array('data'));
 	}
@@ -455,7 +455,7 @@ class ApiController extends AppController {
 			return;
 		$data = $this->Activity->find('all', array('limit' => 50,'conditions' => array('Activity.id >' => $id)));
 		for($i = 0; $i < count($data);$i++)
-			$data[$i]['Activity']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($data[$i]['Activity']['timestamp']));
+			$data[$i]['Activity']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%S%z",strtotime($data[$i]['Activity']['timestamp']));
 		//debug($data);
 		$this->set(compact('data'));
 		//$this->set('_serialize',array('data'));
@@ -470,7 +470,7 @@ class ApiController extends AppController {
 			$limit = 10;
 		$data = $this->UserEpisode->find('all', array('limit' => $limit,'fields' => array('UserEpisode.*','User.nick','Episode.*,User.id,User.email'),'order' => 'UserEpisode.id DESC'));
 		for($i = 0; $i < count($data);$i++)
-			$data[$i]['UserEpisode']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($data[$i]['UserEpisode']['timestamp']));
+			$data[$i]['UserEpisode']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%S%z",strtotime($data[$i]['UserEpisode']['timestamp']));
 		$this->set(compact('data'));
 	}
 	
@@ -489,7 +489,7 @@ class ApiController extends AppController {
 		);
 		//debug($data);
 		for($i = 0; $i < count($data);$i++)
-			$data[$i]['UserEpisode']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ",strtotime($data[$i]['UserEpisode']['timestamp']));
+			$data[$i]['UserEpisode']['timestamp'] = strftime("%Y-%m-%dT%H:%M:%S%z",strtotime($data[$i]['UserEpisode']['timestamp']));
 		$this->set(compact('data'));
 	}
 

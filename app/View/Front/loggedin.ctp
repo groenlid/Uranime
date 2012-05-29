@@ -151,7 +151,8 @@ if(count($episodes) != 0)
 		}*/
 
 		printable += subject_name + ' just watched ' + statusText;
-		printable += "</p><p class='subtle'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</p></div>";
+		//printable += "</p><p class='subtle'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</p></div>";
+		printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</abbr></p></div>";
 
 		/*printable += "<div class='span1'>";
 		printable += "<img src='http://src.sencha.io/150/50/http://158.39.171.120/attachments/photos/orginal/"+animeData.data.anime.fanart+"'>"
