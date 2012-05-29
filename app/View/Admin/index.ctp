@@ -29,11 +29,11 @@
 			<td>'.
 			$this->Html->link(
 				"<i class='icon-ok'></i>",
-				"/admin/decideRequest/".$request['AnimeRequest']['id']."/true", 
+				"/animeRequest/decide/".$request['AnimeRequest']['id']."/true", 
 				array('escape' => false, 'class' => 'btn btn-primary')). " " .
 			$this->Html->link(
 				"<i class='icon-remove'></i>",
-				"/admin/decideRequest/".$request['AnimeRequest']['id']."/false", 
+				"/animeRequest/decide/".$request['AnimeRequest']['id']."/false", 
 				array('escape' => false, 'class' => 'btn btn-danger')).
 			'</td>
 		</tr>
