@@ -253,7 +253,11 @@ class ScrapeShell extends AppShell {
 				'scrape_source' => 'mal'
 			)
 		));
-
+		if(SCRAPEDEBUG && count($result['ScrapeInfo']) != 0)
+			$this->out("\t" . "\t" . ' MAl-ID ' . $malId . ' equals UrAnimeID '.$result['ScrapeInfo']['anime_id'];
+		if(SCRAPEDEBUG && count($result['ScrapeInfo']) == 0)	
+			$this->out("\t" . "\t" . ' Could not find anime with MAL-ID ' . $malId ;
+			
 		if(count($result['ScrapeInfo']) == 0)
 			return null;
 		return $result['ScrapeInfo']['anime_id'];
