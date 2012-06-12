@@ -9,6 +9,7 @@ class UserController extends AppController {
 				);
 	var $components = array(
 		'Email',
+		'Acl',
 		'Auth' => array(
         	'authenticate' => array(
             	'Form' => array(
@@ -17,6 +18,11 @@ class UserController extends AppController {
         	)
     	)
 	);
+
+	function setup(){
+			 	
+		 //$this->Acl->allow('admins', 'User', 'delete');
+	}
 
 	function index(){
 		$this->User->recursive = -1;
