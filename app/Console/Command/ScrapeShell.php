@@ -211,7 +211,7 @@ class ScrapeShell extends AppShell {
 				
 				$this->addRelationship($animeid,'side-story',$item['ScrapeInfo']['anime_id']);
 			}
-			foreach($anime['parent_story'] as $parentStory)
+			if(($parentStory = $anime['parent_story']) != null)
 			{
 				// Fetch our animeid from mal id
 				if(($animeid = $this->getAnimeId($parentStory['anime_id'])) == null)
