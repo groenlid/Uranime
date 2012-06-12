@@ -117,7 +117,8 @@ if($this->Session->check('Auth.User.id'))
 	else
 		echo $this->Html->link('Add to watchlist','/watchlist/add/'.$id,array('class' => 'btn btn-primary'));
 }
-if($this->Session->check('Auth.User.id') && $this->Session->check('Auth.User.id') == 1)
+//if($this->Session->check('Auth.User.id') && $this->Session->check('Auth.User.id') == 1)
+if($isAdmin)
 {
 	echo '<h3> Admin info </h3>';
 	echo $this->Html->link('Scrape', '/anime/setScrape/'.$id, array('class' => 'btn btn-success'));
