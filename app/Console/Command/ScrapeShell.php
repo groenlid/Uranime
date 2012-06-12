@@ -10,8 +10,6 @@ class ScrapeShell extends AppShell {
 		);
 	function main(){
 		App::uses('Sanitize', 'Utility');
-		define('CLIENTNAME','calendar');
-		define('CLIENTVERSION','1');
 		define('SCRAPEDEBUG',TRUE);
 
 		// Variables to show at the end..
@@ -432,7 +430,7 @@ class ScrapeShell extends AppShell {
 		//$anidbURL = "http://api.anidb.net/httpapi?client=".CLIENTNAME."&clientver=".CLIENTVERSION."&protover=1&request=anime&aid=".$animeid;
 
 		// Temporary server
-		$anidbURL = "http://groenlid.no-ip.org/anidb/anidb.php?aid=".$animeid."&client=".CLIENTNAME."&version=".CLIENTVERSION;
+		$anidbURL = ANIDB_APIPATH."?aid=".$animeid."&client=".CLIENTNAME."&version=".CLIENTVERSION;
 		$port = 80;
 		$sleepTime = 3;
 		// Blocked access for this---- hmmm
