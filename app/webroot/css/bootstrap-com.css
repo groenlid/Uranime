@@ -821,7 +821,8 @@ br.clear {
 	position:relative;
 	border-bottom: 1px solid #CCC;
 	background: #F8F8F8;
-	background: -moz-linear-gradient(#F8F8F8,#E1E1E1);
+	/*background: -moz-linear-gradient(#F8F8F8,#E1E1E1); LIGHT VERSION*/
+	background: -moz-linear-gradient(#f0f0f0,#ddd);
 	background: -webkit-linear-gradient(#f0f0f0,#ddd);
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#f8f8f8',endColorstr='#e1e1e1')";
 	margin: 0;
