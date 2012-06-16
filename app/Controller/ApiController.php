@@ -1,6 +1,6 @@
 <?php
 class ApiController extends AppController {
-	var $uses = array('AnimeSynonym','User','ScrapeInfo','Anime','Episode','AnimelistEntry','Activity','UserEpisode','AnimeRatingBayes','UserWatchlist');
+	var $uses = array('AnimeSynonym','AnimeRequest','User','ScrapeInfo','Anime','Episode','AnimelistEntry','Activity','UserEpisode','AnimeRatingBayes','UserWatchlist');
 	var $paginate = array( 'Episode' => array(
 						'limit' => 25,
 						'order' => array(
@@ -177,6 +177,12 @@ class ApiController extends AppController {
 
 	function index() {
 
+	}
+	
+	function requestAnime($title = null, $id = null & $id = null){
+		$this->AnimeRequest->recursive = -1;
+
+		
 	}
 
 	function userEpisodeGraph($id = null){
