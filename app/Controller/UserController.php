@@ -102,6 +102,9 @@ class UserController extends AppController {
 				$this->changePassword($this->User->data,$this->request->data);
 			else if(!empty($this->request->data['descriptionchange']))
 				$this->changeDescription($this->User->data,$this->request->data);
+			
+			debug($this->request->data);
+			die();
 			//$this->redirect($this->referer());
 		}
 	}
