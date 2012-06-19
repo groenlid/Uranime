@@ -19,7 +19,7 @@
 					$this->Form->input('current_password', array('type' => 'password')) .
 					$this->Form->input('new_password', array('type' => 'password')) .
 					$this->Form->input('confirm_password', array('type' => 'password')) .
-					$this->Form->submit('Change password',array('class'=>'btn')) .
+					$this->Form->submit('Change password',array('class'=>'btn','id'=> 'passwordchange')) .
 					$this->Form->end();
 		      	?>
 		    </div>
@@ -29,8 +29,8 @@
 			<div>
 				<?=
 					$this->Form->create(false, array('url' => '/user/settings')) .
-					$this->Form->input('User.desc') .
-					$this->Form->submit('Change description', array('class' => 'btn')) .
+					$this->Form->input('desc') .
+					$this->Form->submit('Change description', array('class' => 'btn','id'=> 'descriptionchange')) .
 					$this->Form->end();
 				?>
 			</div>
