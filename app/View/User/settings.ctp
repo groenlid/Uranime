@@ -29,7 +29,7 @@
 			<div>
 				<?=
 					$this->Form->create(false, array('url' => '/user/settings')) .
-					$this->Form->input('desc') .
+					$this->Form->input('desc',array('default' => $desc)) .
 					$this->Form->submit('Change description', array('class' => 'btn','id'=> 'descriptionchange')) .
 					$this->Form->end();
 				?>

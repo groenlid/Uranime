@@ -84,6 +84,7 @@ class UserController extends AppController {
 		$this->User->recursive = -1;
 		$this->User->id = $id;
 		$this->set('user', $this->User->read(null,$id));
+		
 		//$activities = $this->Activity->findAllBySubjectId($id);
 		$activities = $this->paginate($this->User->Activity,array('Activity.subject_id' => $id));
 		//debug($this->User->Activity);
@@ -109,6 +110,7 @@ class UserController extends AppController {
 	{
 		$this->User->data = $user;
 		$this->User->set('desc',$data['desc']);
+
 		if($this->User->save())
 		{
 			$this->Session->setFlash("Your description were successfully changed","flash_success");
