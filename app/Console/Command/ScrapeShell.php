@@ -743,6 +743,9 @@ class ScrapeShell extends AppShell {
 				continue;
 			}
 			
+			if($special_flag && $episode['season'] != 0)
+				continue;
+			
 			// The special flag is not set and only regular episodes should be considered.
 			if($num !== 0 && ($num > $end || $num < $start))
 				continue;
