@@ -98,13 +98,11 @@ class UserController extends AppController {
 			$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
 			//print_r($this->User->data);
 			//echo AuthComponent::password($this->request->data['current_password']);
-			if(!empty($this->request->data['passwordchange']))
+			if(!empty($this->request->data['new_password']))
 				$this->changePassword($this->User->data,$this->request->data);
-			else if(!empty($this->request->data['descriptionchange']))
+			else if(!empty($this->request->data['desc']))
 				$this->changeDescription($this->User->data,$this->request->data);
 			
-			debug($this->request->data);
-			die();
 			//$this->redirect($this->referer());
 		}
 	}
