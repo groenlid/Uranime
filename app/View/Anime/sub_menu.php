@@ -6,7 +6,8 @@
 <?php
 if($type != 'movie')			
 	echo "<li class='".(($this->request->params['action'] == 'viewepisodes') ? 'active' : '')."'><a href='/anime/viewepisodes/".$id . "/" . $title."'>Episodes</a></li>";
+if($isAdmin)
+	echo "<li class='".(($this->request->params['action'] == 'viewref') ? 'active' : '')."'><a href='/anime/viewref/".$id . "/" . $title. "'>References</a></li>";
 ?>			
-			<li class='<?=($this->request->params['action'] == 'viewref') ? 'active' : '' ?>'><a href="/anime/viewref/<?=$id . '/' . $title?>">References</a></li>
 			<li class='<?=($this->request->params['action'] == 'viewtags') ? 'active' : '' ?>'><a href="/anime/viewtags/<?=$id . '/' . $title?>">Tags/Genres</a></li>
 		</ul>
