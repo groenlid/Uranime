@@ -663,6 +663,10 @@ class ScrapeShell extends AppShell {
 		 * - 3 		= fetching episodes 1, 2, and 3
 		 * NULL 	= fetching all seasons
 		 *
+		 * For specials you can use
+		 * S1 - 3 will retrieve special episodes 1-3
+		 * S1 - S3 gives the same result as the one above.
+		 * 1 - S3 gives the same as the two previous
 		 */
 		
 		$episodesInfo = trim($item['ScrapeInfo']['scrape_episodes']);
@@ -677,19 +681,35 @@ class ScrapeShell extends AppShell {
 		$episodes = array();
 		$start = 0;
 		$end = count($serie_info['episodes']);
-
+		$special_flag = false;
 		// Filter out the ones we do not need
 		if(strpos($episodesInfo,'-') !== FALSE)
 		{
 			$exploded = explode('-', $episodesInfo);
 			if(!empty($exploded[0]))
-				$start = $exploded[0];
+				$start = strtolower($exploded[0]);
 			if(!empty($exploded[1]))
-				$end = $exploded[1];
+				$end = strtolower($exploded[1]);
+			
+			// Check if the scraper should retrieve regular or special episodes
+			if(strpos(strtolower($start),'s') !== false ||
+				strpos(strtolower($end),'s') !== false)
+			{
+				// the series is defined as special episodes at thetvdb
+				if(SCRAPEDEBUG)
+					$this->out("\t".'The anime is defined as special episodes at thetvdb');
+				$special_flag = true;
+				$start = str_replace('s','',$start);
+				$end = str_replace('s','',$end);
+			}
 		}
 		
+		
+		/** DATE STUFF THAT IS NOT USED! **/
 		$latest_date = null;
 		$beginning_date = null;
+		
+		
 		foreach($serie_info['episodes'] as $episode)
 		{
 			if((int)$episode['absolute'] == $start)
@@ -697,19 +717,41 @@ class ScrapeShell extends AppShell {
 			if((int)$episode['absolute'] == $end)
 				$latest_date = $episode['airdate'];
 		}
+		
+		/** END OF DATA STUFF */
 
 		foreach($serie_info['episodes'] as $episode)
 		{
 			$num = (int)$episode['absolute'];
-
+			$aired_number = (int)$episode['EpisodeNumber']; // This is used in special episodes
+			
+			
+			
+			if($specials && $episode['season'] == 0)
+			{
+				 if($aired_number !== 0 && ($aired_number > $end || $aired_number < $start))
+					continue;
+				 // To make stuff simpler for now.. In episodes from thetvdb we skip the specials ;)
+				if($start == 0)
+					$episodeNumber = $aired_number;
+				else
+					$episodeNumber = ($aired_number - $start+1);
+				
+				$this->addEpisode( $item, $item['Anime']['id'], $episodeNumber, $episode['airdate'], $episode['name'], $episode['description'], NULL );	
+				continue;
+			}
+			
+			// The special flag is not set and only regular episodes should be considered.
 			if($num !== 0 && ($num > $end || $num < $start))
 				continue;
-
-			// if the episode is a special
+				
+			// if the episode is a special and no special flag is set.
 			if((int)$episode['season'] == 0 || $episode['season'] == '' || $episode['season'] == NULL)
 			{	
 				if(SCRAPEDEBUG)
 					$this->out("\t" . "\t" . 'The episode is a special; endDate0:' . $latest_date . '; beginDate:'.$beginning_date);
+				/** DATE STUFF THAT IS NOT USED! **/
+				
 				if($latest_date != null && strtotime($episode['airdate']) > strtotime($latest_date))
 				{
 					if(SCRAPEDEBUG)
@@ -723,6 +765,7 @@ class ScrapeShell extends AppShell {
 							$this->out("\t"."\t".'Skipping Ep:\'' . $episode['absolute'] . '\': \'' . $episode['name'].'\'. The airdate is before the first episode');
 						continue;
 					}
+					/** END OF DATA STUFF */
 			}
 			
 			// Add episode to db

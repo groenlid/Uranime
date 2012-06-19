@@ -179,7 +179,7 @@ class ApiController extends AppController {
 
 	}
 	
-	function requestAnime($title = null, $id = null & $id = null){
+	function requestAnime($title = null, $id = null, $anonid = null){
 		$this->AnimeRequest->recursive = -1;
 
 		
