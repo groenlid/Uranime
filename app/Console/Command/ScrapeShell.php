@@ -692,8 +692,8 @@ class ScrapeShell extends AppShell {
 				$end = strtolower($exploded[1]);
 			
 			// Check if the scraper should retrieve regular or special episodes
-			if(strpos(strtolower($start),'s') !== false ||
-				strpos(strtolower($end),'s') !== false)
+			if( ( strpos( $start,'s' ) !== FALSE ) ||
+				( strpos( $end,'s' ) !== FALSE ) )
 			{
 				// the series is defined as special episodes at thetvdb
 				if(SCRAPEDEBUG)
@@ -701,7 +701,9 @@ class ScrapeShell extends AppShell {
 				$special_flag = true;
 				$start = str_replace('s','',$start);
 				$end = str_replace('s','',$end);
-			}
+			}else
+				if(SCRAPEDEBUG)
+					$this->out("\t".'The anime is defined as ordinary episodes at thetvdb');
 		}
 		
 		
@@ -727,7 +729,7 @@ class ScrapeShell extends AppShell {
 			
 			
 			
-			if($specials && $episode['season'] == 0)
+			if($special_flag && $episode['season'] == 0)
 			{
 				 if($aired_number !== 0 && ($aired_number > $end || $aired_number < $start))
 					continue;
