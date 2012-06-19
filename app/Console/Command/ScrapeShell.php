@@ -725,7 +725,7 @@ class ScrapeShell extends AppShell {
 		foreach($serie_info['episodes'] as $episode)
 		{
 			$num = (int)$episode['absolute'];
-			$aired_number = (int)$episode['EpisodeNumber']; // This is used in special episodes
+			$aired_number = (int)$episode['episode']; // This is used in special episodes
 			
 			
 			
