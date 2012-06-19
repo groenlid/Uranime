@@ -475,7 +475,7 @@ class AnimeController extends AppController {
 		}
 		else if(!empty($this->request->data)){
 				App::uses('Sanitize', 'Utility');
-				$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
+				$this->request->data = Sanitize::clean($this->request->data, array('escape' => false));
 			if($this->Anime->save($this->request->data)) {
 
 				// ADDING ACTIVITY

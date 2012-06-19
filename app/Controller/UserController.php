@@ -84,6 +84,7 @@ class UserController extends AppController {
 		$this->User->recursive = -1;
 		$this->User->id = $id;
 		$this->set('user', $this->User->read(null,$id));
+		
 		//$activities = $this->Activity->findAllBySubjectId($id);
 		$activities = $this->paginate($this->User->Activity,array('Activity.subject_id' => $id));
 		//debug($this->User->Activity);
@@ -97,26 +98,54 @@ class UserController extends AppController {
 			$this->request->data = Sanitize::clean($this->request->data, array('encode' => false));
 			//print_r($this->User->data);
 			//echo AuthComponent::password($this->request->data['current_password']);
-			if($this->User->data['User']['password'] == AuthComponent::password($this->request->data['current_password']))
-			{
-				if($this->request->data['new_password'] == $this->request->data['confirm_password'] && trim($this->request->data['current_password']) != ""){
-					$this->User->set('password',AuthComponent::password($this->request->data['new_password']));
-					if($this->User->save())
-					{
-						$this->Session->setFlash("Changed the password","flash_success");
-						$this->redirect("/user/settings");
-					}
-					else{
-						$this->Session->setFlash("Could not change the password","flash_error");
-						$this->redirect("/user/settings");
-					}
+			if(!empty($this->request->data['new_password']))
+				$this->changePassword($this->User->data,$this->request->data);
+			else if(!empty($this->request->data['desc']))
+				$this->changeDescription($this->User->data,$this->request->data);
+			
+			//$this->redirect($this->referer());
+		}
+	}
+	
+	private function changeDescription($user, $data)
+	{
+		$this->User->data = $user;
+		$this->User->set('desc',$data['desc']);
+
+		if($this->User->save())
+		{
+			$this->Session->setFlash("Your description were successfully changed","flash_success");
+			$this->redirect("/user/settings");
+		}
+		else{
+			$this->Session->setFlash("Could not change your description. Please try again later.","flash_error");
+			$this->redirect("/user/settings");
+		}
+	}
+	
+	private function changePassword($user, $data)
+	{
+		$this->User->data = $user;
+		$this->request->data = $data;
+		
+		if($this->User->data['User']['password'] == AuthComponent::password($this->request->data['current_password']))
+		{
+			if($this->request->data['new_password'] == $this->request->data['confirm_password'] && trim($this->request->data['current_password']) != ""){
+				$this->User->set('password',AuthComponent::password($this->request->data['new_password']));
+				if($this->User->save())
+				{
+					$this->Session->setFlash("Changed the password","flash_success");
+					$this->redirect("/user/settings");
+				}
+				else{
+					$this->Session->setFlash("Could not change the password","flash_error");
+					$this->redirect("/user/settings");
 				}
 			}
-			else{
-				$this->Session->setFlash("Could not change the password","flash_error");
-				$this->redirect("/user/settings");
-			}
-			//$this->redirect($this->referer());
+		}
+		else{
+			$this->Session->setFlash("Could not change the password","flash_error");
+			$this->redirect("/user/settings");
 		}
 	}
 	

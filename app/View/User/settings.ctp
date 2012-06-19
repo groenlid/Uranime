@@ -14,16 +14,29 @@
 		  <fieldset>
 		    <legend>Change password</legend>
 		    <div>
-		    	<?php echo $this->Form->create(false,array('url' => '/user/settings'));
-		    	echo $this->Form->input('current_password', array('type' => 'password'));
-		    	echo $this->Form->input('new_password', array('type' => 'password'));
-		    	echo $this->Form->input('confirm_password', array('type' => 'password'));
-		    	echo $this->Form->submit('Change password',array('class'=>'btn'));
-		      	echo $this->Form->end();?>
+		    	<?= 
+					$this->Form->create(false,array('url' => '/user/settings')) .
+					$this->Form->input('current_password', array('type' => 'password')) .
+					$this->Form->input('new_password', array('type' => 'password')) .
+					$this->Form->input('confirm_password', array('type' => 'password')) .
+					$this->Form->submit('Change password',array('class'=>'btn','id'=> 'passwordchange')) .
+					$this->Form->end();
+		      	?>
 		    </div>
 		  </fieldset>
+		  <fieldset>
+			  <legend>Change profile description</legend>
+			<div>
+				<?=
+					$this->Form->create(false, array('url' => '/user/settings')) .
+					$this->Form->input('desc',array('default' => $desc,'type' => 'textarea')) .
+					$this->Form->submit('Change description', array('class' => 'btn','id'=> 'descriptionchange')) .
+					$this->Form->end();
+				?>
+			</div>
+		  </fieldset>
 	<fieldset>
-		<legend>Import account from myanimelist</legend>
+		<legend>Import anime from myanimelist.net</legend>
 		<div>
 			<?php 
 				echo $this->Form->create(false,array('url' => '/mal/checkUser/'));
