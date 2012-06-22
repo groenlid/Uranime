@@ -268,7 +268,7 @@ class ApiController extends AppController {
 					'episode_id' => $id
 				)
 			));
-		if(count($first) == 1)
+		if($first != NULL)
 		{	
 			if($this->UserEpisode->delete($first['UserEpisode']['id'],false))
 			{
