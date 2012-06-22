@@ -229,6 +229,7 @@ class ApiController extends AppController {
 			'fields' => array('User.id','User.nick','User.joined','User.desc')
 		)));
 	}
+	
 	function unwatchepisode($userid = null, $id = null)
 	{
 		$this->login();
@@ -242,22 +243,20 @@ class ApiController extends AppController {
 			$this->set('status','Fail, no userid given.');
 			return false;
 		}	
-		$count = $this->UserEpisode->find('count',array(
+		
+		$this->UserEpisode->recursive = -1;
+		
+		$first = $this->UserEpisode->find('first',array(
 			'conditions' => array(
 					'user_id' => $userid,
 					'episode_id' => $id
 				)
 			));
-		if($count != 0)
+		if(count($first) == 1)
 		{	
-			$this->UserEpisode->deleteAll(array(
-				'conditions' => array(
-					'user_id' => $userid,
-					'episode_id' => $id
-				)
-			), false);
+			$this->UserEpisode->delete($first['id'],false);
 			
-			$this->set('status','True');
+			$this->set('status','Success.. Deleted');
 			return true;
 		}
 		else {
