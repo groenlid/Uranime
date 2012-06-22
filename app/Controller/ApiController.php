@@ -226,7 +226,42 @@ class ApiController extends AppController {
 			'fields' => array('User.id','User.nick','User.joined','User.desc')
 		)));
 	}
-
+	function unwatchepisode($userid = null, $id = null, $bult = false)
+	{
+		$this->login();
+		if($id == null || !is_numeric($id)){
+			$this->set('status','Fail');
+			return false;
+		}
+		if($userid == NULL)
+		{
+			$this->set('status','Fail what');
+			return false;
+		}	
+		$count = $this->UserEpisode->find('count',array(
+			'conditions' => array(
+					'user_id' => $userid,
+					'episode_id' => $id
+				)
+			));
+		if($count != 0)
+		{	
+			$this->UserEpisode->deleteAll(array(
+				'conditions' => array(
+					'user_id' => $userid,
+					'episode_id' => $id
+				)
+			), false);
+			
+			$this->set('status','True');
+			return true;
+		}
+		else {
+				$this->set('status','Fail');
+				return false;
+		}
+	}
+	
 	function watchepisode($userid = null, $id = null,$bulk = false)
 	{
 		$this->login();
