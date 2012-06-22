@@ -229,16 +229,17 @@ class ApiController extends AppController {
 			'fields' => array('User.id','User.nick','User.joined','User.desc')
 		)));
 	}
-	function unwatchepisode($userid = null, $id = null, $bult = false)
+	function unwatchepisode($userid = null, $id = null)
 	{
 		$this->login();
+		
 		if($id == null || !is_numeric($id)){
-			$this->set('status','Fail');
+			$this->set('status','Fail, no id given.');
 			return false;
 		}
 		if($userid == NULL)
 		{
-			$this->set('status','Fail what');
+			$this->set('status','Fail, no userid given.');
 			return false;
 		}	
 		$count = $this->UserEpisode->find('count',array(
@@ -260,7 +261,7 @@ class ApiController extends AppController {
 			return true;
 		}
 		else {
-				$this->set('status','Fail');
+				$this->set('status','Fail, the user has not seen this episode.');
 				return false;
 		}
 	}
