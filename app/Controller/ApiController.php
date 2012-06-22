@@ -137,7 +137,11 @@ class ApiController extends AppController {
 		//}
 	}
 
-	protected function login() {
+	/**
+	 * $userid; the userid the function is trying to call
+	 * if it's trying to change something for a user
+	 * */
+	protected function login($userid = null) {
 		//return $this->Rest->abort(array('status' => '403', 'error' => "asd"));
 		if (!$this->Auth->user()) {
 			
@@ -165,7 +169,19 @@ class ApiController extends AppController {
 					$msg = sprintf('Unable to log you in with the supplied credentials. ');
 					return $this->Rest->abort(array('status' => '403', 'error' => $msg));
 				}else{
-					$this->Auth->login($data);
+					
+					if($userid == null)
+						$this->Auth->login($data);
+					
+					// If the user is not the one requesting the stuff
+					$thisUser = $this->User->find('first',array('conditions' => array('email' => $username)));
+					if($thisUser['User']['id'] == $userid)
+						$this->Auth->login($data);
+					else
+					{
+						$msg = sprintf('Unable to log you in with the supplied credentials. ');
+						return $this->Rest->abort(array('status' => '403', 'error' => $msg));
+					}
 				}
 			}
 		}
@@ -232,7 +248,7 @@ class ApiController extends AppController {
 	
 	function unwatchepisode($userid = null, $id = null)
 	{
-		$this->login();
+		$this->login($userid);
 		
 		if($id == null || !is_numeric($id)){
 			$this->set('status','Fail, no id given.');
@@ -267,7 +283,7 @@ class ApiController extends AppController {
 	
 	function watchepisode($userid = null, $id = null,$bulk = false)
 	{
-		$this->login();
+		$this->login($userid);
 		/*if($this->requestAction('/Episode/watchEpisode/'.$id))
 			$this->set('status','Success');
 		else
@@ -323,7 +339,7 @@ class ApiController extends AppController {
 	
 	function watchanime($userid = null, $id = null,$bulk = false)
 	{
-		$this->login();
+		$this->login($userid);
 		/*if($this->requestAction('/Episode/watchEpisode/'.$id))
 			$this->set('status','Success');
 		else
@@ -434,7 +450,7 @@ class ApiController extends AppController {
 
 	function animelist($userid = null)
 	{
-		$this->login();
+		$this->login($userid);
 		if($userid == null)
 			return false;
 		$userEpisodes = $this->UserEpisode->find('all', array(
@@ -460,7 +476,7 @@ class ApiController extends AppController {
 
 	function watchlist($userid = null)
 	{
-		$this->login();
+		$this->login($userid);
 		if($userid == null)
 			return false;
 		$watchList = $this->UserWatchlist->find('all', array(
@@ -661,7 +677,7 @@ class ApiController extends AppController {
 
 	function animeWatchlist($userid = null, $animeid = null, $newValue = null)
 	{
-		$this->login();
+		$this->login($userid);
 		if($userid == null || $animeid == null || $newValue == null
 		|| !is_numeric($userid) || !is_numeric($animeid))
 			return false;
