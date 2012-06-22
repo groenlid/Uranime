@@ -119,12 +119,12 @@ if(count($episodes) != 0)
 		var anime;
 		var episodeData;
 
-		printable += "<div class='span5'><p>";
+		printable += "<div class='span4'><p>";
 		var statusText = "";
 		
 		episodeData = getEpisodeInfo(item.Episode.id);
 		anime = getAnimeInfo(episodeData.data.episode.anime_id);
-		statusText = ' <strong><a href="/episode/view/' + episodeData.data.episode.id + '">episode ' + episodeData.data.episode.number + '</a></strong> of anime <strong><a href="/anime/view/'+anime.id+'">' + anime.title + '</a></strong>';
+		statusText = ' <strong><a href="/episode/view/' + episodeData.data.episode.id + '">episode ' + episodeData.data.episode.number + '</a></strong> of <strong><a href="/anime/view/'+anime.id+'">' + anime.title + '</a></strong>';
 		/*switch(item.Activity.object_type)
 		{
 			case "fanart":
@@ -150,14 +150,14 @@ if(count($episodes) != 0)
 			break;
 		}*/
 
-		printable += subject_name + ' just watched ' + statusText;
+		printable += subject_name + ' watched ' + statusText;
 		//printable += "</p><p class='subtle'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</p></div>";
 		printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</abbr></p></div>";
-
-		/*printable += "<div class='span1'>";
-		printable += "<img src='http://src.sencha.io/150/50/http://158.39.171.120/attachments/photos/orginal/"+animeData.data.anime.fanart+"'>"
-		printable += "</div>";*/
-
+		
+		printable += "<div class='span1'>";
+		printable += "<img src='http://src.sencha.io/150/50/http://urani.me/attachments/photos/orginal/"+anime.fanart+"'>"
+		printable += "</div>";
+		
 		printable += "</div>";
 		
 		return printable;
