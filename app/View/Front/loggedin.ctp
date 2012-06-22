@@ -155,7 +155,7 @@ if(count($episodes) != 0)
 		printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</abbr></p></div>";
 		
 		printable += "<div class='span1'>";
-		printable += "<img src='http://src.sencha.io/150/50/http://urani.me/attachments/photos/orginal/"+anime.image+"'>"
+		printable += "<img src='http://src.sencha.io/150/50/http://urani.me/attachments/photos/orginal/"+anime.fanart+"'>"
 		printable += "</div>";
 		
 		printable += "</div>";
