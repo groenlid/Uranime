@@ -54,6 +54,9 @@ class ApiController extends AppController {
 				'watchepisode' => array(
 					'extract' => array('status')
 				),
+				'unwatchepisode' => array(
+					'extract' => array('status')
+				),
 				'trendingAnime' => array(
 					'extract' => array('anime.{n}' => 'animelist')
 				),
