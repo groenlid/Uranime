@@ -261,7 +261,6 @@ class ApiController extends AppController {
 			return false;
 		}	
 		
-		$this->UserEpisode->recursive = -1;
 		
 		$first = $this->UserEpisode->find('first',array(
 			'conditions' => array(
@@ -271,10 +270,15 @@ class ApiController extends AppController {
 			));
 		if(count($first) == 1)
 		{	
-			$this->UserEpisode->delete($first['id'],false);
-			
-			$this->set('status','Success.. Deleted');
-			return true;
+			if($this->UserEpisode->delete($first['UserEpisode']['id'],false))
+			{
+				$this->set('status','Success.. Deleted');
+				return true;
+			}
+			else {
+				$this->set('status','Fail.. Could not delete episode');
+				return false;
+			}
 		}
 		else {
 				$this->set('status','Fail, the user has not seen this episode.');
