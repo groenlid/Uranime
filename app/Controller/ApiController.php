@@ -170,9 +170,10 @@ class ApiController extends AppController {
 					return $this->Rest->abort(array('status' => '403', 'error' => $msg));
 				}else{
 					
-					if($userid == null)
+					if($userid == null){
 						$this->Auth->login($data);
-					
+						return;
+					}
 					// If the user is not the one requesting the stuff
 					$thisUser = $this->User->find('first',array('conditions' => array('email' => $username)));
 					if($thisUser['User']['id'] == $userid)
