@@ -24,7 +24,7 @@ class ScrapeShell extends AppShell {
 														)
 													)
 										);
-		$lastAnidb = false;
+		$lastAnidb = 0;
 		foreach($queue as $itemOutdated)
 		{
 			//echo "id: '" . $itemOutdated['ScrapeInfo']['id'] . "'";
@@ -38,21 +38,19 @@ class ScrapeShell extends AppShell {
 			if($source == 'thetvdb')
 			{
 				$this->thetvdbScrape($item);
-				$lastAnidb = false;
 			} else if($source == 'mal')
 			{
 				$this->malScrape($item);
-				$lastAnidb = false;
 			} else if($source == 'anidb')
 			{
-				if($lastAnidb)
-					sleep(3);
+				$now = time();
+				if(($now - $lastAnidb) < 4)
+					sleep($now - $lastAnidb);
 				$this->anidbScrape($item);
-				$lastAnidb = true;
+				$lastAnidb = time();
 			} else if($source == 'themoviedb')
 			{
 				$this->themoviedbScrape($item);
-				$lastAnidb = false;
 			}
 
 			// Remove the scrape_needed on the queue
@@ -84,8 +82,6 @@ class ScrapeShell extends AppShell {
 		
 		if($item['ScrapeInfo']['fetch_information'] == '1')
 		{
-			if(SCRAPEDEBUG)
-				$this->out("\t" . "\t" . 'Got information');
 
 			//$this->Anime->id = $item['ScrapeInfo']['anime_id'];
 			$dbAnime = $this->Anime->read(NULL, $item['ScrapeInfo']['anime_id']);
@@ -504,6 +500,8 @@ class ScrapeShell extends AppShell {
 				'Other' => 'other'
 			);
 			$newType = (String)$anime->type;
+			
+			// Get anime type again in case the type has been set earlier in 
 			
 			if(($dbAnime['Anime']['type'] == '' || $dbAnime['Anime']['type'] == null) && !empty($newType))
 			{
