@@ -824,8 +824,16 @@ class AnimeController extends AppController {
 		}
 		
 		$scrape_id = $this->request->data['ScrapeInfo']['scrape_id'];
-		$scrape_episodes = isset($this->request->data['ScrapeInfo']['scrape_episodes']) ? $this->request->data['ScrapeInfo']['scrape_episodes'] : NULL;
-		$scrape_seasons = isset($this->request->data['ScrapeInfo']['scrape_seasons']) ? $this->request->data['ScrapeInfo']['scrape_seasons'] : NULL;
+		$scrape_episodes = 
+			(isset($this->request->data['ScrapeInfo']['scrape_episodes'])
+				&& trim($this->request->data['ScrapeInfo']['scrape_episodes']) != "")  
+			? $this->request->data['ScrapeInfo']['scrape_episodes'] 
+			: NULL;
+		$scrape_seasons = 
+			(isset($this->request->data['ScrapeInfo']['scrape_seasons'])
+				&& trim($this->request->data['ScrapeInfo']['scrape_seasons']) != "") 
+			? $this->request->data['ScrapeInfo']['scrape_seasons'] 
+			: NULL;
 		$scrape_source = $this->request->data['ScrapeInfo']['scrape_source'];
 		//$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) ? 1 : NULL;
 		//$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) ? 1 : NULL;
@@ -922,10 +930,18 @@ class AnimeController extends AppController {
 		//return;
 		
 		$scrape_id = $this->request->data['ScrapeInfo']['scrape_id'];
-		$scrape_episodes = isset($this->request->data['ScrapeInfo']['scrape_episodes']) ? $this->request->data['ScrapeInfo']['scrape_episodes'] : NULL;
+				$scrape_episodes = 
+			(isset($this->request->data['ScrapeInfo']['scrape_episodes'])
+				&& trim($this->request->data['ScrapeInfo']['scrape_episodes']) != "")  
+			? $this->request->data['ScrapeInfo']['scrape_episodes'] 
+			: NULL;
+		$scrape_seasons = 
+			(isset($this->request->data['ScrapeInfo']['scrape_seasons'])
+				&& trim($this->request->data['ScrapeInfo']['scrape_seasons']) != "") 
+			? $this->request->data['ScrapeInfo']['scrape_seasons'] 
+			: NULL;
 		$scrape_source = $this->request->data['ScrapeInfo']['scrape_source'];
 		$fetch_specials = isset($this->request->data['ScrapeInfo']['fetch_specials']) && $this->request->data['ScrapeInfo']['fetch_specials'] == 1? 1 : NULL;
-		$scrape_seasons = isset($this->request->data['ScrapeInfo']['scrape_seasons']) ? $this->request->data['ScrapeInfo']['scrape_seasons'] : NULL;
 		$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) && $this->request->data['ScrapeInfo']['fetch_episodes'] == 1? 1 : NULL;
 		$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) && $this->request->data['ScrapeInfo']['fetch_information'] == 1 ? 1 : NULL;
 
