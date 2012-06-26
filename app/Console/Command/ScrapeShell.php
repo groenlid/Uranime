@@ -777,7 +777,7 @@ class ScrapeShell extends AppShell {
 				$this->addEpisode( 
 						$item, 
 						$item['Anime']['id'], 
-						$specNumber, 
+						$regNumber, 
 						$episode['airdate'], 
 						$episode['name'], 
 						$episode['description'], 
