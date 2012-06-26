@@ -707,6 +707,7 @@ class ScrapeShell extends AppShell {
 
 		foreach(explode(",",$seasonsInfo) as $singleSlice) 
 		{	
+			$this->buggy($singleSlice,2);
 			// Singleslice could either be "1-3" or single "3" 
 			$rubbleSlice = explode("-",$singleSlice);
 			if($rubbleSlice == 1) // if string is "3"; array("3") is returned
