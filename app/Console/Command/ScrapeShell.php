@@ -668,9 +668,10 @@ class ScrapeShell extends AppShell {
             //   $episode['airsafter_season'] = (int) $ep->airsafter_season;
             //   $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
             //   $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
-
-		$episodesInfo = ($item['ScrapeInfo']['scrape_episodes'] == NULL) ? "NULL": trim($item['ScrapeInfo']['scrape_episodes']);
-		$seasonsInfo = ($item['ScrapeInfo']['scrape_seasons'] == NULL) ? "NULL": trim($item['ScrapeInfo']['scrape_seasons']);
+		$info = $item['ScrapeInfo'];
+		$episodesInfo = ($info['scrape_episodes'] == NULL || trim($info['scrape_episodes']) == "") ? "NULL": trim($info['scrape_episodes']);
+		$seasonsInfo = ($info['scrape_seasons'] == NULL || trim($info['scrape_seasons']) == "") ? "NULL": trim($info['scrape_seasons']);
+		
 		if(SCRAPEDEBUG)
 			$this->out("\t".'Season information is set to:"'.$seasonsInfo . '" and episode info: "' . $episodeInfo.'"');
 		
