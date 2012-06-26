@@ -540,7 +540,7 @@ class ScrapeShell extends AppShell {
 				//print_r($episode);
 				//$this->out($item['Anime']['id'].' '.$episode->epno.' '. $episode->airdate . ' ' . $name. ' ' . $special);
 				$ep_number = str_replace("s","",strtolower((string)$episode->epno));
-				$this->addEpisode( $item, $item['Anime']['id'], (string)$episode->epno, (string)$episode->airdate, $name,'', $special);
+				$this->addEpisode( $item, $item['Anime']['id'], (int)$ep_number, (string)$episode->airdate, $name,'', $special);
 				
 			}
 			else
