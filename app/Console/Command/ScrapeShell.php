@@ -720,7 +720,8 @@ class ScrapeShell extends AppShell {
 					$seasons[] = $i;
 		}
 
-		print_r($seasons);
+		foreach($seasons as $season)
+			$this->buggy($season,2);
 		$regNumber = 1; 	// Regular Episode iterator 
 		$specNumber = 1; 	// Special Episode iterator
 
