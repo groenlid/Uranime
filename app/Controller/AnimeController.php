@@ -8,7 +8,8 @@ class AnimeController extends AppController {
 	var $paginate = array( 'Episode' => array(
 						'limit' => 50,
 						'order' => array(
-							'Episode.number' => 'desc'
+							'Episode.aired' => 'desc',
+							'Episode.order' => 'desc'
 						),
 						'Activity' => array(
 							'limit' => 10
