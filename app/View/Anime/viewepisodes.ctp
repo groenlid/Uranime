@@ -43,12 +43,15 @@ include('leftside.ctp');
 				if($entry['UserEpisode']['episode_id'] == $episode['Episode']['id'])
 					$seen = $entry['UserEpisode']['timestamp'];
 			}
+			
+			$green = ($episode['Episode']['special'] == 1) ? 'green' : '';
+			$epNumber = ($episode['Episode']['special'] == 1) ? 'S'.$episode['Episode']['number'] : $episode['Episode']['number'];
 		echo "
 			<div class='episode'>
 				<span class='checkIt'></span>
-				<span class='episodeNumber'><h2>".$episode['Episode']['number']."</h2></span>
+				<span class='episodeNumber'><h2>".$epNumber."</h2></span>
 				<span class='episodeContent'>
-					<div><span class='episodeName'>".$this->Html->link($this->Text->truncate($episode['Episode']['name'],50),"/episode/view/".$episode['Episode']['id'])."</span><span class='episodeTime'>".date('l, d, M',strtotime($episode['Episode']['aired']))."</span></div>
+					<div><span class='episodeName ".$green."'>".$this->Html->link($this->Text->truncate($episode['Episode']['name'],50),"/episode/view/".$episode['Episode']['id'])."</span><span class='episodeTime'>".date('l, d, M',strtotime($episode['Episode']['aired']))."</span></div>
 					<p>".$this->Text->truncate($episode['Episode']['description'],200)."</p>
 				</span>
 				<span class='extra'>
