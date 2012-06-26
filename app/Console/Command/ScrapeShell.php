@@ -658,16 +658,6 @@ class ScrapeShell extends AppShell {
 		 * 1 - 3, 5	 = fetches episodes from season 1, 2, 3, and 5
 		 */
 		
-		    //   $episode['id'] = (int) $ep->id;
-            //   $episode['season'] = (int) $ep->SeasonNumber;
-            //   $episode['episode'] = (int) $ep->EpisodeNumber;
-            //   $episode['airdate'] = (string) $ep->FirstAired;
-            //   $episode['name'] = (string) $ep->EpisodeName;
-            //   $episode['description'] = (string) $ep->Overview;
-            //   $episode['absolute'] = (int) $ep->absolute_number;
-            //   $episode['airsafter_season'] = (int) $ep->airsafter_season;
-            //   $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
-            //   $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
 		$info = $item['ScrapeInfo'];
 		$episodesInfo = ($info['scrape_episodes'] == null || trim($info['scrape_episodes']) == "") ? null: trim($info['scrape_episodes']);
 		$seasonsInfo = ($info['scrape_seasons'] == null || trim($info['scrape_seasons']) == "") ? null: trim($info['scrape_seasons']);
@@ -711,7 +701,7 @@ class ScrapeShell extends AppShell {
 			$rubbleSlice = explode("-",$singleSlice);
 			if(count($rubbleSlice) == 1) // if string is "3"; array("3") is returned
 			{
-				if(!in_array((int)trim($rubbleSlice[0]),$seasons))
+				if(!in_array((int)trim($rubbleSlice[0]),$seasons,true))
 					$seasons[] = (int)trim($rubbleSlice[0]);
 				continue;
 			}
@@ -719,21 +709,88 @@ class ScrapeShell extends AppShell {
 				if(!in_array($i,$seasons))
 					$seasons[] = $i;
 		}
+		
+		// Printing some information
+		if($seasons == null)
+			$this->buggy("Fetching episodes for all seasons.",2);
+		else{
+			$tmp = "Fetching episodes for seasons: ";
+			foreach($seasons as $season)
+				$tmp .= $season . ",";
+			$this->buggy($tmp,2);
+		}
 
-		foreach($seasons as $season)
-			$this->buggy($season,2);
 		$regNumber = 1; 	// Regular Episode iterator 
 		$specNumber = 1; 	// Special Episode iterator
 
 		foreach($serie_info['episodes'] as $episode)
 		{
 
-			// Check if the 
+			// Check if the episode is a special
+			if($episode['season'] == 0 && $special == false)
+			{
+				$this->buggy('Skipping episode because it is a special.  Name:' . $episode['name'] ,2);
+				continue;
+			}
+			if($episode['season'] == 0 && $special == true)
+			{
+				if($seasons == null)
+				{
+					$this->buggy("Added episode: '" .$episode['name']. "' with number".$specNumber,1);
+					// Add all specials
+					/*$this->addEpisode( 
+						$item, 
+						$item['Anime']['id'], 
+						$specNumber, 
+						$episode['airdate'], 
+						$episode['name'], 
+						$episode['description'], 
+						$special 
+						);*/
+					$specNumber++;
+					continue;
+				}
+				// If the episode is a special and the special flag is on
+				if(in_array((int)$episode['airsbefore_season'],$seasons,true) 
+				|| in_array((int)$episode['airsafter_season'],$seasons,true)){
+					// if the special episode is in one of the seasons we want, we add it
+					$this->buggy("Added episode: '" .$episode['name']. "' with number".$specNumber,1);
+					/*$this->addEpisode( 
+						$item, 
+						$item['Anime']['id'], 
+						$specNumber, 
+						$episode['airdate'], 
+						$episode['name'], 
+						$episode['description'], 
+						$special 
+						);*/
+					$specNumber++;
+					continue;
+				}
+
+			}
+			// If the episode is a regular episode
+			else if(in_array($episode['season'],$seasons,true) || $seasons == null)
+			{
+				$this->buggy("Added episode: '" .$episode['name']. "' with number".$regNumber,1);
+				$regNumber++;
+			}
 
 		}
 
 
 	}
+
+		    //   $episode['id'] = (int) $ep->id;
+            //   $episode['season'] = (int) $ep->SeasonNumber;
+            //   $episode['episode'] = (int) $ep->EpisodeNumber;
+            //   $episode['airdate'] = (string) $ep->FirstAired;
+            //   $episode['name'] = (string) $ep->EpisodeName;
+            //   $episode['description'] = (string) $ep->Overview;
+            //   $episode['absolute'] = (int) $ep->absolute_number;
+            //   $episode['airsafter_season'] = (int) $ep->airsafter_season;
+            //   $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
+            //   $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
 
 	private function buggy($text = null, $indent = 0)
 	{
@@ -864,7 +921,6 @@ class ScrapeShell extends AppShell {
 			else
 				$episodeNumber = ((int)$episode['absolute'] - $start+1);
 			
-			return; /* TODO: REMOVE THIS*/
 			if($special == NULL && $item['ScrapeInfo']['fetch_episodes'] == '1')
 				$this->addEpisode( $item, $item['Anime']['id'], $episodeNumber, $episode['airdate'], $episode['name'], $episode['description'], $special );
 
