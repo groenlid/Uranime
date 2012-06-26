@@ -429,9 +429,7 @@ class ScrapeShell extends AppShell {
 		$anidbURL = ANIDB_APIPATH."?aid=".$animeid."&client=".CLIENTNAME."&version=".CLIENTVERSION;
 		$port = 80;
 		$sleepTime = 3;
-		// Blocked access for this---- hmmm
-		//$response = file_get_contents($anidbURL);
-		//echo $anidbURL;
+
 		$crl = curl_init();
 		$timeout = 20;
 		curl_setopt($crl, CURLOPT_URL,$anidbURL);
@@ -441,12 +439,7 @@ class ScrapeShell extends AppShell {
 		curl_setopt($crl, CURLOPT_FRESH_CONNECT, 1);
 		curl_setopt($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
 		curl_setopt($crl, CURLOPT_PORT, $port);
-		// This is just for godaddy
-		//curl_setopt($crl, CURLOPT_PROXY, 'http://proxy.shr.secureserver.net:80');
-		//curl_setopt($crl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		//curl_setopt($crl, CURLOPT_SSL_VERIFYPEER, false);
-		//curl_setopt($crl, CURLOPT_VERBOSE, 1);
-		//curl_setopt($crl, CURLOPT_FOLLOWLOCATION,1);
+
 
 		$response = curl_exec($crl) or die(curl_error());
 		//$response = file_get_contents($anidbURL);
@@ -524,9 +517,12 @@ class ScrapeShell extends AppShell {
 			if(count($anime->children()) !== 0) 
 			foreach($anime->episodes->episode as $episode)
 			{
+				$special = NULL;
 				//print_r($episode);
 				// Check if right episode type
-				if((int)$episode->epno['type'] != 1)
+				if($item['ScrapeInfo']['fetch_specials'] == '1' && (int)$episode->epno['type'] == 2) // 2 means special
+					$special = 1;
+				else if((int)$episode->epno['type'] != 1) // 1 is a regular episode
 					continue;
 
 				// Fetch the episode name via namespace
@@ -539,7 +535,7 @@ class ScrapeShell extends AppShell {
 					$name = $node;
 				}
 
-				$special = NULL;
+
 				//print_r($path);
 				//print_r($episode);
 				//$this->out($item['Anime']['id'].' '.$episode->epno.' '. $episode->airdate . ' ' . $name. ' ' . $special);
@@ -646,15 +642,79 @@ class ScrapeShell extends AppShell {
 		}
 		if($item['ScrapeInfo']['fetch_information'] == '1')
 		{
-			
+			if(SCRAPEDEBUG)
+					$this->out("\t". '[Themoviedb] is not programmed to fetch information yet.');
 		}
 	}
 	
 	function thetvdbScrape($item){
 		App::import('Vendor','Thetvdb', array('file' => 'class.thetvdb.php'));
 		$tvdbapi = new Thetvdb('992BDB755BA8805D');
+
+		// THIS IS THE NEW METHOD
+		/**
+		 * YOU SHOULD USE THE scrape_season field INSTEAD OF scrape_episodes
+		 * Should be written as:
+		 * 1 - 3, 5	 = fetches episodes from season 1, 2, 3, and 5
+		 */
 		
-		// Fetch the episodes for the given series. It should allways be absolute_number
+		    //   $episode['id'] = (int) $ep->id;
+            //   $episode['season'] = (int) $ep->SeasonNumber;
+            //   $episode['episode'] = (int) $ep->EpisodeNumber;
+            //   $episode['airdate'] = (string) $ep->FirstAired;
+            //   $episode['name'] = (string) $ep->EpisodeName;
+            //   $episode['description'] = (string) $ep->Overview;
+            //   $episode['absolute'] = (int) $ep->absolute_number;
+            //   $episode['airsafter_season'] = (int) $ep->airsafter_season;
+            //   $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
+            //   $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
+
+		$episodesInfo = ($item['ScrapeInfo']['scrape_episodes'] == NULL) ? "NULL": trim($item['ScrapeInfo']['scrape_episodes']);
+		$seasonsInfo = ($item['ScrapeInfo']['scrape_seasons'] == NULL) ? "NULL": trim($item['ScrapeInfo']['scrape_seasons']);
+		if(SCRAPEDEBUG)
+			$this->out("\t".'Season information is set to:"'.$seasonsInfo . '" and episode info: "' . $episodeInfo.'"');
+		
+		// Fetching all the episodes
+		if(SCRAPEDEBUG)
+			$this->out("\t".'Fetching all episodes for series');
+		$serie_info = $tvdbapi->GetSerieData($item['ScrapeInfo']['scrape_id'],true);
+		
+
+		// Start with the legacy code in the transission phase
+		if($episodesInfo != null){
+			$this->legacyThetvdb($item, $episodesInfo, $serie_info);
+		}
+		else //if($seasonsInfo != null){
+			$this->fetchSeasonThetvdb($item,$seasonsInfo, $serie_info);
+		return;
+		//}
+	}
+
+	/**
+	 * Fetches specified seasons from thetvdb and inserts the episodes in the db
+	 */
+	private function fetchSeasonThetvdb($item, $seasonsInfo, $serie_info){
+		$info = $item['ScrapeInfo'];
+		// Check if special flag is on
+		$special = ($info['fetch_specials'] == 1);
+		
+		$this->buggy("Scraper is set to fetch specials.",1);
+
+
+	}
+
+	private function buggy($text = null, $indent = 0)
+	{
+		for($i = 0; $i < $indent; $i++)
+			$text = "\t" . $text;
+		if(SCRAPEDEBUG && $text != null)
+			$this->out($text);
+	}
+
+	private function legacyThetvdb($item, $episodesInfo, $serie_info){
+
+		// THIS IS DEPRECATED!
+		// Fetch the episodes for the given series. It should allways be absolute_number. 
 		/**
 		 * The absolute numbering: 0 is always specials.
 		 * 1 		= fetching episode 1
@@ -668,16 +728,6 @@ class ScrapeShell extends AppShell {
 		 * S1 - S3 gives the same result as the one above.
 		 * 1 - S3 gives the same as the two previous
 		 */
-		
-		$episodesInfo = trim($item['ScrapeInfo']['scrape_episodes']);
-		if(SCRAPEDEBUG)
-			$this->out("\t".'Season information is set to: \'' . ($episodesInfo == NULL ? "NULL" : $episodesInfo) . '\'');
-		
-		// Fetching all the episodes
-		if(SCRAPEDEBUG)
-			$this->out("\t".'Fetching all episodes for series');
-		$serie_info = $tvdbapi->GetSerieData($item['ScrapeInfo']['scrape_id'],true);
-		
 		$episodes = array();
 		$start = 0;
 		$end = count($serie_info['episodes']);
@@ -781,12 +831,12 @@ class ScrapeShell extends AppShell {
 				$episodeNumber = ((int)$episode['absolute']);
 			else
 				$episodeNumber = ((int)$episode['absolute'] - $start+1);
+			
+			return; /* TODO: REMOVE THIS*/
 			if($special == NULL && $item['ScrapeInfo']['fetch_episodes'] == '1')
 				$this->addEpisode( $item, $item['Anime']['id'], $episodeNumber, $episode['airdate'], $episode['name'], $episode['description'], $special );
 
 		}
-
-		// Here we should get the images for each episode...
 	}
 
 	function addEpisode($scrapeInfo, $animeid, $number, $aired, $name, $description = '' , $special = NULL)
@@ -831,8 +881,11 @@ class ScrapeShell extends AppShell {
 			'special' 	=> $special,
 			'number'	=> $number
 		)));
+
 		if(count($exact['Episode']) != 0){
+			
 			$added = false;
+
 			// Allways prefer thetvdb episode descriptions.
 			if((strlen($exact['Episode']['description']) == 0 && strlen($description) != 0) 
 				|| ($scrapeInfo['ScrapeInfo']['scrape_source'] == 'thetvdb' && $description != $exact['Episode']['description'])){
@@ -844,6 +897,7 @@ class ScrapeShell extends AppShell {
 					$this->out("\t"."\t".'Added missing description to episode :\'' . $number . '\': \'' . $name.'\' ..');
 				$added = true;
 			}
+
 			// Sometimes anidb labels episodes with :Episode ## when it does not have a name.
 			if((strpos(strtolower($exact['Episode']['name']),'episode') !== FALSE 
 				&& strlen($exact['Episode']['name']) < 25 
@@ -857,6 +911,7 @@ class ScrapeShell extends AppShell {
 					$this->out("\t"."\t".'Added missing name to episode :\'' . $number . '\': \'' . $name.'\' ..');
 				$added = true;
 			}
+
 			// Check if date is different... Prefer dates from anidb over thetvdb
 			if($aired != $exact['Episode']['aired'] && $scrapeInfo['ScrapeInfo']['scrape_source'] == 'anidb'){
 				$this->Episode->read(NULL,$exact['Episode']['id']);
@@ -867,6 +922,7 @@ class ScrapeShell extends AppShell {
 					$this->out("\t"."\t".'Changed aired date on episode [anidb] :\'' . $number . '\': \'' . $name.'\' ..');
 				$added = true;
 			}
+			
 			if($added)
 				return false;
 			if(SCRAPEDEBUG)

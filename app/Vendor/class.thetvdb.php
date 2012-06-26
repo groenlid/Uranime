@@ -117,7 +117,7 @@ class Thetvdb
          return false;
       }
    }
-   
+
    /*
     * This method returns information about the specified serie
     */
@@ -148,6 +148,9 @@ class Thetvdb
                $episode['name'] = (string) $ep->EpisodeName;
                $episode['description'] = (string) $ep->Overview;
                $episode['absolute'] = (int) $ep->absolute_number;
+               $episode['airsafter_season'] = (int) $ep->airsafter_season;
+               $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
+               $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
                $episodes[] = $episode;
             }
             $serie['episodes'] = $episodes;

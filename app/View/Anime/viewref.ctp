@@ -109,7 +109,7 @@ echo $this->Html->tableCells(
 				'class' => 'span1'
 			)),
 			$this->Form->input('ScrapeInfo.scrape_seasons', array(
-				'default' => $scrape_seasons,
+				'default' => '',
 				'style' => '',
 				'label' => false,
 				'id' => $id,
@@ -124,7 +124,7 @@ echo $this->Html->tableCells(
 			$this->Form->input('ScrapeInfo.fetch_specials', array(
 				'type'	=> 'checkbox',
 				'label' => false,
-				'checked' => ($fetch_specials == NULL) ? false : true,
+				'checked' => false,
 				'id' => $id,
 				'class' => 'fetch_specials span1'
 			)),
@@ -156,10 +156,8 @@ echo $this->Html->link('<i class="icon-search"></i> Search themoviedb', $this->H
 </div>
 <hr>
 <div class="notif">
-<strong>Settings:</strong>
-<p><strong>anidb</strong>: episodes + information</p>
-<p><strong>mal</strong>: information</p>
-<p><strong>thetvdb</strong>: Can be used to fetch specific episodes (Absolute number on thetvdb) or a specific season.</p>
+<strong>Information:</strong>
+<p><strong>thetvdb</strong>: Can be used to fetch specific episodes (Absolute number on thetvdb) or a specific season. Written in the type "1-3,5" = season 1, 2, 3, 5</p>
 
 </div>
 </div>
