@@ -701,6 +701,36 @@ class ScrapeShell extends AppShell {
 		
 		$this->buggy("Scraper is set to fetch specials.",1);
 
+		$seasons = null; 	// null == all seasons
+
+		// Find out which seasons we should fetch
+
+		foreach(explode(",",$seasonsInfo) as $singleSlice) 
+		{	
+			// Singleslice could either be "1-3" or single "3" 
+			$rubbleSlice = explode("-",$singleSlice)
+			if($rubbleSlice == 1) // if string is "3"; array("3") is returned
+			{
+				if(!in_array((int)trim($rubbleSlice[0]),$seasons))
+					$seasons[] = (int)trim($rubbleSlice[0]);
+				continue;
+			}
+			for($i = (int)trim($rubbleSlice[0]); $i <= (int)trim($rubbleSlice[1]);$i++)
+				if(!in_array($i,$seasons))
+					$seasons[] = $i;
+		}
+
+		print_r($seasons);
+		$regNumber = 1; 	// Regular Episode iterator 
+		$specNumber = 1; 	// Special Episode iterator
+
+		foreach($serie_info['episodes'] as $episode)
+		{
+
+			// Check if the 
+
+		}
+
 
 	}
 
