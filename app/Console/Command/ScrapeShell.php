@@ -723,6 +723,7 @@ class ScrapeShell extends AppShell {
 		$regNumber = 1; 	// Regular Episode iterator 
 		$specNumber = 1; 	// Special Episode iterator
 
+		// foreach iterates from top-to-bottom... phew...
 		foreach($serie_info['episodes'] as $episode)
 		{
 
@@ -738,7 +739,7 @@ class ScrapeShell extends AppShell {
 				{
 					$this->buggy("Added episode: '" .$episode['name']. "' with number".$specNumber,1);
 					// Add all specials
-					/*$this->addEpisode( 
+					$this->addEpisode( 
 						$item, 
 						$item['Anime']['id'], 
 						$specNumber, 
@@ -746,7 +747,7 @@ class ScrapeShell extends AppShell {
 						$episode['name'], 
 						$episode['description'], 
 						$special 
-						);*/
+						);
 					$specNumber++;
 					continue;
 				}
@@ -754,8 +755,8 @@ class ScrapeShell extends AppShell {
 				if(in_array((int)$episode['airsbefore_season'],$seasons,true) 
 				|| in_array((int)$episode['airsafter_season'],$seasons,true)){
 					// if the special episode is in one of the seasons we want, we add it
-					$this->buggy("Added episode: '" .$episode['name']. "' with number".$specNumber,1);
-					/*$this->addEpisode( 
+					//$this->buggy("Added episode: '" .$episode['name']. "' with number ".$specNumber,1);
+					$this->addEpisode( 
 						$item, 
 						$item['Anime']['id'], 
 						$specNumber, 
@@ -763,7 +764,7 @@ class ScrapeShell extends AppShell {
 						$episode['name'], 
 						$episode['description'], 
 						$special 
-						);*/
+						);
 					$specNumber++;
 					continue;
 				}
@@ -772,11 +773,21 @@ class ScrapeShell extends AppShell {
 			// If the episode is a regular episode
 			else if(in_array($episode['season'],$seasons,true) || $seasons == null)
 			{
-				$this->buggy("Added episode: '" .$episode['name']. "' with number".$regNumber,1);
+				//$this->buggy("Added episode: '" .$episode['name']. "' with number".$regNumber,1);
+				$this->addEpisode( 
+						$item, 
+						$item['Anime']['id'], 
+						$specNumber, 
+						$episode['airdate'], 
+						$episode['name'], 
+						$episode['description'], 
+						$special 
+						);
 				$regNumber++;
 			}
 
 		}
+		// Fetch images here
 
 
 	}
