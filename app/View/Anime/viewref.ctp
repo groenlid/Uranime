@@ -11,7 +11,7 @@
 <table id="searchTable" class="hidden episodelist table table-striped table-bordered table-condensed">
 <thead>
 <?php
-echo $this->Html->tableHeaders(array('Source','Source ID','Scrape Episodes','Use for episodes','Use for information','Edit / Delete'));
+echo $this->Html->tableHeaders(array('Source','ID','Specify Episodes','Specify Seasons','Episodes?','Specials?','Information?','Edit'));
 ?>
 </thead>
 <tbody>
@@ -53,12 +53,26 @@ echo $this->Html->tableCells(
 				'id' => $id,
 				'class' => 'span1'
 			)),
+			$this->Form->input('ScrapeInfo.scrape_seasons', array(
+				'default' => $scrape_seasons,
+				'style' => '',
+				'label' => false,
+				'id' => $id,
+				'class' => 'span1'
+			)),
 			$this->Form->input('ScrapeInfo.fetch_episodes', array(
 				'type'	=> 'checkbox',
 				'label' => false,
 				'checked' => ($fetch_episodes == NULL) ? false : true,
 				'id' => $id,
 				'class' => 'fetch_episodes span1'
+			)),
+			$this->Form->input('ScrapeInfo.fetch_specials', array(
+				'type'	=> 'checkbox',
+				'label' => false,
+				'checked' => ($fetch_specials == NULL) ? false : true,
+				'id' => $id,
+				'class' => 'fetch_specials span1'
 			)),
 			$this->Form->input('ScrapeInfo.fetch_information', array(
 				'type'	=> 'checkbox',
@@ -94,11 +108,25 @@ echo $this->Html->tableCells(
 				'style' => '',
 				'class' => 'span1'
 			)),
+			$this->Form->input('ScrapeInfo.scrape_seasons', array(
+				'default' => $scrape_seasons,
+				'style' => '',
+				'label' => false,
+				'id' => $id,
+				'class' => 'span1'
+			)),
 			$this->Form->input('ScrapeInfo.fetch_episodes', array(
 				'type'	=> 'checkbox',
 				'label' => false,
 				'checked' => false,
 				'class' => 'fetch_episodes span1'
+			)),
+			$this->Form->input('ScrapeInfo.fetch_specials', array(
+				'type'	=> 'checkbox',
+				'label' => false,
+				'checked' => ($fetch_specials == NULL) ? false : true,
+				'id' => $id,
+				'class' => 'fetch_specials span1'
 			)),
 			$this->Form->input('ScrapeInfo.fetch_information', array(
 				'type'	=> 'checkbox',
@@ -128,10 +156,11 @@ echo $this->Html->link('<i class="icon-search"></i> Search themoviedb', $this->H
 </div>
 <hr>
 <div class="notif">
-<strong>Recommended settings:</strong>
+<strong>Settings:</strong>
 <p><strong>anidb</strong>: episodes + information</p>
 <p><strong>mal</strong>: information</p>
-<p><strong>thetvdb</strong>: sometimes episodes.</p>
+<p><strong>thetvdb</strong>: Can be used to fetch specific episodes (Absolute number on thetvdb) or a specific season.</p>
+
 </div>
 </div>
 

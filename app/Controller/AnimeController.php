@@ -825,9 +825,11 @@ class AnimeController extends AppController {
 		
 		$scrape_id = $this->request->data['ScrapeInfo']['scrape_id'];
 		$scrape_episodes = isset($this->request->data['ScrapeInfo']['scrape_episodes']) ? $this->request->data['ScrapeInfo']['scrape_episodes'] : NULL;
+		$scrape_seasons = isset($this->request->data['ScrapeInfo']['scrape_seasons']) ? $this->request->data['ScrapeInfo']['scrape_seasons'] : NULL;
 		$scrape_source = $this->request->data['ScrapeInfo']['scrape_source'];
 		//$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) ? 1 : NULL;
 		//$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) ? 1 : NULL;
+		$fetch_specials = isset($this->request->data['ScrapeInfo']['fetch_specials']) && $this->request->data['ScrapeInfo']['fetch_specials'] == 1? 1 : NULL;
 		$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) && $this->request->data['ScrapeInfo']['fetch_episodes'] == 1? 1 : NULL;
 		$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) && $this->request->data['ScrapeInfo']['fetch_information'] == 1 ? 1 : NULL;
 		
@@ -868,8 +870,10 @@ class AnimeController extends AppController {
 		$this->ScrapeInfo->create();
 		$this->ScrapeInfo->set('scrape_source',$scrape_source);
 		$this->ScrapeInfo->set('scrape_episodes',$scrape_episodes);
+		$this->ScrapeInfo->set('scrape_seasons',$scrape_seasons);
 		$this->ScrapeInfo->set('scrape_id',$scrape_id);
 		$this->ScrapeInfo->set('fetch_episodes', $fetch_episodes);
+		$this->ScrapeInfo->set('fetch_specials', $fetch_specials);
 		$this->ScrapeInfo->set('fetch_information',$fetch_information);
 		$this->ScrapeInfo->set('anime_id',$animeid);
 		$this->ScrapeInfo->set('scrape_needed',1);
@@ -920,6 +924,8 @@ class AnimeController extends AppController {
 		$scrape_id = $this->request->data['ScrapeInfo']['scrape_id'];
 		$scrape_episodes = isset($this->request->data['ScrapeInfo']['scrape_episodes']) ? $this->request->data['ScrapeInfo']['scrape_episodes'] : NULL;
 		$scrape_source = $this->request->data['ScrapeInfo']['scrape_source'];
+		$fetch_specials = isset($this->request->data['ScrapeInfo']['fetch_specials']) && $this->request->data['ScrapeInfo']['fetch_specials'] == 1? 1 : NULL;
+		$scrape_seasons = isset($this->request->data['ScrapeInfo']['scrape_seasons']) ? $this->request->data['ScrapeInfo']['scrape_seasons'] : NULL;
 		$fetch_episodes = isset($this->request->data['ScrapeInfo']['fetch_episodes']) && $this->request->data['ScrapeInfo']['fetch_episodes'] == 1? 1 : NULL;
 		$fetch_information = isset($this->request->data['ScrapeInfo']['fetch_information']) && $this->request->data['ScrapeInfo']['fetch_information'] == 1 ? 1 : NULL;
 
@@ -942,7 +948,9 @@ class AnimeController extends AppController {
 		$this->ScrapeInfo->set('scrape_id',$scrape_id);
 		$this->ScrapeInfo->set('scrape_source',$scrape_source);
 		$this->ScrapeInfo->set('scrape_episodes',$scrape_episodes);
+		$this->ScrapeInfo->set('scrape_seasons',$scrape_seasons);
 		$this->ScrapeInfo->set('fetch_episodes', $fetch_episodes);
+		$this->ScrapeInfo->set('fetch_specials', $fetch_specials);
 		$this->ScrapeInfo->set('fetch_information', $fetch_information);
 		$this->ScrapeInfo->set('scrape_needed',1);
 		$this->ScrapeInfo->save();
