@@ -4,6 +4,6 @@ class Episode extends AppModel {
 	var $useTable = 'episodes';
 	public $belongsTo = array('Anime');
 	public $hasMany = array('UserEpisode');
-	public $order = 'number';
+	public $order = array('aired','number');
 }
 ?>
