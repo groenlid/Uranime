@@ -746,7 +746,7 @@ class ScrapeShell extends AppShell {
 						$episode['airdate'], 
 						$episode['name'], 
 						$episode['description'], 
-						$special 
+						true 
 						);
 					$specNumber++;
 					continue;
@@ -763,7 +763,7 @@ class ScrapeShell extends AppShell {
 						$episode['airdate'], 
 						$episode['name'], 
 						$episode['description'], 
-						$special 
+						true 
 						);
 					$specNumber++;
 					continue;
@@ -781,7 +781,7 @@ class ScrapeShell extends AppShell {
 						$episode['airdate'], 
 						$episode['name'], 
 						$episode['description'], 
-						$special 
+						NULL 
 						);
 				$regNumber++;
 			}
