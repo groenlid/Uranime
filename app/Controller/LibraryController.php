@@ -29,7 +29,8 @@ class LibraryController extends AppController {
 			'order' => 'when DESC',
 			'conditions' => array(
 				'user_id' => $id,
-				'Episode.special' => null
+				'Episode.special' => null,
+				'Anime.id' => 'Episode.anime_id'
 			),
 			'group' => 'Episode.anime_id',
 		));
