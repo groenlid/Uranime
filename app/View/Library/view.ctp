@@ -29,6 +29,11 @@ foreach($anime as $animeSingle)
 		$image = "http://placehold.it/225x112";
 	else
 	 	$image = "http://src.sencha.io/200/".SERVER_PATH.IMAGE_PATH.$image;
+
+	// Calculate percentage of watched regular episodes for progress-bar
+	 $seen_episodes = $stats[$i][0]['count'];
+	 debug($stats[$i]);
+
 	echo "
 	<div class='anime-gallery-single'>
 		<div class='anime-gallery-single-inner'>"
