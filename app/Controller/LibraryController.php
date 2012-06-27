@@ -37,7 +37,7 @@ class LibraryController extends AppController {
 		
 		$animes = array();
 		$episodes = array();
-		$this->Anime->recursive = 0;
+		$this->Anime->recursive = 1;
 		
 		/*$this->Anime->unbindModel(
     		array(
