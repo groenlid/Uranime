@@ -41,7 +41,7 @@ foreach($anime as $animeSingle)
 	 		$count_episodes++;
 
 	 if($count_episodes != 0)
-		$percent = (int)($seen_episodes / $count_episodes * 100)
+		$percent = (int)($seen_episodes / $count_episodes * 100);
 
 	 /*debug($stats[$i]);
 	 debug($animeSingle);*/
