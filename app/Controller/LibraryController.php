@@ -38,6 +38,20 @@ class LibraryController extends AppController {
 		$animes = array();
 		$episodes = array();
 		$this->Anime->recursive = 1;
+		$this->Anime->unbindModel(
+    		array(
+    			'hasOne' => array(
+    				'AnimeRatingBayes'
+    				),
+    			'hasMany' => array(
+    				'AnimeGenre',
+    				'AnimeSynonyms',
+    				'ScrapeInfo',
+    				'UserWatchlist'
+    				)
+    			)
+    		);
+
 		foreach($userEpisodes as $anime_id)
 		{
 			//array_push($animes,$tmp);

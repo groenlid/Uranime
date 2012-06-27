@@ -13,7 +13,7 @@
 </div>
 <hr>
 <?php
-if($animes == null || !isset($animes))
+if($anime == null || !isset($anime))
 {
 echo "<div class='alert alert-info'>This user does not have any anime in his/her's library</div>";
 }
