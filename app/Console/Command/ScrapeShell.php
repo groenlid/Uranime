@@ -822,7 +822,7 @@ class ScrapeShell extends AppShell {
 			return;
 		}
 
-		$this->buggy("EPisode id: " $episode['Episode']['id'],3);
+		$this->buggy("EPisode id: ". $episode['Episode']['id'],3);
 
 		// Check if the episode already got an image
 		if($episode['image'] != null)
