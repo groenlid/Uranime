@@ -36,7 +36,7 @@ class LibraryController extends AppController {
 		//debug($userEpisodes);
 		
 		$animes = array();
-		$this->Anime->recursive = 1;
+		$this->Anime->recursive = 2;
 		foreach($userEpisodes as $anime_id)
 		{
 			//array_push($animes,$tmp);
