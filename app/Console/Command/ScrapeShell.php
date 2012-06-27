@@ -823,9 +823,9 @@ class ScrapeShell extends AppShell {
 		}
 
 		// Check if the episode already got an image
-		if($episode['image'] != null)
+		if($episode['Episode']['image'] != null)
 		{
-			if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $animeid . "/" . $episode['image']))
+			if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $animeid . "/" . $episode['Episode']['image']))
 			{
 				$this->buggy('EpisodeImage: The episode already have an image',2);
 				return;
