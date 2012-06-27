@@ -79,15 +79,20 @@ else
 	echo '<img class="thumbnail" src="http://src.sencha.io/219/'.SERVER_PATH . IMAGE_PATH . $episode['Anime']['fanart'].'">';
 
 ?>
+<br>
 <table class="table table-striped table-condensed table-small">
 	<tbody>
 		<tr>
     		<td>Episode number:</td>
-    		<td><?=(isset($episode['Episode']['number']))?$episode['Episode']['number']:"N/A"?></td>
+    		<td><?=(isset($episode['Episode']['number'])) ? $episode['Episode']['number'] : "N/A" ?></td>
     	</tr>
 		<tr>
     		<td>Episode type:</td>
-    		<td><?=(isset($episode['Episode']['special']))?"Regular episode":"Special episode"?></td>
+    		<td><?=(isset($episode['Episode']['special'])) ? "Special episode" : "Regular episode" ?></td>
+    	</tr>
+    	<tr>
+    		<td>Aired:</td>
+    		<td><?=(isset($episode['Episode']['aired'])) ? $episode['Episode']['aired'] : "N/A" ?></td>
     	</tr>
     </tbody>
 </table>
