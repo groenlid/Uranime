@@ -25,7 +25,17 @@ class LibraryController extends AppController {
 		$this->UserEpisode->recursive = 2;
 		$userEpisodes = $this->UserEpisode->find('all', array(
 			
-			'fields' => 'DISTINCT Episode.anime_id, COUNT(*) as count, MAX(UserEpisode.timestamp) AS `when`',
+			'fields' => 'DISTINCT Episode.anime_id, Anime.title, COUNT(*) as count, MAX(UserEpisode.timestamp) AS `when`',
+			'joins' => array(
+				array(
+					'table' => 'anime',
+					'type' => 'LEFT',
+					'alias' => 'Anime',
+					'conditions' => array(
+						'Anime.id = Episode.anime_id'
+						)
+					)
+				),
 			'conditions' => array(
 				'user_id' => $id,
 				'Episode.special' => null
