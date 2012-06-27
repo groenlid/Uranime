@@ -816,7 +816,7 @@ class ScrapeShell extends AppShell {
 					)
 				)
 			);
-		if($episode == null)
+		if(count($episode) != 1 || $episode == null)
 		{
 			$this->buggy("EpisodeImage: The episode does not exist.",2);
 			return;
@@ -825,7 +825,7 @@ class ScrapeShell extends AppShell {
 		// Check if the episode already got an image
 		if($episode['image'] != null)
 		{
-			if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $episode['anime_id'] . "/" . $episode['image']))
+			if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $animeid . "/" . $episode['image']))
 			{
 				$this->buggy('EpisodeImage: The episode already have an image',2);
 				return;
@@ -846,7 +846,7 @@ class ScrapeShell extends AppShell {
 				return;
 			}
 
-			$upload_dir = WWW_ROOT . EPISODE_IMAGE_PATH . "/" . $episode['anime_id'] . "/";
+			$upload_dir = WWW_ROOT . EPISODE_IMAGE_PATH . "/" . $animeid . "/";
 			// Check if upload_dir exists
 			if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
 
@@ -859,8 +859,10 @@ class ScrapeShell extends AppShell {
 			while(!feof($file)){
 				fwrite($newfile,fread($file,1024 * 8),1024 * 8); // write the file to the new directory at a rate of 8kb/sec. until we reach the end.	
 			}
+			
 			$this->Episode->read(null,$episode['id']);
 			$this->Episode->set('image',$episode['id'].'.'.$ext);
+
 			if($this->Episode->save())
 			{
 				$this->buggy("New image have been saved, and reference updated.",2);
