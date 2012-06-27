@@ -174,7 +174,7 @@ class EpisodeController extends AppController {
 			'field' => 'number',
 			'value' => $episode['Episode']['number'],
 			'conditions' => array(
-				'anime_id' => $episode['Episode']['anime_id']
+				'anime_id' => $episode['Episode']['anime_id'],
 				'special' => $episode['Episode']['special']
 				)
 			)
