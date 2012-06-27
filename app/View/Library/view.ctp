@@ -32,9 +32,18 @@ foreach($anime as $animeSingle)
 
 	// Calculate percentage of watched regular episodes for progress-bar
 	 $seen_episodes = $stats[$i][0]['count'];
-	 debug($stats[$i]);
-	 debug($animeSingle);
-	 debug($episodes);
+	 $count_episodes = 0;
+	 $percent = 0;
+
+	 foreach($animeSingle[̈́'Episode'] as $singleEpisode)
+	 	if($singleEpisode['special'] == null)
+	 		$count_episodes++;
+
+	 if($count_episodes != 0)
+		$percent = (int)($seen_episodes / $count_episodes * 100)
+
+	 /*debug($stats[$i]);
+	 debug($animeSingle);*/
 
 	echo "
 	<div class='anime-gallery-single'>
@@ -45,7 +54,7 @@ foreach($anime as $animeSingle)
 			array('escape' => false)
 		)."
 		</div>
-		<div class='smallprogress'><div class='smallprogress-filled' style='width:40%'></div></div>
+		<div class='smallprogress'><div class='smallprogress-filled' style='width:".$percent."%'></div></div>
 		<span class='anime-gallery-single-name'>".$this->Text->truncate($animeSingle['Anime']['title'],20)./*' ('. $stats[$i][0]['count']. ")" . */"</span>
 	</div>";
 	$i++;
