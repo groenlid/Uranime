@@ -72,7 +72,7 @@ if($this->Session->check('Auth.User.id') == 1)
 </div>
 <div class="span3 pull-right">
 <?php
-if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $animeid . "/" . $episode['Episode']['image']) && $episode['Episode']['image'] != null)
+if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $episode['Episode']['anime_id'] . "/" . $episode['Episode']['image']) && $episode['Episode']['image'] != null)
 	echo '<img class="thumbnail" src="http://src.sencha.io/219/'.SERVER_PATH . EPISODE_IMAGE_PATH . $episode['Episode']['image'].'">';
 else
 	echo '<img class="thumbnail" src="http://src.sencha.io/219/'.SERVER_PATH . IMAGE_PATH . $episode['Anime']['fanart'].'">';
