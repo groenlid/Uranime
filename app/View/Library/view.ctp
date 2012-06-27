@@ -20,9 +20,11 @@ echo "<div class='alert alert-info'>This user does not have any anime in his/her
 ?>
 <div class="anime-gallery-poster">
 <?php
-//debug($anime);
+
 $i = 0;
+debug($anime);
 debug($stats);
+
 die();
 foreach($anime as $animeSingle)
 {

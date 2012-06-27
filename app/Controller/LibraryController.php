@@ -22,24 +22,10 @@ class LibraryController extends AppController {
 		
 		$this->User->recursive = -1;
 		$this->set('nick',$this->User->read(array('nick','id'),$id));
-		$this->UserEpisode->recursive = 2;
+		$this->UserEpisode->recursive = -1;
 		$userEpisodes = $this->UserEpisode->find('all', array(
 			
 			'fields' => 'DISTINCT Episode.anime_id, Anime.title, COUNT(*) as count, MAX(UserEpisode.timestamp) AS `when`',
-			'joins' => array(
-				array(
-					'table' => 'anime',
-					'type' => 'LEFT',
-					'alias' => 'Anime',
-					'conditions' => array(
-						'Anime.id = Episode.anime_id'
-						)
-					)
-				),
-			'conditions' => array(
-				'user_id' => $id,
-				'Episode.special' => null
-			),
 			'order' => 'when DESC',
 			'group' => 'Episode.anime_id',
 		));
@@ -47,11 +33,11 @@ class LibraryController extends AppController {
 		
 		$animes = array();
 		$episodes = array();
-		//$this->Anime->recursive = 1;
+		$this->Anime->recursive = 1;
 		foreach($userEpisodes as $anime_id)
 		{
 			//array_push($animes,$tmp);
-			//array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
+			array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
 			/*array_push($animes, $this->Anime->find('first',array(
 				'conditions' => array(
 					'id' => $anime_id['Episode']['anime_id'],
@@ -64,9 +50,9 @@ class LibraryController extends AppController {
 		if($sort == 'title')
 		{
 			usort($animes, "cmpTitle");
-			//usort($userEpisodes, "cmpTitle");
+			usort($userEpisodes, "cmpTitle");
 		}
-		//$this->set('anime',$animes);
+		$this->set('anime',$animes);
 		$this->set('stats',$userEpisodes);
 		//$this->set(compact('animes'));
 	}
