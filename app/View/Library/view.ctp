@@ -34,6 +34,7 @@ foreach($anime as $animeSingle)
 	 $seen_episodes = $stats[$i][0]['count'];
 	 debug($stats[$i]);
 	 debug($animeSingle);
+	 debug($episodes);
 
 	echo "
 	<div class='anime-gallery-single'>
