@@ -805,8 +805,8 @@ class ScrapeShell extends AppShell {
 		}
 	
 		$animeid = $item['Anime']['id'];
-		// check if episode exists
-		$this->Episode->recursive = -1;
+		// check if episode exists	
+
 		$episode = $this->Episode->find('first',
 			array(
 				'conditions' => array(
@@ -816,11 +816,13 @@ class ScrapeShell extends AppShell {
 					)
 				)
 			);
-		if(count($episode) != 1 || $episode == null)
+		if($episode == null)
 		{
 			$this->buggy("EpisodeImage: The episode does not exist.",2);
 			return;
 		}
+
+		$this->buggy("EPisode id: " $episode['Episode']['id'],3);
 
 		// Check if the episode already got an image
 		if($episode['image'] != null)
