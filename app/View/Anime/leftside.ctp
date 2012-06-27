@@ -81,7 +81,7 @@ if($type != 'movie')
 {
 
 $reg_episodes = 0;
-$specials = 0;
+$special = 0;
 foreach($anime['Episode'] as $episode){
 	if($episode['special'] == null)
 		$special++;
