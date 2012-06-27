@@ -91,11 +91,11 @@ foreach($anime['Episode'] as $episode){
 echo '
     	<tr>
     		<td>Episodes</td>
-    		<td>'.((isset($anime['Episode']))? $reg_episodes . "(".$special." specials)":"0").'</td>
+    		<td>'.((isset($anime['Episode'])) ? $reg_episodes . "(" . $special . " specials)" : "0" ).'</td>
     	</tr>
     	<tr>
     		<td>Time</td>
-    		<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * count($reg_episodes. " min"):"N/A").'</td>
+    		<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * $reg_episodes. " min" ) :"N/A").'</td>
     	</tr>
     	';
 }
