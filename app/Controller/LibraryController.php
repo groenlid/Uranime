@@ -62,7 +62,7 @@ class LibraryController extends AppController {
 					'Anime.id' => $anime_id['Episode']['anime_id']
 					)
 				)
-			);
+			));
 			/*array_push($animes, $this->Anime->find('first',array(
 				'conditions' => array(
 					'id' => $anime_id['Episode']['anime_id'],
