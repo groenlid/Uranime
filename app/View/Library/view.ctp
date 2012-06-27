@@ -38,7 +38,8 @@ foreach($anime as $animeSingle)
 			array('escape' => false)
 		)."
 		</div>
-		<span class='anime-gallery-single-name'>".$this->Text->truncate($animeSingle['Anime']['title'],20).' ('. $stats[$i][0]['count']. ")</span>
+		<div class='smallprogress'><div class='smallprogress-filled' style='width:40%'></div></div>
+		<span class='anime-gallery-single-name'>".$this->Text->truncate($animeSingle['Anime']['title'],20)./*' ('. $stats[$i][0]['count']. ")" . */"</span>
 	</div>";
 	$i++;
 }
