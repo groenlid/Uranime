@@ -105,6 +105,8 @@ class LibraryController extends AppController {
 		$this->set('episodes',$episodes);
 
 		debug($episodes);
+		debug($animes);
+		debug($userEpisodes);
 		//$this->set(compact('animes'));
 	}
 
