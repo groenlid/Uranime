@@ -33,6 +33,7 @@ foreach($anime as $animeSingle)
 	// Calculate percentage of watched regular episodes for progress-bar
 	 $seen_episodes = $stats[$i][0]['count'];
 	 debug($stats[$i]);
+	 debug($animeSingle);
 
 	echo "
 	<div class='anime-gallery-single'>

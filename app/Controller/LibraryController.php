@@ -36,12 +36,19 @@ class LibraryController extends AppController {
 		//debug($userEpisodes);
 		
 		$animes = array();
-		$this->Anime->recursive = -1;
+		$this->Anime->recursive = 1;
 		foreach($userEpisodes as $anime_id)
 		{
 			//array_push($animes,$tmp);
-			array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
-			//array_push($animes, $this->Episode->find('count',array('conditions' => array('anime_id' => $anime_id['Episode']['anime_id']))));
+			//array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
+			array_push($animes, $this->Anime->find('first',array(
+				'conditions' => array(
+					'id' => $anime_id['Episode']['anime_id'],
+					'Episode.special' => null
+					)
+				)
+			)
+			);
 		}
 		if($sort == 'title')
 		{
