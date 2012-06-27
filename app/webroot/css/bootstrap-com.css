@@ -90,6 +90,10 @@ ul.referencelinks li:after {
 	background:url('../img/ref_background.png') no-repeat right center;
 }
 
+ul.genres li.genre:after {
+	background:url('../img/genre_background.png') no-repeat right center;
+}
+
 ul.referencelinks li a, ul.genres li a {
 	color:#3f3f3d;
 	font-weight:bold;

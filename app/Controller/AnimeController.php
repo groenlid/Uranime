@@ -770,7 +770,18 @@ class AnimeController extends AppController {
 		$this->set('anime', $this->Anime->find('first', array('conditions' => array('Anime.id' => $id))));
 		$this->set('title_for_layout',$anime['Anime']['title'] . ' - Tags/Genres');
 		$this->pageTitle = $this->Anime->data['Anime']['title'];
-		$this->set('genres',$this->Anime->AnimeGenre->find('all',array('conditions' => array('anime_id' => $id))));
+		$this->set('genres',
+			$this->Anime->AnimeGenre->find('all',array(
+				'conditions' => array(
+					'anime_id' => $id
+						),
+				'order' => array(
+					'Genre.is_genre' => 'desc',
+					'Genre.name' => 'asc'
+					)
+				)
+			)
+		);
 		$this->set('animeuser',NULL);
 
 		$this->getAnimeUser($id);
