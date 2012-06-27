@@ -25,13 +25,13 @@ class LibraryController extends AppController {
 		
 		$userEpisodes = $this->UserEpisode->find('all', array(
 			
-			'fields' => 'DISTINCT Episode.anime_id, COUNT(*) as count, MAX(UserEpisode.timestamp) AS `when`',
+			'fields' => 'DISTINCT Episode.anime_id, COUNT(*) as count, Anime.title, MAX(UserEpisode.timestamp) AS `when`',
 			'conditions' => array(
 				'user_id' => $id,
 				'Episode.special' => null
 			),
 			'order' => 'when DESC',
-			'group' => 'Episode.anime_id'
+			'group' => 'Episode.anime_id',
 		));
 		//debug($userEpisodes);
 		
