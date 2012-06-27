@@ -36,8 +36,9 @@
 </ul>
 <hr>
 <h3><?=$episode['Episode']['name']?></h3>
-<blockquote>
+<blockquote><p class="animedesc">
 <?=($episode['Episode']['description'] == "") ? "No description available" : $episode['Episode']['description']?>
+</p>
 </blockquote>
 <div style="height:40px"></div>
 <h4>People who have seen this episode</h4><br>
@@ -55,7 +56,7 @@ foreach($episode['UserEpisode'] as $user)
 ?>
 </ul>
 <?php
-if($this->Session->check('Auth.User.id') == 1)
+if($isAdmin)
 {
 	echo "<div class='well'>";
 	echo $this->Html->link(
@@ -76,7 +77,22 @@ if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $episode['Episode']['anime_id'] .
 	echo '<img class="thumbnail" src="http://src.sencha.io/219/'.SERVER_PATH . EPISODE_IMAGE_PATH . $episode['Episode']['anime_id'] . "/" . $episode['Episode']['image'].'">';
 else
 	echo '<img class="thumbnail" src="http://src.sencha.io/219/'.SERVER_PATH . IMAGE_PATH . $episode['Anime']['fanart'].'">';
-echo "<br>"; 
+
+?>
+<table class="table table-striped table-condensed table-small">
+	<tbody>
+		<tr>
+    		<td>Episode number:</td>
+    		<td><?=(isset($episode['Episode']['number']))?$episode['Episode']['number']:"N/A"?></td>
+    	</tr>
+		<tr>
+    		<td>Episode type:</td>
+    		<td><?=(isset($episode['Episode']['special']))?"Regular episode":"Special episode"?></td>
+    	</tr>
+    </tbody>
+</table>
+
+<?php
 if($this->Session->check('Auth.User.id'))
 {
 	if(!$userepisode)

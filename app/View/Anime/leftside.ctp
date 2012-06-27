@@ -84,14 +84,14 @@ $reg_episodes = 0;
 $special = 0;
 foreach($anime['Episode'] as $episode){
 	if($episode['special'] == null)
-		$special++;
-	else
 		$reg_episodes++;
+	else
+		$special++;
 }
 echo '
     	<tr>
     		<td>Episodes</td>
-    		<td>'.((isset($anime['Episode'])) ? $reg_episodes . "(" . $special . " specials)" : "0" ).'</td>
+    		<td>'.((isset($anime['Episode'])) ? $reg_episodes . " (" . $special . " specials)" : "0" ).'</td>
     	</tr>
     	<tr>
     		<td>Time</td>
