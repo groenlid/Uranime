@@ -58,8 +58,10 @@ class LibraryController extends AppController {
 			//array_push($animes,$tmp);
 			array_push($animes, $this->Anime->find('first',array(
 				'fields' => 'Anime.*, COUNT(Episode.*) as episode_count',
+				'from' => 'episodes as Episode',
 				'conditions' => array(
-					'Anime.id' => $anime_id['Episode']['anime_id']
+					'Anime.id' => $anime_id['Episode']['anime_id'],
+					'Episode.anime_id' => $anime_id['Episode']['anime_id']
 					)
 				)
 			));
