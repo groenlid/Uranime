@@ -37,8 +37,8 @@ class LibraryController extends AppController {
 		
 		$animes = array();
 		$episodes = array();
-		$this->Anime->recursive = 2;
-		
+		$this->Anime->recursive = -1;
+		$this->Episode->recursive = -1;
 		/*$this->Anime->unbindModel(
     		array(
     			'hasOne' => array(
@@ -56,7 +56,7 @@ class LibraryController extends AppController {
 		foreach($userEpisodes as $anime_id)
 		{
 			//array_push($animes,$tmp);
-			array_push($animes, $this->Anime->find('first',array(
+			/*array_push($animes, $this->Anime->find('first',array(
 				'fields' => 'DISTINCT Episode.anime_id, Anime.image,Anime.title, COUNT(*) as episode_count',
 				'conditions' => array(
 					'Anime.id' => $anime_id['Episode']['anime_id'],
@@ -64,8 +64,25 @@ class LibraryController extends AppController {
 					),
 				'group' => 'Episode.anime_id'
 				)
+			));*/
+			$episode = $this->Episode->find('count', array(
+				'conditions' => array(
+					'anime_id' => $anime_id['Episode']['anime_id'],
+					'special IS NULL'
+					)
+				)
 			));
-			//array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
+
+			array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
+			array_push($episodes, array(
+				'Anime' => array(
+					'title' => $this->Anime->data['Anime']['title']
+					),
+				'episodes' => array(
+					$episode
+					)
+				)
+			);
 			/*array_push($animes, $this->Anime->find('first',array(
 				'conditions' => array(
 					'id' => $anime_id['Episode']['anime_id'],
@@ -79,9 +96,11 @@ class LibraryController extends AppController {
 		{
 			usort($animes, "cmpTitle");
 			usort($userEpisodes, "cmpTitle");
+			usort($episodes,"cmpTitle");
 		}
 		$this->set('anime',$animes);
 		$this->set('stats',$userEpisodes);
+		$this->set('episodes',$episodes);
 		//$this->set(compact('animes'));
 	}
 

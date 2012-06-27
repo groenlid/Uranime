@@ -22,10 +22,7 @@ echo "<div class='alert alert-info'>This user does not have any anime in his/her
 <?php
 
 $i = 0;
-debug($anime);
-debug($stats);
 
-die();
 foreach($anime as $animeSingle)
 {
 	$image = $animeSingle['Anime']['image'];
@@ -36,12 +33,8 @@ foreach($anime as $animeSingle)
 
 	// Calculate percentage of watched regular episodes for progress-bar
 	 $seen_episodes = $stats[$i][0]['count'];
-	 $count_episodes = 0;
+	 $count_episodes = $episodes[$i]['episodes'][0];
 	 $percent = 0;
-
-	 foreach($animeSingle['Episode'] as $singleEpisode)
-	 	if($singleEpisode['special'] == null)
-	 		$count_episodes++;
 
 	 if($count_episodes != 0)
 		$percent = (int)($seen_episodes / $count_episodes * 100);
