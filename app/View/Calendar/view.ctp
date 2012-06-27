@@ -25,11 +25,11 @@ $i = true;
 foreach($episodes as $episode)
 {
 
-	$fanart = $episode['Anime']['fanart'];
+	/*$fanart = $episode['Anime']['fanart'];
 	if($fanart == "" || $fanart == null)
 		$fanart = "http://placehold.it/200x112/";
 	else
-		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
+		$fanart = SERVER_PATH . IMAGE_PATH . $fanart;*/
 
 	$timeStr = strtotime($episode['Episode']['aired']);
 	$date = setDate($timeStr);
@@ -54,12 +54,9 @@ foreach($episodes as $episode)
 
 		echo '<div class="anime-gallery-single">
 			<div class="anime-gallery-single-inner">'.
-		     	'<a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">';
-		if($episode['Anime']['fanart'] != null)
-			echo '<img src="http://src.sencha.io/200/'.$fanart.'">';
-		else
-			echo '<img src="http://placehold.it/200x112">';
-		echo '</a>'.
+		     	'<a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">
+		     		<img src="'.Episode::fetchImage($episode['Episode']['id'],200).'">
+		     	</a>'.
 			'<span class="anime-gallery-single-hover"><a href="/episode/view/'.$episode['Episode']['id'].'/">View Episode</a></span>'.
 			'</div>
 			<p class="bold calendarinfo"><a href="/anime/view/'.$episode['Anime']['id'].'/'.$episode['Anime']['title'].'">'.$episode['Anime']['title']. '</a> ' . $episode['Episode']['number'] . '</p>
