@@ -695,7 +695,7 @@ class ScrapeShell extends AppShell {
 	/**
 	 * Fetches specified seasons from thetvdb and inserts the episodes in the db
 	 */
-	private function fetchSeasonThetvdb($item, $seasonsInfo, $serie_info){
+	function fetchSeasonThetvdb($item, $seasonsInfo, $serie_info){
 		$info = $item['ScrapeInfo'];
 		// Check if special flag is on
 		$special = ($info['fetch_specials'] == 1);
@@ -801,12 +801,10 @@ class ScrapeShell extends AppShell {
 
 			
 		}
-		
-
 
 	}
 
-	private function fetchEpisodeThumbnail($item, $special, $epnumber, $image)
+	function fetchEpisodeThumbnail($item, $special, $epnumber, $image)
 	{
 		if($image == null || empty($image))
 		{
