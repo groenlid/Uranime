@@ -51,7 +51,7 @@ include('leftside.ctp');
 				<span class='checkIt'></span>
 				<span class='episodeNumber'><h2>".$epNumber."</h2></span>
 				<span class='episodeContent'>
-					<div><span class='episodeName ".$green."'>".$this->Html->link($this->Text->truncate($episode['Episode']['name'],50),"/episode/view/".$episode['Episode']['id'])."</span><span class='episodeTime'>".date('l, d, M',strtotime($episode['Episode']['aired']))."</span></div>
+					<div><span class='episodeName'>".$this->Html->link($this->Text->truncate($episode['Episode']['name'],50),"/episode/view/".$episode['Episode']['id'],array('class' => $green))."</span><span class='episodeTime'>".date('l, d, M',strtotime($episode['Episode']['aired']))."</span></div>
 					<p>".$this->Text->truncate($episode['Episode']['description'],200)."</p>
 				</span>
 				<span class='extra'>

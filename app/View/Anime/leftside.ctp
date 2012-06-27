@@ -79,14 +79,23 @@ $status_text = array(
 <?php
 if($type != 'movie')
 {
+
+$reg_episodes = 0;
+$specials = 0;
+foreach($anime['Episode'] as $episode){
+	if($episode['special'] == null)
+		$special++;
+	else
+		$reg_episodes++;
+}
 echo '
     	<tr>
     		<td>Episodes</td>
-    		<td>'.((isset($anime['Episode']))?count($anime['Episode']):"0").'</td>
+    		<td>'.((isset($anime['Episode']))? $reg_episodes . "(".$special." specials)":"0").'</td>
     	</tr>
     	<tr>
     		<td>Time</td>
-    		<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * count($anime['Episode']). " min"):"N/A").'</td>
+    		<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * count($reg_episodes. " min"):"N/A").'</td>
     	</tr>
     	';
 }
