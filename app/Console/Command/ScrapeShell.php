@@ -822,8 +822,6 @@ class ScrapeShell extends AppShell {
 			return;
 		}
 
-		$this->buggy("EPisode id: ". $episode['Episode']['id'],3);
-
 		// Check if the episode already got an image
 		if($episode['image'] != null)
 		{
@@ -852,7 +850,7 @@ class ScrapeShell extends AppShell {
 			// Check if upload_dir exists
 			if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
 
-			$newfilePath = $upload_dir . $episode['id'].'.'.$ext;
+			$newfilePath = $upload_dir . $episode['Episode']['id'].'.'.$ext;
 			$newfile = fopen($newfilePath, "wb");
 			if(!$newfile){
 				$this->buggy("Could not create file",2);
@@ -862,15 +860,15 @@ class ScrapeShell extends AppShell {
 				fwrite($newfile,fread($file,1024 * 8),1024 * 8); // write the file to the new directory at a rate of 8kb/sec. until we reach the end.	
 			}
 			
-			$this->Episode->read(null,$episode['id']);
-			$this->Episode->set('image',$episode['id'].'.'.$ext);
+			$this->Episode->read(null,$episode['Episode']['id']);
+			$this->Episode->set('image',$episode['Episode']['id'].'.'.$ext);
 
 			if($this->Episode->save())
 			{
 				$this->buggy("New image have been saved, and reference updated.",2);
 			}
 			else
-				$this->buggy("Could not save reference to image in database: ".$episode['id'],2);
+				$this->buggy("Could not save reference to image in database: ".$episode['Episode']['id'],2);
 		}
 		else
 			$this->buggy("Could not open url: ".$thetvdbEpisodeUrl,2);
