@@ -37,9 +37,9 @@ class LibraryController extends AppController {
 		
 		$animes = array();
 		$episodes = array();
-		$this->Anime->recursive = 1;
+		$this->Anime->recursive = 2;
 		
-		/*$this->Anime->unbindModel(
+		$this->Anime->unbindModel(
     		array(
     			'hasOne' => array(
     				'AnimeRatingBayes'
@@ -51,7 +51,7 @@ class LibraryController extends AppController {
     				'UserWatchlist'
     				)
     			)
-    		);*/
+    		);
 
 		foreach($userEpisodes as $anime_id)
 		{
@@ -65,6 +65,7 @@ class LibraryController extends AppController {
 					)
 				)
 			));
+			//array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
 			/*array_push($animes, $this->Anime->find('first',array(
 				'conditions' => array(
 					'id' => $anime_id['Episode']['anime_id'],
