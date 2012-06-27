@@ -840,13 +840,17 @@ class ScrapeShell extends AppShell {
 		$file = fopen($thetvdbEpisodeUrl,"rb");
 		if($file){
 			$valid_exts = array("jpg","jpeg","gif","png");
-			$ext = end(explode(".",strtolower(basename($url))));
+			$ext = end(explode(".",strtolower(basename($thetvdbEpisodeUrl))));
 			if(!in_array($ext,$valid_exts)){
 				$this->buggy("Not a valid filetype: ".$ext,2);
 				return;
 			}
 
-			$newfilePath = WWW_ROOT . EPISODE_IMAGE_PATH . $episode['id'].'.'.$ext;
+			$upload_dir = WWW_ROOT . EPISODE_IMAGE_PATH . "/" . $episode['anime_id'] . "/";
+			// Check if upload_dir exists
+			if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
+
+			$newfilePath = $upload_dir . $episode['id'].'.'.$ext;
 			$newfile = fopen($newfilePath, "wb");
 			if(!$newfile){
 				$this->buggy("Could not create file",2);
