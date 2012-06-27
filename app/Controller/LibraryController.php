@@ -71,7 +71,7 @@ class LibraryController extends AppController {
 					'special IS NULL'
 					)
 				)
-			));
+			);
 
 			array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
 			array_push($episodes, array(
