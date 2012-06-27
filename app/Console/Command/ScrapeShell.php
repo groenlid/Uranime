@@ -323,7 +323,7 @@ class ScrapeShell extends AppShell {
 		return false;
 	}
 	
-	function addGenre($scrapeInfo, $genre, $description)
+	function addGenre($scrapeInfo, $genre, $description,$is_genre = false)
 	{
 		$genre = Sanitize::clean(trim($genre));
 		$description = Sanitize::clean(trim($description));
@@ -339,6 +339,9 @@ class ScrapeShell extends AppShell {
 			$this->Genre->create();
 			$this->Genre->set('name',$genre);
 			$this->Genre->set('description',$description);
+			if($is_genre)
+				$this->Genre->set('is_genre',true);
+
 			if($this->Genre->save())
 			{
 				$genreid = $this->Genre->getInsertID();
@@ -367,7 +370,14 @@ class ScrapeShell extends AppShell {
 					$this->out("\t" . "\t" . 'Added description to genre \''.$genre.'\'....');
 			}
 		}
-		
+		if($ant['Genre']['is_genre'] == null && $is_genre)
+		{
+			$this->Genre->read(NULL,$genreid);
+			$this->Genre->set('is_genre',true);
+			if($this->Genre->save()){
+				$this->stats['Genre_changed']++;
+			$this->buggy('Changed property of tag -> genre: \''.$genre.'\'....',2);
+		}
 		$anime_database = $this->Anime->read(NULL, $scrapeInfo['Anime']['id']);
 		
 		// Check if the genre is already connected to the anime
