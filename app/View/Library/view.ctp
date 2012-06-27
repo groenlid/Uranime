@@ -22,7 +22,7 @@ echo "<div class='alert alert-info'>This user does not have any anime in his/her
 <?php
 //debug($anime);
 $i = 0;
-debug($anime);
+debug($stats);
 die();
 foreach($anime as $animeSingle)
 {
