@@ -16,7 +16,7 @@ class Episode extends AppModel {
 		$this->Episode = ClassRegistry::init('Episode');
 		$episode = $this->Episode->find('first',array(
 			'conditions' => array(
-				'id' => $episode_id
+				'Episode.id' => $episode_id
 				)
 			)
 		);
