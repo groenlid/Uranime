@@ -72,11 +72,13 @@ class LibraryController extends AppController {
 					)
 				)
 			);
-
-			array_push($animes, $this->Anime->read(null,$anime_id['Episode']['anime_id']));
+			
+			$anime = $this->Anime->read(null,$anime_id['Episode']['anime_id']);
+			
+			array_push($animes, $anime);
 			array_push($episodes, array(
 				'Anime' => array(
-					'title' => $this->Anime->data['Anime']['title']
+					'title' => $anime['Anime']['title']
 					),
 				'episodes' => array(
 					$episode
