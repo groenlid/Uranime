@@ -28,8 +28,10 @@ class Episode extends AppModel {
 
 		if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $episode['Episode']['anime_id'] . "/" . $episode['Episode']['image']) && $episode['Episode']['image'] != null)
 			return $returnUrl . SERVER_PATH . EPISODE_IMAGE_PATH . $episode['Episode']['anime_id'] . "/" . $episode['Episode']['image'];
-		else
+		else if(file_exists(WWW_ROOT . IMAGE_PATH . $episode['Anime']['fanart']) && $episode['Anime']['fanart'] != null)
 			return $returnUrl . SERVER_PATH . IMAGE_PATH . $episode['Anime']['fanart'];
+		else
+			return $returnUrl . "http://placehold.it/200x112/";
 
 	}
 }
