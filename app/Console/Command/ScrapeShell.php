@@ -835,7 +835,7 @@ class ScrapeShell extends AppShell {
 		}
 
 		// We should fetch the image
-		$thetvdbEpisodeUrl = "http://thetvdb.com/banners/".$episode['image'];
+		$thetvdbEpisodeUrl = "http://thetvdb.com/banners/".$image;
 
 		$file = fopen($thetvdbEpisodeUrl,"rb");
 		if($file){
