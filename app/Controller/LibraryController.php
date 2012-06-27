@@ -22,7 +22,7 @@ class LibraryController extends AppController {
 		
 		$this->User->recursive = -1;
 		$this->set('nick',$this->User->read(array('nick','id'),$id));
-		$this->UserEpisode->recursive = 2;
+
 		$userEpisodes = $this->UserEpisode->find('all', array(
 			
 			'fields' => 'DISTINCT Episode.anime_id, COUNT(*) as count, MAX(UserEpisode.timestamp) AS `when`',
@@ -106,9 +106,9 @@ class LibraryController extends AppController {
 		$this->set('stats',$userEpisodes);
 		$this->set('episodes',$episodes);
 
-		debug($episodes);
-		debug($animes);
-		debug($userEpisodes);
+		//debug($episodes);
+		//debug($animes);
+		//debug($userEpisodes);
 		//$this->set(compact('animes'));
 	}
 
