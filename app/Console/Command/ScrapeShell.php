@@ -749,11 +749,11 @@ class ScrapeShell extends AppShell {
 						$episode['description'], 
 						true 
 						);
+					$this->fetchEpisodeThumbnail($item,true,$regNumber,$episode['filename']);
 					$specNumber++;
-					continue;
 				}
 				// If the episode is a special and the special flag is on
-				if(in_array((int)$episode['airsbefore_season'],$seasons,true) 
+				else if(in_array((int)$episode['airsbefore_season'],$seasons,true) 
 				|| in_array((int)$episode['airsafter_season'],$seasons,true)){
 					// if the special episode is in one of the seasons we want, we add it
 					//$this->buggy("Added episode: '" .$episode['name']. "' with number ".$specNumber,1);
@@ -766,8 +766,8 @@ class ScrapeShell extends AppShell {
 						$episode['description'], 
 						true 
 						);
+					$this->fetchEpisodeThumbnail($item,true,$specNumber,$episode['filename']);
 					$specNumber++;
-					continue;
 				}
 
 			}
@@ -784,13 +784,84 @@ class ScrapeShell extends AppShell {
 						$episode['description'], 
 						NULL 
 						);
+				$this->fetchEpisodeThumbnail($item,NULL,$regNumber,$episode['filename']);
 				$regNumber++;
+
 			}
 
+			
 		}
-		// Fetch images here
+		
 
 
+	}
+
+	private function fetchEpisodeThumbnail($item, $special, $epnumber, $image)
+	{
+		if($image == null || empty($image))
+		{
+			$this->buggy("No image path..",2);
+			return;
+		}
+	
+		$animeid = $item['Anime']['id'];
+		// check if episode exists
+		$this->Episode->recursive = -1;
+		$episode = $this->Episode->find('first',
+			array(
+				'conditions' => array(
+					'anime_id' => $animeid,
+					'special' => $special,
+					'number' => $epnumber
+					)
+				)
+			);
+		if($episode == null)
+		{
+			$this->buggy("EpisodeImage: The episode does not exist.",2);
+			return;
+		}
+
+		// Check if the episode already got an image
+		if($episode['image'] != null)
+		{
+			if(file_exists(WWW_ROOT . EPISODE_IMAGE_PATH . $episode['image']))
+			{
+				$this->buggy('EpisodeImage: The episode already have an image',2);
+				return;
+			}
+			
+			$this->buggy('EpisodeImage: The episode should have an image, but the path is empty.',2);	
+		}
+
+		// We should fetch the image
+		$thetvdbEpisodeUrl = "http://thetvdb.com/banners/".$episode['image'];
+
+		$file = fopen($thetvdbEpisodeUrl,"rb");
+		if($file){
+			$valid_exts = array("jpg","jpeg","gif","png");
+			$ext = end(explode(".",strtolower(basename($url))));
+			if(!in_array($ext,$valid_exts)){
+				$this->buggy("Not a valid filetype: ".$ext,2);
+				return;
+			}
+
+			$newfilePath = WWW_ROOT . EPISODE_IMAGE_PATH . $episode['id'].'.'.$ext;
+			$newfile = fopen($newfilePath, "wb");
+			if(!$newfile){
+				$this->buggy("Could not create file",2);
+				return;
+			}
+			while(!feof($file)){
+				fwrite($newfile,fread($file,1024 * 8),1024 * 8); // write the file to the new directory at a rate of 8kb/sec. until we reach the end.	
+			}
+			$this->Episode->set('image',$episode['id'].'.'.$ext);
+			if($this->Episode->save())
+			{
+				$this->buggy("New image have been saved, and reference updated.",2);
+			}
+			else
+				$this->buggy("Could not save reference to image in database: ".$episode['id'],2);
 	}
 
 		    //   $episode['id'] = (int) $ep->id;

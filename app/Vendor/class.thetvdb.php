@@ -151,6 +151,7 @@ class Thetvdb
                $episode['airsafter_season'] = (int) $ep->airsafter_season;
                $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
                $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
+               $episode['filename'] = (int) $ep->filename;
                $episodes[] = $episode;
             }
             $serie['episodes'] = $episodes;
