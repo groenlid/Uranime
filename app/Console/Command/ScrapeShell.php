@@ -376,7 +376,8 @@ class ScrapeShell extends AppShell {
 			$this->Genre->set('is_genre',true);
 			if($this->Genre->save()){
 				$this->stats['Genre_changed']++;
-			$this->buggy('Changed property of tag -> genre: \''.$genre.'\'....',2);
+				$this->buggy('Changed property of tag -> genre: \''.$genre.'\'....',2);
+			}
 		}
 		$anime_database = $this->Anime->read(NULL, $scrapeInfo['Anime']['id']);
 		
@@ -695,7 +696,7 @@ class ScrapeShell extends AppShell {
 	/**
 	 * Fetches specified seasons from thetvdb and inserts the episodes in the db
 	 */
-	function fetchSeasonThetvdb($item, $seasonsInfo, $serie_info){
+	private function fetchSeasonThetvdb($item, $seasonsInfo, $serie_info){
 		$info = $item['ScrapeInfo'];
 		// Check if special flag is on
 		$special = ($info['fetch_specials'] == 1);
@@ -801,10 +802,12 @@ class ScrapeShell extends AppShell {
 
 			
 		}
+		
+
 
 	}
 
-	function fetchEpisodeThumbnail($item, $special, $epnumber, $image)
+	private function fetchEpisodeThumbnail($item, $special, $epnumber, $image)
 	{
 		if($image == null || empty($image))
 		{
@@ -893,7 +896,7 @@ class ScrapeShell extends AppShell {
             //   $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
             //   $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
 
-	function buggy($text = null, $indent = 0)
+	private function buggy($text = null, $indent = 0)
 	{
 		for($i = 0; $i < $indent; $i++)
 			$text = "\t" . $text;
@@ -901,7 +904,7 @@ class ScrapeShell extends AppShell {
 			$this->out($text);
 	}
 
-	function legacyThetvdb($item, $episodesInfo, $serie_info){
+	private function legacyThetvdb($item, $episodesInfo, $serie_info){
 
 		// THIS IS DEPRECATED!
 		// Fetch the episodes for the given series. It should allways be absolute_number. 
