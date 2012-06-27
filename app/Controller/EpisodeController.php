@@ -170,7 +170,16 @@ class EpisodeController extends AppController {
 			$this->redirect($this->referer());
 		}
 		//debug($episode);
-		$neighbors = $this->Episode->find('neighbors',array('field' => 'number','value' => $episode['Episode']['number'],'conditions' => array('anime_id' => $episode['Episode']['anime_id'])));
+		$neighbors = $this->Episode->find('neighbors',array(
+			'field' => 'number',
+			'value' => $episode['Episode']['number'],
+			'conditions' => array(
+				'anime_id' => $episode['Episode']['anime_id']
+				'special' => $episode['Episode']['special']
+				)
+			)
+		);
+		
 		$this->set('episode',$episode);
 		$this->set('neighbors',$neighbors);
 
