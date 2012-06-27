@@ -893,7 +893,7 @@ class ScrapeShell extends AppShell {
             //   $episode['airsbefore_season'] = (int) $ep->airsbefore_season;
             //   $episode['airsbefore_episode'] = (int) $ep->airsbefore_episode;
 
-	private function buggy($text = null, $indent = 0)
+	function buggy($text = null, $indent = 0)
 	{
 		for($i = 0; $i < $indent; $i++)
 			$text = "\t" . $text;
@@ -901,7 +901,7 @@ class ScrapeShell extends AppShell {
 			$this->out($text);
 	}
 
-	private function legacyThetvdb($item, $episodesInfo, $serie_info){
+	function legacyThetvdb($item, $episodesInfo, $serie_info){
 
 		// THIS IS DEPRECATED!
 		// Fetch the episodes for the given series. It should allways be absolute_number. 
