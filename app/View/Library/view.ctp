@@ -37,7 +37,7 @@ foreach($anime as $animeSingle)
 	 $count_episodes = 0;
 	 $percent = 0;
 
-	 foreach($animeSingle[̈́'Episode'] as $singleEpisode)
+	 foreach($animeSingle['Episode'] as $singleEpisode)
 	 	if($singleEpisode['special'] == null)
 	 		$count_episodes++;
 
