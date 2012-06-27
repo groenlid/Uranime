@@ -862,6 +862,9 @@ class ScrapeShell extends AppShell {
 			}
 			else
 				$this->buggy("Could not save reference to image in database: ".$episode['id'],2);
+		}
+		else
+			$this->buggy("Could not open url: ".$thetvdbEpisodeUrl,2);
 	}
 
 		    //   $episode['id'] = (int) $ep->id;
