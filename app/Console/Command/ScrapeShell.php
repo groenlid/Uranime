@@ -158,11 +158,11 @@ class ScrapeShell extends AppShell {
 			
 			foreach($anime['genres'] as $genre)
 			{
-				$this->addGenre($item, $genre,'');
+				$this->addGenre($item, $genre,'', true);
 			}
 			foreach($anime['tags'] as $tag)
 			{
-				$this->addGenre($item, $tag,'');
+				$this->addGenre($item, $tag,'', false);
 			}
 
 			if(SCRAPEDEBUG)
@@ -472,9 +472,9 @@ class ScrapeShell extends AppShell {
 			//if($anime->count() !== 0){
 			if(count($anime->children()) !== 0){
 				foreach($anime->categories->category as $category)
-					$this->addGenre($item, (string)$category->name, (string)$category->description);
+					$this->addGenre($item, (string)$category->name, (string)$category->description, true);
 				foreach($anime->tags->tag as $tag)
-					$this->addGenre($item, (string)$tag->name, (string)$tag->description);
+					$this->addGenre($item, (string)$tag->name, (string)$tag->description, false);
 			}
 			else
 				if(SCRAPEDEBUG)
