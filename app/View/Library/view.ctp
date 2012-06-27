@@ -23,6 +23,7 @@ echo "<div class='alert alert-info'>This user does not have any anime in his/her
 //debug($anime);
 $i = 0;
 debug($anime);
+die();
 foreach($anime as $animeSingle)
 {
 	$image = $animeSingle['Anime']['image'];
@@ -56,7 +57,7 @@ foreach($anime as $animeSingle)
 		)."
 		</div>
 		<div class='smallprogress'><div class='smallprogress-filled' style='width:".$percent."%'></div></div>
-		<span class='anime-gallery-single-name'>".$this->Text->truncate($animeSingle['Anime']['title'],20)./*' ('. $stats[$i][0]['count']. ")" . */"</span>
+		<span class='anime-gallery-single-name'>".$this->Text->truncate($animeSingle['Anime']['title'],20)."</span>
 	</div>";
 	$i++;
 }
