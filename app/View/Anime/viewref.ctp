@@ -21,6 +21,7 @@ echo $this->Html->tableHeaders(array('Source','ID','Specify Episodes','Specify S
 foreach($info as $scrapeinfo)
 {
 	extract($scrapeinfo['ScrapeInfo']);
+	debug($scrapeInfo['ScrapeInfo']);
 	/*echo "<tr>";
 	
 	
