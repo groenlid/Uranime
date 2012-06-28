@@ -678,6 +678,9 @@ class ScrapeShell extends AppShell {
 			$this->out("\t".'Season information is set to:"'.$seasonsInfo . '" and episode info: "' . $episodeInfo.'"');
 		
 		// Fetching all the episodes
+		//CHECK IF WE WANT TO FETCH EPISODES
+		if($item['ScrapeInfo']['fetch_episodes'] != '1')
+			return;
 		if(SCRAPEDEBUG)
 			$this->out("\t".'Fetching all episodes for series');
 		$serie_info = $tvdbapi->GetSerieData($item['ScrapeInfo']['scrape_id'],true);
