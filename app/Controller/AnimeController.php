@@ -9,7 +9,7 @@ class AnimeController extends AppController {
 						'limit' => 50,
 						'order' => array(
 							'Episode.aired' => 'desc',
-							'Episode.order' => 'desc'
+							'Episode.number' => 'desc'
 						),
 						'Activity' => array(
 							'limit' => 10
