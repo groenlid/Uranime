@@ -67,17 +67,12 @@ extract($anime['Anime']);
 		echo "<div class='progressbar'><div id='progress' style='width:".$per."%;'>".$status."</div></div>";
 
 		//echo "<p>Watched <strong>". $user_seen . "</strong> out of <strong>" . $out_now . "</strong> episodes.</p>";
-
-		if($fanart == null || $fanart == "")
-			$fanart = "http://placehold.it/117x66";
-		else
-			$fanart = SERVER_PATH . IMAGE_PATH . $fanart;
 		
 		if($type == 'movie'){
 			$episode = $anime['Episode'][0];
 			echo "<div class='episode'>
 				<span class='episodeImage'>
-					".$this->Html->link("<img src='http://src.sencha.io/117/".$fanart."'>",'/episode/view/'.$episode['id'],array('escape' => false))."
+					".$this->Html->link(Episode::fetchImage($next_episode['id'],117),'/episode/view/'.$episode['id'],array('escape' => false))."
 				</span>
 				<span class='episodeContent'>
 					<span class='episodeName'>"
@@ -99,7 +94,7 @@ extract($anime['Anime']);
 		else if($next_episode != null){
 			echo "<!--<p class='subtle big'>Next unseen episode:</p>--><div class='episode'>
 				<span class='episodeImage'>
-					".$this->Html->link("<img src='http://src.sencha.io/117/".$fanart."'>",'/episode/view/'.$next_episode['id'],array('escape' => false))."
+					".$this->Html->link(Episode::fetchImage($next_episode['id'],219),'/episode/view/'.$next_episode['id'],array('escape' => false))."
 				</span>
 				<span class='episodeContent'>
 					<span class='episodeName'>"
