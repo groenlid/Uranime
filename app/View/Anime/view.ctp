@@ -27,6 +27,8 @@ extract($anime['Anime']);
 		$next_episode = null;
 		foreach(array_reverse($anime['Episode']) as $episode){
 			$found = false;
+			if($episode['special'] == true) // ignore special episodes for now
+				continue;
 			if(strtotime($episode['aired']) < time())
 			{
 				$out_now++;
