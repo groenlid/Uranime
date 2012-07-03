@@ -94,7 +94,7 @@ extract($anime['Anime']);
 		else if($next_episode != null){
 			echo "<!--<p class='subtle big'>Next unseen episode:</p>--><div class='episode'>
 				<span class='episodeImage'>
-					".$this->Html->link(Episode::fetchImage($next_episode['id'],219),'/episode/view/'.$next_episode['id'],array('escape' => false))."
+					".$this->Html->image(Episode::fetchImage($next_episode['id'],117),array('url'=>'/episode/view/'.$next_episode['id']))."
 				</span>
 				<span class='episodeContent'>
 					<span class='episodeName'>"
