@@ -14,7 +14,7 @@ class Episode extends AppModel {
 	public function fetchImage($episode_id, $width = 0)
 	{
 		$this->Episode = ClassRegistry::init('Episode');
-		$this->Anime = ClassRegistry::init('Anime');
+		//$this->Anime = ClassRegistry::init('Anime');
 		
 		$this->Episode->recursive = 2;
 		
@@ -31,7 +31,7 @@ class Episode extends AppModel {
 
 		$returnUrl = "";
 		
-		print_r($episode);
+		//print_r($episode);
 		
 		if($width != 0 && is_numeric($width) && $width > 0)
 			$returnUrl .= "http://src.sencha.io/" . $width . "/";
