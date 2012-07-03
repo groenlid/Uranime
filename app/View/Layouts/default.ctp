@@ -169,6 +169,9 @@
 					<div class="numberbox">
 						<h2><?= $numberUsers ?></h2>users
 					</div>
+					<div class="numberbox">
+						<h2><?= $numberSeenEpisodes ?></h2>seen episodes
+					</div>
 				</div>
 	    	</footer>
     	</div>

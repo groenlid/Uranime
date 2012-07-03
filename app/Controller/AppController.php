@@ -39,7 +39,7 @@ class AppController extends Controller {
         'Session',
         'Auth'
     );
-    public $uses = array('Anime','Episode','User','AnimeRequest');
+    public $uses = array('Anime','Episode','User','AnimeRequest','UserEpisode');
 
 	function beforeFilter(){
 		parent::beforeFilter();
@@ -59,11 +59,12 @@ class AppController extends Controller {
 		$numberAnime = $this->Anime->find('count');
 		$numberEpisodes = $this->Episode->find('count');
 		$numberUsers = $this->User->find('count');
+		$numberSeenEpisodes = $this->UserEpisode->find('count');
 		
 		$this->set('numberAnime',$numberAnime);
 		$this->set('numberEpisodes', $numberEpisodes);
 		$this->set('numberUsers', $numberUsers);
-		
+		$this->set('numberSeenEpisodes', $numberSeenEpisodes);
 /*
 		$this->set('numberAnime',0);
 		$this->set('numberEpisodes', 0);
