@@ -72,7 +72,7 @@ extract($anime['Anime']);
 			$episode = $anime['Episode'][0];
 			echo "<div class='episode'>
 				<span class='episodeImage'>
-					".$this->Html->link($this->Html->image(Episode::fetchImage($episode['id'],117)),'/episode/view/'.$episode['id'],array('escape' => false))."
+					".$this->Html->image(Episode::fetchImage($episode['id'],117),array('url'=>'/episode/view/'.$episode['id']))."
 				</span>
 				<span class='episodeContent'>
 					<span class='episodeName'>"
