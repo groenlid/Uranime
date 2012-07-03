@@ -15,6 +15,9 @@ class Episode extends AppModel {
 	{
 		$this->Episode = ClassRegistry::init('Episode');
 		$this->Anime = ClassRegistry::init('Anime');
+		
+		$this->Episode->recursive = 2;
+		
 		$episode = $this->Episode->find('first',array(
 			'conditions' => array(
 				'Episode.id' => $episode_id
