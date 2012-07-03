@@ -21,6 +21,10 @@ class Episode extends AppModel {
 		$episode = $this->Episode->find('first',array(
 			'conditions' => array(
 				'Episode.id' => $episode_id
+				),
+			'fields' => array(
+				'Episode.*',
+				'Anime.fanart',
 				)
 			)
 		);
