@@ -23,7 +23,9 @@ class Episode extends AppModel {
 		);
 
 		$returnUrl = "";
-
+		
+		print_r($episode);
+		
 		if($width != 0 && is_numeric($width) && $width > 0)
 			$returnUrl .= "http://src.sencha.io/" . $width . "/";
 
