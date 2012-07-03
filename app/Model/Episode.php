@@ -14,6 +14,7 @@ class Episode extends AppModel {
 	public function fetchImage($episode_id, $width = 0)
 	{
 		$this->Episode = ClassRegistry::init('Episode');
+		$this->Anime = ClassRegistry::init('Anime');
 		$episode = $this->Episode->find('first',array(
 			'conditions' => array(
 				'Episode.id' => $episode_id
