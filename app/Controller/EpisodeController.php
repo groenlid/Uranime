@@ -74,7 +74,10 @@ class EpisodeController extends AppController {
 		$rejected = 0;
 
 		foreach($anime['Episode'] as $episode)
-		{
+        {
+            // Skip episode if it is a special.
+            if($episode['special'] != null)
+                continue;
 			if($episode['number'] < $from || $episode['number'] > $to)
 				continue;
 			if($this->watchEpisode($episode['id'],true))
