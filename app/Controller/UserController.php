@@ -3,9 +3,13 @@ class UserController extends AppController {
 	var $helpers = array('Gravatar','Time');
 	var $uses = array('Activity','UserEpisode');
 	var $name = 'User';
-	var $paginate = array( 'Activity' => array(
+    var $paginate = array( 
+                'Activity' => array(
 						'limit' => 20
-					)
+                    ),
+                'User' => array(
+                        'limit' => 30
+                    )
 				);
 	var $components = array(
 		'Email',
@@ -33,8 +37,8 @@ class UserController extends AppController {
     	);
 
 		//$this->set(compact('animes'));
-		$this->set('animes',$this->paginate('User'));
-		$this->set('users',$this->User->find('all',array('order' => 'nick')));
+		$this->set('users',$this->paginate('User'));
+		//$this->set('users',$this->User->find('all',array('order' => 'nick')));
 	}
 
 	function view($id = null){
