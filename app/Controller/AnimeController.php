@@ -742,7 +742,12 @@ class AnimeController extends AppController {
 		$this->set('episodes', $this->paginate($this->Anime->Episode, array('Anime.id' => $id)));	
 	}
 
-	function scrape() {
+    function scrape() {
+        if(!$isAdmin)
+        {
+            $this->redirect($this->referer());
+            return;
+        }
 		//$logfile = '/home/groenlid/Git/Uranime/app/tmp/logs/scrape.log';
 		$logfile = SCRAPE_LOGFILE;//'/home/groenlid/public_html/app/tmp/logs/scrape.log';
 		//passthru("/usr/bin/php /home/groenlid/Git/Uranime/lib/Cake/Console/cake.php scrape -app /home/groenlid/Git/Uranime/app > " . $logfile . " &");
