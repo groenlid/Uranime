@@ -68,8 +68,7 @@ class LibraryController extends AppController {
 			$episode = $this->Episode->find('count', array(
 				'conditions' => array(
 					'anime_id' => $anime_id['Episode']['anime_id'],
-					'special IS NULL',
-					'aired <= CURDATE()'
+					'special IS NULL'
 					)
 				)
 			);
