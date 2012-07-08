@@ -743,8 +743,10 @@ class AnimeController extends AppController {
 	}
 
     function scrape() {
-        if(!$this->isAdmin())
+        $uid = $this->Auth->User('id');
+        if(!$this->User->isAdmin($uid))
         {
+            
             $this->redirect($this->referer());
             return;
         }

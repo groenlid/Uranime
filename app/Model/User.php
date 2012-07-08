@@ -23,6 +23,18 @@ class User extends AppModel {
 	    	'message' => 'A user with that nick already exists'
 	    )
 	);
-	//var $virtualFields = array('gravatar' => 'LOWER(MD5(User.email))');
+    
+    var $virtualFields = array('gravatar' => 'LOWER(MD5(User.email))');
+
+    /**
+     * Checks whether user with id $userid is admin
+     */
+
+    public function isAdmin($userid = null){
+        // TODO: Make better admin function :P
+        return $userid === 1;
+		//return ($this->Auth->User('id') == 1);
+	}
+    
 }
 ?>
