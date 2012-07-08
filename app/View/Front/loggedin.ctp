@@ -50,8 +50,8 @@ if(count($episodes) != 0)
 	var amount = 0;
 	var startAmount = 10;
 	localStorage.clear();
-	setInterval("getNewsFeed()",5000);
-
+	//setInterval("getNewsFeed()",10000);
+    getNewsFeed();
 	function decider(){
 		if(last == 0)
 			getInitialNewsFeed();
@@ -65,31 +65,41 @@ if(count($episodes) != 0)
 			url = "/api/lastseen/"+startAmount+".json";
 		else
 			url = '/api/lastseenAfter/'+last+'.json';
-		$.getJSON(url, function(data) {
-		  var items = [];
-		  $.each(data.data, function(key2, val2) {
-		  	$.each(val2, function(key, val) {
-				/* Show one -> hide one */
-				console.log(key);
-				if(amount == 0)
-					$('#newsfeed').html(activityItem(val,false));
+        
+        $.getJSON(url, function(data) {
+            var items = [];
+            var index = 0;
+            var dataset = data.data.data;
+            
+            var processData = function() {
+                for(; index < dataset.length; index++)
+                {
 
-				else if(amount >= startAmount){
-					$('#newsfeed').prepend(activityItem(val,true));
+                    console.log("Starting with item nr: " + index);
+                
+                    if(amount == 0)
+                        $('#newsfeed').html(activityItem(dataset[index], false));
+
+                    else if(amount >= startAmount){
+					    $('#newsfeed').prepend(activityItem(dataset[index],true));
 						$('#newsfeed .newsfeed:first-child').slideDown('slow');
-					$('#newsfeed .newsfeed:last-child').slideUp('slow',function(){
-						$('#newsfeed .newsfeed:last-child').remove();				
-					});
-				}
-				else
-					$('#newsfeed').append(activityItem(val,false));
-				amount += 1;
-		    		//items.push(activityItem(val));
-		  	});
-		  });
-		  //$('#newsfeed').prepend(items.join(''));
+					    $('#newsfeed .newsfeed:last-child').slideUp('slow',function(){
+						    $('#newsfeed .newsfeed:last-child').remove();				
+                        });
+                    }
+                
+                    else
+					    $('#newsfeed').append(activityItem(dataset[index],false));
+				    
+                    amount += 1;
+                    setTimeout(processData, 2000);
+                }
+            }
 
-		});
+            processData();
+        });
+        //$('#newsfeed').prepend(items.join(''));
+
 	}
 
 	function activityItem(item,append){

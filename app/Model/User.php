@@ -24,7 +24,7 @@ class User extends AppModel {
 	    )
 	);
     
-    var $virtualFields = array('gravatar' => 'LOWER(MD5(User.email))');
+    //var $virtualFields = array('gravatar' => 'LOWER(MD5(User.email))');
 
     /**
      * Checks whether user with id $userid is admin
