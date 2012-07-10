@@ -6,7 +6,7 @@ class Episode extends AppModel {
 	public $hasMany = array('UserEpisode');
 	public $order = array('aired','number');
 
-
+    var $old_image = "";
 	/**
 	 * Returns the thumbnail of the episode image
 	 * If $widht is 0, the full-size image is returned
@@ -55,20 +55,24 @@ class Episode extends AppModel {
         // Delete the episode image... 
         // We do not need it anymore..
 
-        if($this->image != null && $this->image != '')
-        {
-            $image_path = WWW_ROOT . EPISODE_IMAGE_PATH . $this->anime_id . '/' . $this->image;
-            if( file_exists( $image_path ) == TRUE )
-                if( !unlink( $image_path ) ) // If it fails, we don't want to continue
-                    return false;
-        }
 
-
+        $this->old_image = $this->image;
         // Delete user seen episodes
 		$this->UserEpisode = ClassRegistry::init('UserEpisode');
         $this->UserEpisode->deleteAll(array('UserEpisode.episode_id' =>$this->id),false);
         
         return true;
+    }
+
+    public function afterDelete(){
+        if($this->old_image != null && $this->old_image != '')
+        {
+            $image_path = WWW_ROOT . EPISODE_IMAGE_PATH . $this->anime_id . '/' . $this->old_image;
+            //echo $image_path;
+            if( file_exists( $image_path ) == TRUE )
+                 unlink( $image_path ); // If it fails, we don't want to continue
+        }
+
     }
 }
 ?>

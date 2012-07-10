@@ -31,6 +31,8 @@ class User extends AppModel {
      */
 
     public function isAdmin($userid = null){
+        if($this->id != null && $userid == null)
+            $userid = $this->id;
         // TODO: Make better admin function :P
         return $userid === 1;
 		//return ($this->Auth->User('id') == 1);

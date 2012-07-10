@@ -213,9 +213,9 @@ class EpisodeController extends AppController {
 		
 		$this->Episode->read(null,$id);
 		$aid = $this->Episode->data['Episode']['anime_id'];
-		$this->Activity->deleteAll(array('Activity.object_type' => 'episode', 'Activity.object_id' => $id));
-		$this->UserEpisode->deleteAll(array('UserEpisode.episode_id' => $id));
-		$this->Episode->delete($id);
+		//$this->Activity->deleteAll(array('Activity.object_type' => 'episode', 'Activity.object_id' => $id));
+		//$this->UserEpisode->deleteAll(array('UserEpisode.episode_id' => $id));
+		$this->Episode->deleteAll(array('Episode.id' =>$id), false, true);
 		
 		$this->Session->setFlash('The episode has been deleted','flash_success');
 		$this->redirect('/anime/view/'.$aid);
