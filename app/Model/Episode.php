@@ -66,7 +66,7 @@ class Episode extends AppModel {
 
         // Delete user seen episodes
 		$this->UserEpisode = ClassRegistry::init('UserEpisode');
-        $this->UserEpisode->deleteAll(array('UserEpisode.episode_id' =>$this->id),false)
+        $this->UserEpisode->deleteAll(array('UserEpisode.episode_id' =>$this->id),false);
         
         return true;
     }
