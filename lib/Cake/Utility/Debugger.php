@@ -7,12 +7,12 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Utility
  * @since         CakePHP(tm) v 1.2.4560
@@ -63,11 +63,13 @@ class Debugger {
 			'trace' => '<pre class="stack-trace">{:trace}</pre>',
 			'code' => '',
 			'context' => '',
-			'links' => array()
+			'links' => array(),
+			'escapeContext' => true,
 		),
 		'html' => array(
 			'trace' => '<pre class="cake-error trace"><b>Trace</b> <p>{:trace}</p></pre>',
-			'context' => '<pre class="cake-error context"><b>Context</b> <p>{:context}</p></pre>'
+			'context' => '<pre class="cake-error context"><b>Context</b> <p>{:context}</p></pre>',
+			'escapeContext' => true,
 		),
 		'txt' => array(
 			'error' => "{:error}: {:code} :: {:description} on line {:line} of {:path}\n{:info}",
@@ -203,7 +205,7 @@ class Debugger {
  * @deprecated This function is superseded by Debugger::outputError()
  */
 	public static function showError($code, $description, $file = null, $line = null, $context = null) {
-		$_this = Debugger::getInstance();
+		$self = Debugger::getInstance();
 
 		if (empty($file)) {
 			$file = '[internal]';
@@ -214,8 +216,8 @@ class Debugger {
 		$path = self::trimPath($file);
 
 		$info = compact('code', 'description', 'file', 'line');
-		if (!in_array($info, $_this->errors)) {
-			$_this->errors[] = $info;
+		if (!in_array($info, $self->errors)) {
+			$self->errors[] = $info;
 		} else {
 			return;
 		}
@@ -227,7 +229,7 @@ class Debugger {
 			case E_COMPILE_ERROR:
 			case E_USER_ERROR:
 				$error = 'Fatal Error';
-				$level = LOG_ERROR;
+				$level = LOG_ERR;
 			break;
 			case E_WARNING:
 			case E_USER_WARNING:
@@ -241,6 +243,11 @@ class Debugger {
 				$error = 'Notice';
 				$level = LOG_NOTICE;
 			break;
+			case E_DEPRECATED:
+			case E_USER_DEPRECATED:
+				$error = 'Deprecated';
+				$level = LOG_NOTICE;
+			break;
 			default:
 				return;
 			break;
@@ -249,7 +256,7 @@ class Debugger {
 		$data = compact(
 			'level', 'error', 'code', 'description', 'file', 'path', 'line', 'context'
 		);
-		echo $_this->outputError($data);
+		echo $self->outputError($data);
 
 		if ($error == 'Fatal Error') {
 			exit();
@@ -274,16 +281,16 @@ class Debugger {
  * @link http://book.cakephp.org/2.0/en/development/debugging.html#Debugger::trace
  */
 	public static function trace($options = array()) {
-		$_this = Debugger::getInstance();
+		$self = Debugger::getInstance();
 		$defaults = array(
 			'depth'		=> 999,
-			'format'	=> $_this->_outputFormat,
+			'format'	=> $self->_outputFormat,
 			'args'		=> false,
 			'start'		=> 0,
 			'scope'		=> null,
 			'exclude'	=> array('call_user_func_array', 'trigger_error')
 		);
-		$options = Set::merge($defaults, $options);
+		$options = Hash::merge($defaults, $options);
 
 		$backtrace = debug_backtrace();
 		$count = count($backtrace);
@@ -325,10 +332,10 @@ class Debugger {
 			} elseif ($options['format'] == 'array') {
 				$back[] = $trace;
 			} else {
-				if (isset($_this->_templates[$options['format']]['traceLine'])) {
-					$tpl = $_this->_templates[$options['format']]['traceLine'];
+				if (isset($self->_templates[$options['format']]['traceLine'])) {
+					$tpl = $self->_templates[$options['format']]['traceLine'];
 				} else {
-					$tpl = $_this->_templates['base']['traceLine'];
+					$tpl = $self->_templates['base']['traceLine'];
 				}
 				$trace['path'] = self::trimPath($trace['file']);
 				$trace['reference'] = $reference;
@@ -496,13 +503,23 @@ class Debugger {
 /**
  * Export an array type object.  Filters out keys used in datasource configuration.
  *
+ * The following keys are replaced with ***'s
+ *
+ * - password
+ * - login
+ * - host
+ * - database
+ * - port
+ * - prefix
+ * - schema
+ *
  * @param array $var The array to export.
  * @param integer $depth The current depth, used for recursion tracking.
  * @param integer $indent The current indentation level.
  * @return string Exported array.
  */
 	protected static function _array(array $var, $depth, $indent) {
-		$var = array_merge($var,  array_intersect_key(array(
+		$secrets = array(
 			'password' => '*****',
 			'login'  => '*****',
 			'host' => '*****',
@@ -510,7 +527,9 @@ class Debugger {
 			'port' => '*****',
 			'prefix' => '*****',
 			'schema' => '*****'
-		), $var));
+		);
+		$replace = array_intersect_key($secrets, $var);
+		$var = $replace + $var;
 
 		$out = "array(";
 		$n = $break = $end = null;
@@ -525,8 +544,10 @@ class Debugger {
 			foreach ($var as $key => $val) {
 				$vars[] = $break . self::exportVar($key) .
 					' => ' .
-					self::_export($val, $depth - 1, $indent);
+					self::_export($val, $depth, $indent);
 			}
+		} else {
+			$vars[] = $break . '[maximum depth reached]';
 		}
 		return $out . implode(',', $vars) . $end . ')';
 	}
@@ -648,7 +669,7 @@ class Debugger {
  *   in 3.0
  */
 	public function output($format = null, $strings = array()) {
-		$_this = Debugger::getInstance();
+		$self = Debugger::getInstance();
 		$data = null;
 
 		if (is_null($format)) {
@@ -659,9 +680,9 @@ class Debugger {
 			return Debugger::addFormat($format, $strings);
 		}
 
-		if ($format === true && !empty($_this->_data)) {
-			$data = $_this->_data;
-			$_this->_data = array();
+		if ($format === true && !empty($self->_data)) {
+			$data = $self->_data;
+			$self->_data = array();
 			$format = false;
 		}
 		Debugger::outputAs($format);
@@ -689,8 +710,8 @@ class Debugger {
 
 		$files = $this->trace(array('start' => $data['start'], 'format' => 'points'));
 		$code = '';
-		if (isset($files[0]['file'])) {
-			$code = $this->excerpt($files[0]['file'], $files[0]['line'] - 1, 1);
+		if (isset($files[1]['file'])) {
+			$code = $this->excerpt($files[1]['file'], $files[1]['line'] - 1, 1);
 		}
 		$trace = $this->trace(array('start' => $data['start'], 'depth' => '20'));
 		$insertOpts = array('before' => '{:', 'after' => '}');
@@ -699,7 +720,7 @@ class Debugger {
 		$info = '';
 
 		foreach ((array)$data['context'] as $var => $value) {
-			$context[] = "\${$var}\t=\t" . $this->exportVar($value, 1);
+			$context[] = "\${$var} = " . $this->exportVar($value, 1);
 		}
 
 		switch ($this->_outputFormat) {
@@ -714,30 +735,29 @@ class Debugger {
 		$data['trace'] = $trace;
 		$data['id'] = 'cakeErr' . uniqid();
 		$tpl = array_merge($this->_templates['base'], $this->_templates[$this->_outputFormat]);
-		$insert = array('context' => join("\n", $context)) + $data;
-
-		$detect = array('context');
 
 		if (isset($tpl['links'])) {
 			foreach ($tpl['links'] as $key => $val) {
-				if (in_array($key, $detect) && empty($insert[$key])) {
-					continue;
-				}
-				$links[$key] = String::insert($val, $insert, $insertOpts);
+				$links[$key] = String::insert($val, $data, $insertOpts);
 			}
 		}
 
-		foreach (array('code', 'context', 'trace') as $key) {
-			if (empty($$key) || !isset($tpl[$key])) {
+		if (!empty($tpl['escapeContext'])) {
+			$context = h($context);
+		}
+
+		$infoData = compact('code', 'context', 'trace');
+		foreach ($infoData as $key => $value) {
+			if (empty($value) || !isset($tpl[$key])) {
 				continue;
 			}
-			if (is_array($$key)) {
-				$$key = join("\n", $$key);
+			if (is_array($value)) {
+				$value = join("\n", $value);
 			}
-			$info .= String::insert($tpl[$key], compact($key) + $insert, $insertOpts);
+			$info .= String::insert($tpl[$key], array($key => $value) + $data, $insertOpts);
 		}
 		$links = join(' ', $links);
-		unset($data['context']);
+
 		if (isset($tpl['callback']) && is_callable($tpl['callback'])) {
 			return call_user_func($tpl['callback'], $data, compact('links', 'info'));
 		}

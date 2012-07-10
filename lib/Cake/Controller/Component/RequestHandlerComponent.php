@@ -7,12 +7,12 @@
  * should respond to the different needs of a handheld computer and a desktop machine.
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Controller.Component
  * @since         CakePHP(tm) v 0.10.4.1076
@@ -115,7 +115,7 @@ class RequestHandlerComponent extends Component {
  * @return void
  * @see Router::parseExtensions()
  */
-	public function initialize($controller, $settings = array()) {
+	public function initialize(Controller $controller, $settings = array()) {
 		if (isset($this->request->params['ext'])) {
 			$this->ext = $this->request->params['ext'];
 		}
@@ -160,7 +160,10 @@ class RequestHandlerComponent extends Component {
  *   switched based on the parsed extension or Accept-Type header.  For example, if `controller/action.xml`
  *   is requested, the view path becomes `app/View/Controller/xml/action.ctp`. Also if
  *   `controller/action` is requested with `Accept-Type: application/xml` in the headers
- *   the view path will become `app/View/Controller/xml/action.ctp`.
+ *   the view path will become `app/View/Controller/xml/action.ctp`.  Layout and template
+ *   types will only switch to mime-types recognized by CakeResponse.  If you need to declare
+ *   additional mime-types, you can do so using CakeResponse::type() in your controllers beforeFilter()
+ *   method.
  * - If a helper with the same name as the extension exists, it is added to the controller.
  * - If the extension is of a type that RequestHandler understands, it will set that
  *   Content-type in the response header.
@@ -170,7 +173,7 @@ class RequestHandlerComponent extends Component {
  * @param Controller $controller A reference to the controller
  * @return void
  */
-	public function startup($controller) {
+	public function startup(Controller $controller) {
 		$controller->request->params['isAjax'] = $this->request->is('ajax');
 		$isRecognized = (
 			!in_array($this->ext, array('html', 'htm')) &&
@@ -207,9 +210,9 @@ class RequestHandlerComponent extends Component {
 				return Xml::toArray($xml->data);
 			}
 			return Xml::toArray($xml);
-		 } catch (XmlException $e) {
+		} catch (XmlException $e) {
 			return array();
-		 }
+		}
 	}
 
 /**
@@ -217,11 +220,11 @@ class RequestHandlerComponent extends Component {
  *
  * @param Controller $controller A reference to the controller
  * @param string|array $url A string or array containing the redirect location
- * @param mixed $status HTTP Status for redirect
+ * @param integer|array $status HTTP Status for redirect
  * @param boolean $exit
  * @return void
  */
-	public function beforeRedirect($controller, $url, $status = null, $exit = true) {
+	public function beforeRedirect(Controller $controller, $url, $status = null, $exit = true) {
 		if (!$this->request->is('ajax')) {
 			return;
 		}
@@ -250,7 +253,7 @@ class RequestHandlerComponent extends Component {
  * @params Controller $controller
  * @return boolean false if the render process should be aborted
  **/
-	public function beforeRender($controller) {
+	public function beforeRender(Controller $controller) {
 		$shouldCheck = $this->settings['checkHttpCache'];
 		if ($shouldCheck && $this->response->checkNotModified($this->request)) {
 			return false;
@@ -393,7 +396,7 @@ class RequestHandlerComponent extends Component {
  * startup method.
  *
  * @param string $name The name of the Content-type, i.e. "html", "xml", "css"
- * @param mixed $type The Content-type or array of Content-types assigned to the name,
+ * @param string|array $type The Content-type or array of Content-types assigned to the name,
  *    i.e. "text/html", or "application/xml"
  * @return void
  * @deprecated use `$this->response->type()` instead.
@@ -438,7 +441,7 @@ class RequestHandlerComponent extends Component {
  *
  * Returns true if the client accepts xml.
  *
- * @param mixed $type Can be null (or no parameter), a string type name, or an
+ * @param string|array $type Can be null (or no parameter), a string type name, or an
  *   array of types
  * @return mixed If null or no parameter is passed, returns an array of content
  *   types the client accepts.  If a string is passed, returns true
@@ -469,7 +472,7 @@ class RequestHandlerComponent extends Component {
 /**
  * Determines the content type of the data the client has sent (i.e. in a POST request)
  *
- * @param mixed $type Can be null (or no parameter), a string type name, or an array of types
+ * @param string|array $type Can be null (or no parameter), a string type name, or an array of types
  * @return mixed If a single type is supplied a boolean will be returned.  If no type is provided
  *   The mapped value of CONTENT_TYPE will be returned. If an array is supplied the first type
  *   in the request content type will be returned.
@@ -502,7 +505,7 @@ class RequestHandlerComponent extends Component {
  * if provided, and secondarily by the list of content-types provided in
  * HTTP_ACCEPT.
  *
- * @param mixed $type An optional array of 'friendly' content-type names, i.e.
+ * @param string|array $type An optional array of 'friendly' content-type names, i.e.
  *   'html', 'xml', 'js', etc.
  * @return mixed If $type is null or not provided, the first content-type in the
  *    list, based on preference, is returned.  If a single type is provided
@@ -563,7 +566,7 @@ class RequestHandlerComponent extends Component {
  * @see RequestHandlerComponent::setContent()
  * @see RequestHandlerComponent::respondAs()
  */
-	public function renderAs($controller, $type, $options = array()) {
+	public function renderAs(Controller $controller, $type, $options = array()) {
 		$defaults = array('charset' => 'UTF-8');
 
 		if (Configure::read('App.encoding') !== null) {
@@ -578,9 +581,11 @@ class RequestHandlerComponent extends Component {
 		$controller->ext = '.ctp';
 
 		$viewClass = Inflector::classify($type);
-		App::uses($viewClass . 'View', 'View');
-
-		if (class_exists($viewClass . 'View')) {
+		$viewName = $viewClass . 'View';
+		if (!class_exists($viewName)) {
+			App::uses($viewName, 'View');
+		}
+		if (class_exists($viewName)) {
 			$controller->viewClass = $viewClass;
 		} elseif (empty($this->_renderType)) {
 			$controller->viewPath .= DS . $type;
@@ -614,7 +619,7 @@ class RequestHandlerComponent extends Component {
  * Sets the response header based on type map index name.  This wraps several methods
  * available on CakeResponse. It also allows you to use Content-Type aliases.
  *
- * @param mixed $type Friendly type name, i.e. 'html' or 'xml', or a full content-type,
+ * @param string|array $type Friendly type name, i.e. 'html' or 'xml', or a full content-type,
  *    like 'application/x-shockwave'.
  * @param array $options If $type is a friendly type name that is associated with
  *    more than one type of content, $index is used to select which content-type to use.
@@ -675,8 +680,8 @@ class RequestHandlerComponent extends Component {
 /**
  * Maps a content-type back to an alias
  *
- * @param mixed $cType Either a string content type to map, or an array of types.
- * @return mixed Aliases for the types provided.
+ * @param string|array $cType Either a string content type to map, or an array of types.
+ * @return string|array Aliases for the types provided.
  * @deprecated Use $this->response->mapType() in your controller instead.
  */
 	public function mapType($cType) {
@@ -686,8 +691,8 @@ class RequestHandlerComponent extends Component {
 /**
  * Maps a content type alias back to its mime-type(s)
  *
- * @param mixed $alias String alias to convert back into a content type. Or an array of aliases to map.
- * @return mixed Null on an undefined alias.  String value of the mapped alias type.  If an
+ * @param string|array $alias String alias to convert back into a content type. Or an array of aliases to map.
+ * @return string Null on an undefined alias.  String value of the mapped alias type.  If an
  *   alias maps to more than one content type, the first one will be returned.
  */
 	public function mapAlias($alias) {

@@ -5,12 +5,12 @@
  * Simplifies the construction of HTML elements.
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.View.Helper
  * @since         CakePHP(tm) v 0.9.1
@@ -18,6 +18,7 @@
  */
 
 App::uses('AppHelper', 'View/Helper');
+App::uses('CakeResponse', 'Network');
 
 /**
  * Html Helper class for easy use of HTML widgets.
@@ -28,6 +29,13 @@ App::uses('AppHelper', 'View/Helper');
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html
  */
 class HtmlHelper extends AppHelper {
+
+/**
+ * Reference to the Response object
+ *
+ * @var CakeResponse
+ */
+	public $response;
 
 /**
  * html tags used by this helper.
@@ -61,7 +69,7 @@ class HtmlHelper extends AppHelper {
 		'file_no_model' => '<input type="file" name="%s" %s/>',
 		'submit' => '<input %s/>',
 		'submitimage' => '<input type="image" src="%s" %s/>',
-		'button' => '<button type="%s"%s>%s</button>',
+		'button' => '<button%s>%s</button>',
 		'image' => '<img src="%s" %s/>',
 		'tableheader' => '<th%s>%s</th>',
 		'tableheaderrow' => '<tr%s>%s</tr>',
@@ -73,6 +81,7 @@ class HtmlHelper extends AppHelper {
 		'tag' => '<%s%s>%s</%s>',
 		'tagstart' => '<%s%s>',
 		'tagend' => '</%s>',
+		'tagselfclosing' => '<%s%s/>',
 		'para' => '<p%s>%s</p>',
 		'parastart' => '<p%s>',
 		'label' => '<label for="%s"%s>%s</label>',
@@ -92,30 +101,6 @@ class HtmlHelper extends AppHelper {
 		'javascriptlink' => '<script type="text/javascript" src="%s"%s></script>',
 		'javascriptend' => '</script>'
 	);
-
-/**
- * Minimized attributes
- *
- * @var array
- */
-	protected $_minimizedAttributes = array(
-		'compact', 'checked', 'declare', 'readonly', 'disabled', 'selected',
-		'defer', 'ismap', 'nohref', 'noshade', 'nowrap', 'multiple', 'noresize'
-	);
-
-/**
- * Format to attribute
- *
- * @var string
- */
-	protected $_attributeFormat = '%s="%s"';
-
-/**
- * Format to attribute
- *
- * @var string
- */
-	protected $_minimizedAttributeFormat = '%s="%s"';
 
 /**
  * Breadcrumbs.
@@ -171,6 +156,11 @@ class HtmlHelper extends AppHelper {
  */
 	public function __construct(View $View, $settings = array()) {
 		parent::__construct($View, $settings);
+		if (is_object($this->_View->response)) {
+			$this->response = $this->_View->response;
+		} else {
+			$this->response = new CakeResponse(array('charset' => Configure::read('App.encoding')));
+		}
 		if (!empty($settings['configFile'])) {
 			$this->loadConfig($settings['configFile']);
 		}
@@ -181,7 +171,7 @@ class HtmlHelper extends AppHelper {
  *
  * @param string $name Text for link
  * @param string $link URL for link (if empty it won't be a link)
- * @param mixed $options Link attributes e.g. array('id' => 'selected')
+ * @param string|array $options Link attributes e.g. array('id' => 'selected')
  * @return void
  * @see HtmlHelper::link() for details on $options that can be used.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#creating-breadcrumb-trails-with-htmlhelper
@@ -238,7 +228,7 @@ class HtmlHelper extends AppHelper {
  *   will override the inline option.
  *
  * @param string $type The title of the external resource
- * @param mixed $url The address of the external resource or string for content attribute
+ * @param string|array $url The address of the external resource or string for content attribute
  * @param array $options Other attributes for the generated tag. If the type attribute is html,
  *    rss, atom, or icon, the mime-type is returned.
  * @return string A completed `<link />` element.
@@ -333,7 +323,7 @@ class HtmlHelper extends AppHelper {
  * - `confirm` JavaScript confirmation message.
  *
  * @param string $title The content to be wrapped by <a> tags.
- * @param mixed $url Cake-relative URL or array of URL parameters, or external URL (starts with http://)
+ * @param string|array $url Cake-relative URL or array of URL parameters, or external URL (starts with http://)
  * @param array $options Array of HTML attributes.
  * @param string $confirmMessage JavaScript confirmation message.
  * @return string An `<a />` element.
@@ -345,7 +335,8 @@ class HtmlHelper extends AppHelper {
 			$url = $this->url($url);
 		} else {
 			$url = $this->url($title);
-			$title = h(urldecode($url));
+			$title = htmlspecialchars_decode($url, ENT_QUOTES);
+			$title = h(urldecode($title));
 			$escapeTitle = false;
 		}
 
@@ -405,8 +396,9 @@ class HtmlHelper extends AppHelper {
  *   and included in the `$scripts_for_layout` layout variable. Defaults to true.
  * - `block` Set the name of the block link/style tag will be appended to.  This overrides the `inline`
  *   option.
+ * - `plugin` False value will prevent parsing path as a plugin
  *
- * @param mixed $path The name of a CSS style sheet or an array containing names of
+ * @param string|array $path The name of a CSS style sheet or an array containing names of
  *   CSS stylesheets. If `$path` is prefixed with '/', the path will be relative to the webroot
  *   of your application. Otherwise, the path will be relative to your CSS path, usually webroot/css.
  * @param string $rel Rel attribute. Defaults to "stylesheet". If equal to 'import' the stylesheet will be imported.
@@ -426,7 +418,7 @@ class HtmlHelper extends AppHelper {
 			foreach ($path as $i) {
 				$out .= "\n\t" . $this->css($i, $rel, $options);
 			}
-			if (empty($options['block']))  {
+			if (empty($options['block'])) {
 				return $out . "\n";
 			}
 			return;
@@ -435,16 +427,7 @@ class HtmlHelper extends AppHelper {
 		if (strpos($path, '//') !== false) {
 			$url = $path;
 		} else {
-			if ($path[0] !== '/') {
-				$path = CSS_URL . $path;
-			}
-
-			if (strpos($path, '?') === false) {
-				if (substr($path, -4) !== '.css') {
-					$path .= '.css';
-				}
-			}
-			$url = $this->assetTimestamp($this->webroot($path));
+			$url = $this->assetUrl($path, $options + array('pathPrefix' => CSS_URL, 'ext' => '.css'));
 
 			if (Configure::read('Asset.filter.css')) {
 				$pos = strpos($url, CSS_URL);
@@ -489,7 +472,7 @@ class HtmlHelper extends AppHelper {
  *
  * Add the script file to the `$scripts_for_layout` layout var:
  *
- * `$this->Html->script('styles.js', null, array('inline' => false));`
+ * `$this->Html->script('styles.js', array('inline' => false));`
  *
  * Add the script file to a custom block:
  *
@@ -503,9 +486,10 @@ class HtmlHelper extends AppHelper {
  *   Using this option will override the inline option.
  * - `once` Whether or not the script should be checked for uniqueness. If true scripts will only be
  *   included once, use false to allow the same script to be included more than once per request.
+ * - `plugin` False value will prevent parsing path as a plugin
  *
- * @param mixed $url String or array of javascript files to include
- * @param mixed $options Array of options, and html attributes see above. If boolean sets $options['inline'] = value
+ * @param string|array $url String or array of javascript files to include
+ * @param array|boolean $options Array of options, and html attributes see above. If boolean sets $options['inline'] = value
  * @return mixed String of `<script />` tags or null if $inline is false or if $once is true and the file has been
  *   included before.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::script
@@ -526,7 +510,7 @@ class HtmlHelper extends AppHelper {
 			foreach ($url as $i) {
 				$out .= "\n\t" . $this->script($i, $options);
 			}
-			if (empty($options['block']))  {
+			if (empty($options['block'])) {
 				return $out . "\n";
 			}
 			return null;
@@ -537,13 +521,7 @@ class HtmlHelper extends AppHelper {
 		$this->_includedScripts[$url] = true;
 
 		if (strpos($url, '//') === false) {
-			if ($url[0] !== '/') {
-				$url = JS_URL . $url;
-			}
-			if (strpos($url, '?') === false && substr($url, -3) !== '.js') {
-				$url .= '.js';
-			}
-			$url = $this->assetTimestamp($this->webroot($url));
+			$url = $this->assetUrl($url, $options + array('pathPrefix' => JS_URL, 'ext' => '.js'));
 
 			if (Configure::read('Asset.filter.js')) {
 				$url = str_replace(JS_URL, 'cjs/', $url);
@@ -565,11 +543,15 @@ class HtmlHelper extends AppHelper {
  * ### Options
  *
  * - `safe` (boolean) Whether or not the $script should be wrapped in <![CDATA[ ]]>
- * - `inline` (boolean) Whether or not the $script should be added to $scripts_for_layout or output inline
+ * - `inline` (boolean) Whether or not the $script should be added to
+ *   `$scripts_for_layout` / `script` block, or output inline. (Deprecated, use `block` instead)
+ * - `block` Which block you want this script block appended to.
+ *   Defaults to `script`.
  *
  * @param string $script The script to wrap
- * @param array $options The options to use.
- * @return mixed string or null depending on the value of `$options['inline']`
+ * @param array $options The options to use. Options not listed above will be
+ *    treated as HTML attributes.
+ * @return mixed string or null depending on the value of `$options['block']`
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::scriptBlock
  */
 	public function scriptBlock($script, $options = array()) {
@@ -577,14 +559,18 @@ class HtmlHelper extends AppHelper {
 		if ($options['safe']) {
 			$script  = "\n" . '//<![CDATA[' . "\n" . $script . "\n" . '//]]>' . "\n";
 		}
-		$inline = $options['inline'];
+		if (!$options['inline'] && empty($options['block'])) {
+			$options['block'] = 'script';
+		}
 		unset($options['inline'], $options['safe']);
-		$attributes = $this->_parseAttributes($options, ' ', ' ');
-		if ($inline) {
-			return sprintf($this->_tags['javascriptblock'], $attributes, $script);
+
+		$attributes = $this->_parseAttributes($options, array('block'), ' ');
+		$out = sprintf($this->_tags['javascriptblock'], $attributes, $script);
+
+		if (empty($options['block'])) {
+			return $out;
 		} else {
-			$this->_View->append('script', sprintf($this->_tags['javascriptblock'], $attributes, $script));
-			return null;
+			$this->_View->append($options['block'], $out);
 		}
 	}
 
@@ -646,7 +632,7 @@ class HtmlHelper extends AppHelper {
 			return $data;
 		}
 		$out = array();
-		foreach ($data as $key=> $value) {
+		foreach ($data as $key => $value) {
 			$out[] = $key . ':' . $value . ';';
 		}
 		if ($oneline) {
@@ -666,29 +652,16 @@ class HtmlHelper extends AppHelper {
  * All other keys will be passed to HtmlHelper::link() as the `$options` parameter.
  *
  * @param string $separator Text to separate crumbs.
- * @param mixed $startText This will be the first crumb, if false it defaults to first crumb in array. Can
+ * @param string|array|boolean $startText This will be the first crumb, if false it defaults to first crumb in array. Can
  *   also be an array, see above for details.
  * @return string Composed bread crumbs
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#creating-breadcrumb-trails-with-htmlhelper
  */
 	public function getCrumbs($separator = '&raquo;', $startText = false) {
-		if (!empty($this->_crumbs)) {
+		$crumbs = $this->_prepareCrumbs($startText);
+		if (!empty($crumbs)) {
 			$out = array();
-			if ($startText) {
-				if (!is_array($startText)) {
-					$startText = array(
-						'url' => '/',
-						'text' => $startText
-					);
-				}
-				$startText += array('url' => '/', 'text' => __('Home'));
-				list($url, $text) = array($startText['url'], $startText['text']);
-				unset($startText['url'], $startText['text']);
-
-				$out[] = $this->link($text, $url, $startText);
-			}
-
-			foreach ($this->_crumbs as $crumb) {
+			foreach ($crumbs as $crumb) {
 				if (!empty($crumb[1])) {
 					$out[] = $this->link($crumb[0], $crumb[1], $crumb[2]);
 				} else {
@@ -709,15 +682,18 @@ class HtmlHelper extends AppHelper {
  * crumb was added with.
  *
  * @param array $options Array of html attributes to apply to the generated list elements.
+ * @param string|array|boolean $startText This will be the first crumb, if false it defaults to first crumb in array. Can
+ *   also be an array, see `HtmlHelper::getCrumbs` for details.
  * @return string breadcrumbs html list
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#creating-breadcrumb-trails-with-htmlhelper
  */
-	public function getCrumbList($options = array()) {
-		if (!empty($this->_crumbs)) {
+	public function getCrumbList($options = array(), $startText = false) {
+		$crumbs = $this->_prepareCrumbs($startText);
+		if (!empty($crumbs)) {
 			$result = '';
-			$crumbCount = count($this->_crumbs);
+			$crumbCount = count($crumbs);
 			$ulOptions = $options;
-			foreach ($this->_crumbs as $which => $crumb) {
+			foreach ($crumbs as $which => $crumb) {
 				$options = array();
 				if (empty($crumb[1])) {
 					$elementContent = $crumb[0];
@@ -738,11 +714,34 @@ class HtmlHelper extends AppHelper {
 	}
 
 /**
- * Creates a formatted IMG element. If `$options['url']` is provided, an image link will be
- * generated with the link pointed at `$options['url']`.  This method will set an empty
- * alt attribute if one is not supplied.
+ * Prepends startText to crumbs array if set
  *
- * ### Usage
+ * @param $startText
+ * @return array Crumb list including startText (if provided)
+ */
+	protected function _prepareCrumbs($startText) {
+		$crumbs = $this->_crumbs;
+		if ($startText) {
+			if (!is_array($startText)) {
+				$startText = array(
+					'url' => '/',
+					'text' => $startText
+				);
+			}
+			$startText += array('url' => '/', 'text' => __('Home'));
+			list($url, $text) = array($startText['url'], $startText['text']);
+			unset($startText['url'], $startText['text']);
+			array_unshift($crumbs, array($text, $url, $startText));
+		}
+		return $crumbs;
+	}
+
+/**
+ * Creates a formatted IMG element.
+ *
+ * This method will set an empty alt attribute if one is not supplied.
+ *
+ * ### Usage:
  *
  * Create a regular image:
  *
@@ -752,20 +751,21 @@ class HtmlHelper extends AppHelper {
  *
  * `echo $html->image('cake_icon.png', array('alt' => 'CakePHP', 'url' => 'http://cakephp.org'));`
  *
+ * ### Options:
+ *
+ * - `url` If provided an image link will be generated and the link will point at
+ *   `$options['url']`.
+ * - `fullBase` If true the src attribute will get a full address for the image file.
+ * - `plugin` False value will prevent parsing path as a plugin
+ *
  * @param string $path Path to the image file, relative to the app/webroot/img/ directory.
- * @param array $options Array of HTML attributes.
+ * @param array $options Array of HTML attributes.  See above for special options.
  * @return string completed img tag
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::image
  */
 	public function image($path, $options = array()) {
-		if (is_array($path)) {
-			$path = $this->url($path);
-		} elseif (strpos($path, '://') === false) {
-			if ($path[0] !== '/') {
-				$path = IMAGES_URL . $path;
-			}
-			$path = $this->assetTimestamp($this->webroot($path));
-		}
+		$path = $this->assetUrl($path, $options + array('pathPrefix' => IMAGES_URL));
+		$options = array_diff_key($options, array('fullBase' => '', 'pathPrefix' => ''));
 
 		if (!isset($options['alt'])) {
 			$options['alt'] = '';
@@ -788,7 +788,8 @@ class HtmlHelper extends AppHelper {
 /**
  * Returns a row of formatted and named TABLE headers.
  *
- * @param array $names Array of tablenames.
+ * @param array $names Array of tablenames. Each tablename also can be a key that points to an array with a set
+ *     of attributes to its specific tag
  * @param array $trOptions HTML options for TR elements.
  * @param array $thOptions HTML options for TH elements.
  * @return string Completed table headers
@@ -797,7 +798,11 @@ class HtmlHelper extends AppHelper {
 	public function tableHeaders($names, $trOptions = null, $thOptions = null) {
 		$out = array();
 		foreach ($names as $arg) {
-			$out[] = sprintf($this->_tags['tableheader'], $this->_parseAttributes($thOptions), $arg);
+			if (!is_array($arg)) {
+				$out[] = sprintf($this->_tags['tableheader'], $this->_parseAttributes($thOptions), $arg);
+			} else {
+				$out[] = sprintf($this->_tags['tableheader'], $this->_parseAttributes(current($arg)), key($arg));
+			}
 		}
 		return sprintf($this->_tags['tablerow'], $this->_parseAttributes($trOptions), join(' ', $out));
 	}
@@ -957,6 +962,123 @@ class HtmlHelper extends AppHelper {
 	}
 
 /**
+ * Returns an audio/video element
+ *
+ * ### Usage
+ *
+ * Using an audio file:
+ *
+ * `echo $this->Html->media('audio.mp3', array('fullBase' => true));`
+ *
+ * Outputs:
+ *
+ * `<video src="http://www.somehost.com/files/audio.mp3">Fallback text</video>`
+ *
+ * Using a video file:
+ *
+ * `echo $this->Html->media('video.mp4', array('text' => 'Fallback text'));`
+ *
+ * Outputs:
+ *
+ * `<video src="/files/video.mp4">Fallback text</video>`
+ *
+ * Using multiple video files:
+ *
+ * {{{
+ * echo $this->Html->media(
+ * 		array('video.mp4', array('src' => 'video.ogv', 'type' => "video/ogg; codecs='theora, vorbis'")),
+ * 		array('tag' => 'video', 'autoplay')
+ * );
+ * }}}
+ *
+ * Outputs:
+ *
+ * {{{
+ * <video autoplay="autoplay">
+ * 		<source src="/files/video.mp4" type="video/mp4"/>
+ * 		<source src="/files/video.ogv" type="video/ogv; codecs='theora, vorbis'"/>
+ * </video>
+ * }}}
+ *
+ * ### Options
+ *
+ * - `tag` Type of media element to generate, either "audio" or "video".
+ * 	If tag is not provided it's guessed based on file's mime type.
+ * - `text` Text to include inside the audio/video tag
+ * - `pathPrefix` Path prefix to use for relative urls, defaults to 'files/'
+ * - `fullBase` If provided the src attribute will get a full address including domain name
+ *
+ * @param string|array $path Path to the video file, relative to the webroot/{$options['pathPrefix']} directory.
+ *  Or an array where each item itself can be a path string or an associate array containing keys `src` and `type`
+ * @param array $options Array of HTML attributes, and special options above.
+ * @return string Generated media element
+ */
+	public function media($path, $options = array()) {
+		$options += array(
+			'tag' => null,
+			'pathPrefix' => 'files/',
+			'text' => ''
+		);
+
+		if (!empty($options['tag'])) {
+			$tag = $options['tag'];
+		} else {
+			$tag = null;
+		}
+
+		if (is_array($path)) {
+			$sourceTags = '';
+			foreach ($path as &$source) {
+				if (is_string($source)) {
+					$source = array(
+						'src' => $source,
+					);
+				}
+				if (!isset($source['type'])) {
+					$ext = pathinfo($source['src'], PATHINFO_EXTENSION);
+					$source['type'] = $this->response->getMimeType($ext);
+				}
+				$source['src'] = $this->assetUrl($source['src'], $options);
+				$sourceTags .= $this->useTag('tagselfclosing', 'source', $source);
+			}
+			unset($source);
+			$options['text'] = $sourceTags . $options['text'];
+			unset($options['fullBase']);
+		} else {
+			if (empty($path) && !empty($options['src'])) {
+				$path = $options['src'];
+			}
+			$options['src'] = $this->assetUrl($path, $options);
+		}
+
+		if ($tag === null) {
+			if (is_array($path)) {
+				$mimeType = $path[0]['type'];
+			} else {
+				$mimeType = $this->response->getMimeType(pathinfo($path, PATHINFO_EXTENSION));
+			}
+			if (preg_match('#^video/#', $mimeType)) {
+				$tag = 'video';
+			} else {
+				$tag = 'audio';
+			}
+		}
+
+		if (isset($options['poster'])) {
+			$options['poster'] = $this->assetUrl($options['poster'], array('pathPrefix' => IMAGES_URL) + $options);
+		}
+		$text = $options['text'];
+
+		$options = array_diff_key($options, array(
+			'tag' => '',
+			'fullBase' => '',
+			'pathPrefix' => '',
+			'text' => ''
+		));
+		return $this->tag($tag, $text, $options);
+	}
+
+/**
  * Build a nested list (UL/OL) out of an associative array.
  *
  * @param array $list Set of elements to list
@@ -995,7 +1117,7 @@ class HtmlHelper extends AppHelper {
 			}
 			if (isset($itemOptions['even']) && $index % 2 == 0) {
 				$itemOptions['class'] = $itemOptions['even'];
-			} else if (isset($itemOptions['odd']) && $index % 2 != 0) {
+			} elseif (isset($itemOptions['odd']) && $index % 2 != 0) {
 				$itemOptions['class'] = $itemOptions['odd'];
 			}
 			$out .= sprintf($this->_tags['li'], $this->_parseAttributes($itemOptions, array('even', 'odd'), ' ', ''), $item);
@@ -1039,7 +1161,7 @@ class HtmlHelper extends AppHelper {
  * - `attributeFormat` Format for long attributes e.g. `'%s="%s"'`
  * - `minimizedAttributeFormat` Format for minimized attributes e.g. `'%s="%s"'`
  *
- * @param mixed $configFile String with the config file (load using PhpReader) or an array with file and reader name
+ * @param string|array $configFile String with the config file (load using PhpReader) or an array with file and reader name
  * @param string $path Path with config file
  * @return mixed False to error or loaded configs
  * @throws ConfigureException

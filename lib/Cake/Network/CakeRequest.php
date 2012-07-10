@@ -5,12 +5,12 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @since         CakePHP(tm) v 2.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -29,6 +29,7 @@ App::uses('Set', 'Utility');
  * @package       Cake.Network
  */
 class CakeRequest implements ArrayAccess {
+
 /**
  * Array of parameters parsed from the url.
  *
@@ -38,6 +39,8 @@ class CakeRequest implements ArrayAccess {
 		'plugin' => null,
 		'controller' => null,
 		'action' => null,
+		'named' => array(),
+		'pass' => array(),
 	);
 
 /**
@@ -146,12 +149,26 @@ class CakeRequest implements ArrayAccess {
 
 /**
  * process the post data and set what is there into the object.
- * processed data is available at $this->data
+ * processed data is available at `$this->data`
+ *
+ * Will merge POST vars prefixed with `data`, and ones without
+ * into a single array. Variables prefixed with `data` will overwrite those without.
+ *
+ * If you have mixed POST values be careful not to make any top level keys numeric
+ * containing arrays. Hash::merge() is used to merge data, and it has possibly
+ * unexpected behavior in this situation.
  *
  * @return void
  */
 	protected function _processPost() {
-		$this->data = $_POST;
+		if ($_POST) {
+			$this->data = $_POST;
+		} elseif ($this->is('put') || $this->is('delete')) {
+			$this->data = $this->_readInput();
+			if (env('CONTENT_TYPE') === 'application/x-www-form-urlencoded') {
+				parse_str($this->data, $this->data);
+			}
+		}
 		if (ini_get('magic_quotes_gpc') === '1') {
 			$this->data = stripslashes_deep($this->data);
 		}
@@ -166,10 +183,15 @@ class CakeRequest implements ArrayAccess {
 			}
 			unset($this->data['_method']);
 		}
+
 		if (isset($this->data['data'])) {
 			$data = $this->data['data'];
-			unset($this->data['data']);
-			$this->data = Set::merge($this->data, $data);
+			if (count($this->data) <= 1) {
+				$this->data = $data;
+			} else {
+				unset($this->data['data']);
+				$this->data = Hash::merge($this->data, $data);
+			}
 		}
 	}
 
@@ -185,7 +207,7 @@ class CakeRequest implements ArrayAccess {
 			$query = $_GET;
 		}
 
-		unset($query['/' . str_replace('.', '_', $this->url)]);
+		unset($query['/' . str_replace('.', '_', urldecode($this->url))]);
 		if (strpos($this->url, '?') !== false) {
 			list(, $querystr) = explode('?', $this->url);
 			parse_str($querystr, $queryArgs);
@@ -263,7 +285,7 @@ class CakeRequest implements ArrayAccess {
 				$base = '';
 			}
 
-			$this->webroot = $base .'/';
+			$this->webroot = $base . '/';
 			return $this->base = $base;
 		}
 
@@ -280,7 +302,7 @@ class CakeRequest implements ArrayAccess {
 
 		if (!empty($base) || !$docRootContainsWebroot) {
 			if (strpos($this->webroot, '/' . $dir . '/') === false) {
-				$this->webroot .= $dir . '/' ;
+				$this->webroot .= $dir . '/';
 			}
 			if (strpos($this->webroot, '/' . $webroot . '/') === false) {
 				$this->webroot .= $webroot . '/';
@@ -305,21 +327,31 @@ class CakeRequest implements ArrayAccess {
 
 		if (isset($_FILES['data'])) {
 			foreach ($_FILES['data'] as $key => $data) {
-				foreach ($data as $model => $fields) {
-					if (is_array($fields)) {
-						foreach ($fields as $field => $value) {
-							if (is_array($value)) {
-								foreach ($value as $k => $v) {
-									$this->data[$model][$field][$k][$key] = $v;
-								}
-							} else {
-								$this->data[$model][$field][$key] = $value;
-							}
-						}
-					} else {
-						$this->data[$model][$key] = $fields;
-					}
-				}
+				$this->_processFileData('', $data, $key);
+			}
+		}
+	}
+
+/**
+ * Recursively walks the FILES array restructuring the data
+ * into something sane and useable.
+ *
+ * @param string $path The dot separated path to insert $data into.
+ * @param array $data The data to traverse/insert.
+ * @param string $field The terminal field name, which is the top level key in $_FILES.
+ * @return void
+ */
+	protected function _processFileData($path, $data, $field) {
+		foreach ($data as $key => $fields) {
+			$newPath = $key;
+			if (!empty($path)) {
+				$newPath = $path . '.' . $key;
+			}
+			if (is_array($fields)) {
+				$this->_processFileData($newPath, $fields, $field);
+			} else {
+				$newPath .= '.' . $field;
+				$this->data = Set::insert($this->data, $newPath, $fields);
 			}
 		}
 	}
@@ -504,8 +536,9 @@ class CakeRequest implements ArrayAccess {
  * @return void
  */
 	public function addDetector($name, $options) {
+		$name = strtolower($name);
 		if (isset($this->_detectors[$name]) && isset($options['options'])) {
-			$options = Set::merge($this->_detectors[$name], $options);
+			$options = Hash::merge($this->_detectors[$name], $options);
 		}
 		$this->_detectors[$name] = $options;
 	}
@@ -547,7 +580,7 @@ class CakeRequest implements ArrayAccess {
 	public function here($base = true) {
 		$url = $this->here;
 		if (!empty($this->query)) {
-			$url .= '?' . http_build_query($this->query);
+			$url .= '?' . http_build_query($this->query, null, '&');
 		}
 		if (!$base) {
 			$url = preg_replace('/^' . preg_quote($this->base, '/') . '/', '', $url, 1);
@@ -589,7 +622,7 @@ class CakeRequest implements ArrayAccess {
 /**
  * Get the host that the request was handled on.
  *
- * @return void
+ * @return string
  */
 	public function host() {
 		return env('HTTP_HOST');
@@ -630,7 +663,7 @@ class CakeRequest implements ArrayAccess {
  *
  * #### Check for a single type:
  *
- * `$this->request->accepts('json');`
+ * `$this->request->accepts('application/json');`
  *
  * This method will order the returned content types by the preference values indicated
  * by the client.
@@ -734,10 +767,10 @@ class CakeRequest implements ArrayAccess {
 	public function data($name) {
 		$args = func_get_args();
 		if (count($args) == 2) {
-			$this->data = Set::insert($this->data, $name, $args[1]);
+			$this->data = Hash::insert($this->data, $name, $args[1]);
 			return $this;
 		}
-		return Set::classicExtract($this->data, $name);
+		return Hash::get($this->data, $name);
 	}
 
 /**
@@ -834,4 +867,5 @@ class CakeRequest implements ArrayAccess {
 	public function offsetUnset($name) {
 		unset($this->params[$name]);
 	}
+
 }

@@ -1,12 +1,12 @@
 <?php
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @since         CakePHP(tm) v 1.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -185,7 +185,7 @@ class CakeRoute {
 			return false;
 		}
 		foreach ($this->defaults as $key => $val) {
-			$key = (string) $key;
+			$key = (string)$key;
 			if ($key[0] === '[' && preg_match('/^\[(\w+)\]$/', $key, $header)) {
 				if (isset($this->_headerMap[$header[1]])) {
 					$header = $this->_headerMap[$header[1]];
@@ -226,6 +226,12 @@ class CakeRoute {
 			$route[$key] = $value;
 		}
 
+		foreach ($this->keys as $key) {
+			if (isset($route[$key])) {
+				$route[$key] = rawurldecode($route[$key]);
+			}
+		}
+
 		if (isset($route['_args_'])) {
 			list($pass, $named) = $this->_parseArgs($route['_args_'], $route);
 			$route['pass'] = array_merge($route['pass'], $pass);
@@ -234,7 +240,7 @@ class CakeRoute {
 		}
 
 		if (isset($route['_trailing_'])) {
-			$route['pass'][] = $route['_trailing_'];
+			$route['pass'][] = rawurldecode($route['_trailing_']);
 			unset($route['_trailing_']);
 		}
 
@@ -284,6 +290,7 @@ class CakeRoute {
 			$separatorIsPresent = strpos($param, $namedConfig['separator']) !== false;
 			if ((!isset($this->options['named']) || !empty($this->options['named'])) && $separatorIsPresent) {
 				list($key, $val) = explode($namedConfig['separator'], $param, 2);
+				$key = rawurldecode($key);
 				$val = rawurldecode($val);
 				$hasRule = isset($rules[$key]);
 				$passIt = (!$hasRule && !$greedy) || ($hasRule && !$this->_matchNamed($val, $rules[$key], $context));
@@ -471,8 +478,11 @@ class CakeRoute {
  * @return string Composed route string.
  */
 	protected function _writeUrl($params) {
-		if (isset($params['prefix'], $params['action'])) {
-			$params['action'] = str_replace($params['prefix'] . '_', '', $params['action']);
+		if (isset($params['prefix'])) {
+			$prefixed = $params['prefix'] . '_';
+		}
+		if (isset($prefixed, $params['action']) && strpos($params['action'], $prefixed) === 0) {
+			$params['action'] = substr($params['action'], strlen($prefixed) * -1);
 			unset($params['prefix']);
 		}
 
@@ -487,7 +497,7 @@ class CakeRoute {
 			$named = array();
 			foreach ($params['named'] as $key => $value) {
 				if (is_array($value)) {
-					$flat = Set::flatten($value, '][');
+					$flat = Hash::flatten($value, '][');
 					foreach ($flat as $namedKey => $namedValue) {
 						$named[] = $key . "[$namedKey]" . $separator . rawurlencode($namedValue);
 					}

@@ -5,6 +5,6 @@
 /vendors
 /build
 /dist
-/app/webroot/attachments
 .DS_Store
-tags
+/tags
+/app/webroot/attachments

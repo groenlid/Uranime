@@ -1,25 +1,18 @@
 <?php
 /**
- * Base controller class.
- *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Controller
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-/**
- * Include files
- */
 App::uses('CakeResponse', 'Network');
 App::uses('ClassRegistry', 'Utility');
 App::uses('ComponentCollection', 'Controller');
@@ -75,13 +68,20 @@ class Controller extends Object implements CakeEventListener {
  *
  * Example: `public $uses = array('Product', 'Post', 'Comment');`
  *
- * Can be set to array() to use no models.  Can be set to false to
- * use no models and prevent the merging of $uses with AppController
+ * Can be set to several values to express different options:
+ *
+ * - `true` Use the default inflected model name.
+ * - `array()` Use only models defined in the parent class.
+ * - `false` Use no models at all, do not merge with parent class either.
+ * - `array('Post', 'Comment')` Use only the Post and Comment models. Models
+ *   Will also be merged with the parent class.
+ *
+ * The default value is `true`.
  *
  * @var mixed A single name as a string or a list of names as an array.
  * @link http://book.cakephp.org/2.0/en/controllers.html#components-helpers-and-uses
  */
-	public $uses = false;
+	public $uses = true;
 
 /**
  * An array containing the names of helpers this controller uses. The array elements should
@@ -92,7 +92,7 @@ class Controller extends Object implements CakeEventListener {
  * @var mixed A single name as a string or a list of names as an array.
  * @link http://book.cakephp.org/2.0/en/controllers.html#components-helpers-and-uses
  */
-	public $helpers = array('Session', 'Html', 'Form');
+	public $helpers = array();
 
 /**
  * An instance of a CakeRequest object that contains information about the current request.
@@ -100,6 +100,7 @@ class Controller extends Object implements CakeEventListener {
  * additional information about the request.
  *
  * @var CakeRequest
+ * @link http://book.cakephp.org/2.0/en/controllers/request-response.html#cakerequest
  */
 	public $request;
 
@@ -107,6 +108,7 @@ class Controller extends Object implements CakeEventListener {
  * An instance of a CakeResponse object that contains information about the impending response
  *
  * @var CakeResponse
+ * @link http://book.cakephp.org/2.0/en/controllers/request-response.html#cakeresponse
  */
 	public $response;
 
@@ -137,7 +139,6 @@ class Controller extends Object implements CakeEventListener {
  * @var array
  */
 	public $viewVars = array();
-
 
 /**
  * The name of the view file to render. The name specified
@@ -185,7 +186,7 @@ class Controller extends Object implements CakeEventListener {
  * Example: `public $components = array('Session', 'RequestHandler', 'Acl');`
  *
  * @var array
- * @link http://book.cakephp.org/view/961/components-helpers-and-uses
+ * @link http://book.cakephp.org/2.0/en/controllers/components.html
  */
 	public $components = array('Session');
 
@@ -197,7 +198,8 @@ class Controller extends Object implements CakeEventListener {
 	public $viewClass = 'View';
 
 /**
- * Instance of the View created during rendering. Won't be set until after Controller::render() is called.
+ * Instance of the View created during rendering. Won't be set until after
+ * Controller::render() is called.
  *
  * @var View
  */
@@ -235,7 +237,7 @@ class Controller extends Object implements CakeEventListener {
  * marks all the actions in the controller for view caching.
  *
  * @var mixed
- * @link http://book.cakephp.org/view/1380/Caching-in-the-Controller
+ * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/cache.html#additional-configuration-options
  */
 	public $cacheAction = false;
 
@@ -250,20 +252,20 @@ class Controller extends Object implements CakeEventListener {
  * Triggers Scaffolding
  *
  * @var mixed
- * @link http://book.cakephp.org/view/1103/Scaffolding
+ * @link http://book.cakephp.org/2.0/en/controllers/scaffolding.html
  */
 	public $scaffold = false;
 
 /**
- * Holds current methods of the controller.  This is a list of all the methods reachable
- * via url.  Modifying this array, will allow you to change which methods can be reached.
+ * Holds current methods of the controller. This is a list of all the methods reachable
+ * via url. Modifying this array, will allow you to change which methods can be reached.
  *
  * @var array
  */
 	public $methods = array();
 
 /**
- * This controller's primary model class name, the Inflector::classify()'ed version of
+ * This controller's primary model class name, the Inflector::singularize()'ed version of
  * the controller's $name property.
  *
  * Example: For a controller named 'Comments', the modelClass would be 'Comment'
@@ -314,7 +316,7 @@ class Controller extends Object implements CakeEventListener {
  */
 	public function __construct($request = null, $response = null) {
 		if ($this->name === null) {
-			$this->name = substr(get_class($this), 0, strlen(get_class($this)) -10);
+			$this->name = substr(get_class($this), 0, -10);
 		}
 
 		if ($this->viewPath == null) {
@@ -361,9 +363,6 @@ class Controller extends Object implements CakeEventListener {
 			foreach ($this->uses as $modelClass) {
 				list($plugin, $class) = pluginSplit($modelClass, true);
 				if ($name === $class) {
-					if (!$plugin) {
-						$plugin = $this->plugin ? $this->plugin . '.' : null;
-					}
 					return $this->loadModel($modelClass);
 				}
 			}
@@ -469,7 +468,9 @@ class Controller extends Object implements CakeEventListener {
  *
  * @param CakeRequest $request
  * @return mixed The resulting response.
- * @throws PrivateActionException, MissingActionException
+ * @throws PrivateActionException When actions are not public or prefixed by _
+ * @throws MissingActionException When actions are not defined and scaffolding is
+ *    not enabled.
  */
 	public function invokeAction(CakeRequest $request) {
 		try {
@@ -530,12 +531,16 @@ class Controller extends Object implements CakeEventListener {
 	}
 
 /**
- * Merge components, helpers, and uses vars from Controller::$_mergeParent and PluginAppController.
+ * Merge components, helpers, and uses vars from
+ * Controller::$_mergeParent and PluginAppController.
  *
  * @return void
  */
 	protected function _mergeControllerVars() {
 		$pluginController = $pluginDot = null;
+		$mergeParent = is_subclass_of($this, $this->_mergeParent);
+		$pluginVars = array();
+		$appVars = array();
 
 		if (!empty($this->plugin)) {
 			$pluginController = $this->plugin . 'AppController';
@@ -545,40 +550,59 @@ class Controller extends Object implements CakeEventListener {
 			$pluginDot = $this->plugin . '.';
 		}
 
-		if ($pluginController && $this->plugin != null) {
+		if ($pluginController) {
 			$merge = array('components', 'helpers');
-			$appVars = get_class_vars($pluginController);
-			if (
-				($this->uses !== null || $this->uses !== false) &&
-				is_array($this->uses) && !empty($appVars['uses'])
-			) {
-				$this->uses = array_merge($this->uses, array_diff($appVars['uses'], $this->uses));
-			}
 			$this->_mergeVars($merge, $pluginController);
 		}
 
-		if (is_subclass_of($this, $this->_mergeParent) || !empty($pluginController)) {
+		if ($mergeParent || !empty($pluginController)) {
 			$appVars = get_class_vars($this->_mergeParent);
 			$uses = $appVars['uses'];
 			$merge = array('components', 'helpers');
-
-			if ($uses == $this->uses && !empty($this->uses)) {
-				if (!in_array($pluginDot . $this->modelClass, $this->uses)) {
-					array_unshift($this->uses, $pluginDot . $this->modelClass);
-				} elseif ($this->uses[0] !== $pluginDot . $this->modelClass) {
-					$this->uses = array_flip($this->uses);
-					unset($this->uses[$pluginDot . $this->modelClass]);
-					$this->uses = array_flip($this->uses);
-					array_unshift($this->uses, $pluginDot . $this->modelClass);
-				}
-			} elseif (
-				($this->uses !== null || $this->uses !== false) &&
-				is_array($this->uses) && !empty($appVars['uses'])
-			) {
-				$this->uses = array_merge($this->uses, array_diff($appVars['uses'], $this->uses));
-			}
 			$this->_mergeVars($merge, $this->_mergeParent, true);
 		}
+
+		if ($this->uses === null) {
+			$this->uses = false;
+		}
+		if ($this->uses === true) {
+			$this->uses = array($pluginDot . $this->modelClass);
+		}
+		if (isset($appVars['uses']) && $appVars['uses'] === $this->uses) {
+			array_unshift($this->uses, $pluginDot . $this->modelClass);
+		}
+		if ($pluginController) {
+			$pluginVars = get_class_vars($pluginController);
+		}
+		if ($this->uses !== false) {
+			$this->_mergeUses($pluginVars);
+			$this->_mergeUses($appVars);
+		} else {
+			$this->uses = array();
+			$this->modelClass = '';
+		}
+	}
+
+/**
+ * Helper method for merging the $uses property together.
+ *
+ * Merges the elements not already in $this->uses into
+ * $this->uses.
+ *
+ * @param array $merge The data to merge in.
+ * @return void
+ */
+	protected function _mergeUses($merge) {
+		if (!isset($merge['uses'])) {
+			return;
+		}
+		if ($merge['uses'] === true) {
+			return;
+		}
+		$this->uses = array_merge(
+			$this->uses,
+			array_diff($merge['uses'], $this->uses)
+		);
 	}
 
 /**
@@ -610,7 +634,7 @@ class Controller extends Object implements CakeEventListener {
 		$this->_mergeControllerVars();
 		$this->Components->init($this);
 		if ($this->uses) {
-			$this->uses = (array) $this->uses;
+			$this->uses = (array)$this->uses;
 			list(, $this->modelClass) = pluginSplit(current($this->uses));
 		}
 		return true;
@@ -663,7 +687,7 @@ class Controller extends Object implements CakeEventListener {
 /**
  * Queries & sets valid HTTP response codes & messages.
  *
- * @param mixed $code If $code is an integer, then the corresponding code/message is
+ * @param integer|array $code If $code is an integer, then the corresponding code/message is
  *        returned if it exists, null if it does not exist. If $code is an array,
  *        then the 'code' and 'message' keys of each nested array are added to the default
  *        HTTP codes. Example:
@@ -675,7 +699,7 @@ class Controller extends Object implements CakeEventListener {
  *            800 => 'Unexpected Minotaur'
  *        )); // sets these new values, and returns true
  *
- * @return mixed Associative array of the HTTP codes as keys, and the message
+ * @return array Associative array of the HTTP codes as keys, and the message
  *    strings as values, or null of the given $code does not exist.
  * @deprecated Use CakeResponse::httpCodes();
  */
@@ -689,7 +713,7 @@ class Controller extends Object implements CakeEventListener {
  * dynamic models for the time being.
  *
  * @param string $modelClass Name of model class to load
- * @param mixed $id Initial ID the instanced model class should have
+ * @param integer|string $id Initial ID the instanced model class should have
  * @return mixed true when single model found and instance created, error returned if model not found.
  * @throws MissingModelException if the model class cannot be found.
  */
@@ -698,7 +722,7 @@ class Controller extends Object implements CakeEventListener {
 			$modelClass = $this->modelClass;
 		}
 
-		$this->uses = ($this->uses) ? $this->uses : array();
+		$this->uses = ($this->uses) ? (array)$this->uses : array();
 		if (!in_array($modelClass, $this->uses)) {
 			$this->uses[] = $modelClass;
 		}
@@ -718,7 +742,7 @@ class Controller extends Object implements CakeEventListener {
  * Redirects to given $url, after turning off $this->autoRender.
  * Script execution is halted after the redirect.
  *
- * @param mixed $url A string or array-based URL pointing to another location within the app,
+ * @param string|array $url A string or array-based URL pointing to another location within the app,
  *     or an absolute URL
  * @param integer $status Optional HTTP status code (eg: 404)
  * @param boolean $exit If true, exit() will be called after the redirect
@@ -742,22 +766,18 @@ class Controller extends Object implements CakeEventListener {
 		$response = $event->result;
 		extract($this->_parseBeforeRedirect($response, $url, $status, $exit), EXTR_OVERWRITE);
 
-		if (function_exists('session_write_close')) {
-			session_write_close();
+		if ($url !== null) {
+			$this->response->header('Location', Router::url($url, true));
 		}
 
-		if (!empty($status) && is_string($status)) {
+		if (is_string($status)) {
 			$codes = array_flip($this->response->httpCodes());
 			if (isset($codes[$status])) {
 				$status = $codes[$status];
 			}
 		}
 
-		if ($url !== null) {
-			$this->response->header('Location', Router::url($url, true));
-		}
-
-		if (!empty($status) && ($status >= 300 && $status < 400)) {
+		if ($status) {
 			$this->response->statusCode($status);
 		}
 
@@ -771,13 +791,13 @@ class Controller extends Object implements CakeEventListener {
  * Parse beforeRedirect Response
  *
  * @param mixed $response Response from beforeRedirect callback
- * @param mixed $url The same value of beforeRedirect
+ * @param string|array $url The same value of beforeRedirect
  * @param integer $status The same value of beforeRedirect
  * @param boolean $exit The same value of beforeRedirect
  * @return array Array with keys url, status and exit
  */
 	protected function _parseBeforeRedirect($response, $url, $status, $exit) {
-		if (is_array($response)) {
+		if (is_array($response) && isset($response[0])) {
 			foreach ($response as $resp) {
 				if (is_array($resp) && isset($resp['url'])) {
 					extract($resp, EXTR_OVERWRITE);
@@ -785,6 +805,8 @@ class Controller extends Object implements CakeEventListener {
 					$url = $resp;
 				}
 			}
+		} elseif (is_array($response)) {
+			extract($response, EXTR_OVERWRITE);
 		}
 		return compact('url', 'status', 'exit');
 	}
@@ -803,8 +825,8 @@ class Controller extends Object implements CakeEventListener {
 /**
  * Saves a variable for use inside a view template.
  *
- * @param mixed $one A string or an array of data.
- * @param mixed $two Value in case $one is a string (which then works as the key).
+ * @param string|array $one A string or an array of data.
+ * @param string|array $two Value in case $one is a string (which then works as the key).
  *   Unused if $one is an associative array, otherwise serves as the values to $one's keys.
  * @return void
  * @link http://book.cakephp.org/2.0/en/controllers.html#interacting-with-views
@@ -903,6 +925,13 @@ class Controller extends Object implements CakeEventListener {
 			return $this->response;
 		}
 
+		if (!empty($this->uses) && is_array($this->uses)) {
+			foreach ($this->uses as $model) {
+				list($plugin, $className) = pluginSplit($model);
+				$this->request->params['models'][$className] = compact('plugin', 'className');
+			}
+		}
+
 		$viewClass = $this->viewClass;
 		if ($this->viewClass != 'View') {
 			list($plugin, $viewClass) = pluginSplit($viewClass, true);
@@ -911,16 +940,6 @@ class Controller extends Object implements CakeEventListener {
 		}
 
 		$View = new $viewClass($this);
-
-		if (!empty($this->uses)) {
-			foreach ($this->uses as $model) {
-				list($plugin, $className) = pluginSplit($model);
-				$this->request->params['models'][$className] = compact('plugin', 'className');
-			}
-		}
-		if (!empty($this->modelClass) && ($this->uses === false || $this->uses === array())) {
-			$this->request->params['models'][$this->modelClass] = array('plugin' => $this->plugin, 'className' => $this->modelClass);
-		}
 
 		$models = ClassRegistry::keys();
 		foreach ($models as $currentModel) {
@@ -975,7 +994,7 @@ class Controller extends Object implements CakeEventListener {
  * Does not work if the current debug level is higher than 0.
  *
  * @param string $message Message to display to the user
- * @param mixed $url Relative string or array-based URL to redirect to after the time expires
+ * @param string|array $url Relative string or array-based URL to redirect to after the time expires
  * @param integer $pause Time to show the message
  * @param string $layout Layout you want to use, defaults to 'flash'
  * @return void Renders flash layout
@@ -994,7 +1013,7 @@ class Controller extends Object implements CakeEventListener {
  * Converts POST'ed form data to a model conditions array, suitable for use in a Model::find() call.
  *
  * @param array $data POST'ed data organized by model and field
- * @param mixed $op A string containing an SQL comparison operator, or an array matching operators
+ * @param string|array $op A string containing an SQL comparison operator, or an array matching operators
  *        to fields
  * @param string $bool SQL boolean operator: AND, OR, XOR, etc.
  * @param boolean $exclusive If true, and $op is an array, fields not included in $op will not be
@@ -1035,10 +1054,10 @@ class Controller extends Object implements CakeEventListener {
 				}
 				$fieldOp = strtoupper(trim($fieldOp));
 				if ($fieldOp === 'LIKE') {
-					$key = $key.' LIKE';
+					$key = $key . ' LIKE';
 					$value = '%' . $value . '%';
 				} elseif ($fieldOp && $fieldOp != '=') {
-					$key = $key.' ' . $fieldOp;
+					$key = $key . ' ' . $fieldOp;
 				}
 				$cond[$key] = $value;
 			}
@@ -1052,8 +1071,8 @@ class Controller extends Object implements CakeEventListener {
 /**
  * Handles automatic pagination of model records.
  *
- * @param mixed $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
- * @param mixed $scope Conditions to use while paginating
+ * @param Model|string $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
+ * @param string|array $scope Conditions to use while paginating
  * @param array $whitelist List of allowed options for paging
  * @return array Model query results
  * @link http://book.cakephp.org/2.0/en/controllers.html#Controller::paginate
@@ -1090,7 +1109,7 @@ class Controller extends Object implements CakeEventListener {
  * return a string which will be interpreted as the url to redirect to or return associative array with
  * key 'url' and optionally 'status' and 'exit'.
  *
- * @param mixed $url A string or array-based URL pointing to another location within the app,
+ * @param string|array $url A string or array-based URL pointing to another location within the app,
  *     or an absolute URL
  * @param integer $status Optional HTTP status code (eg: 404)
  * @param boolean $exit If true, exit() will be called after the redirect
