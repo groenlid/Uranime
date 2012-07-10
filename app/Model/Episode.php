@@ -57,7 +57,7 @@ class Episode extends AppModel {
 
         if($this->image != null && $this->image != '')
         {
-            $image_path = EPISODE_IMAGE_PATH . $this->anime_id . '/' . $this->image;
+            $image_path = WWW_ROOT . EPISODE_IMAGE_PATH . $this->anime_id . '/' . $this->image;
             if( file_exists( $image_path ) == TRUE )
                 if( !unlink( $image_path ) ) // If it fails, we don't want to continue
                     return false;
