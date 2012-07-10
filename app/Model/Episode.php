@@ -43,6 +43,32 @@ class Episode extends AppModel {
 		else
 			return $returnUrl . "http://placehold.it/200x112/";
 
-	}
+    }
+
+    /**
+     * Make sure the episode image is also deleted..
+     * + all user seen episodes of with this episode id..
+     * $cascade: not used, but is for deleting dependent models.
+     */
+    public function beforeDelete(boolean $cascade){
+
+        // Delete the episode image... 
+        // We do not need it anymore..
+
+        if($this->image != null && $this->image != '')
+        {
+            $image_path = EPISODE_IMAGE_PATH . $this->anime_id . '/' . $this->image;
+            if( file_exists( $image_path ) == TRUE )
+                if( !unlink( $image_path ) ) // If it fails, we don't want to continue
+                    return false;
+        }
+
+
+        // Delete user seen episodes
+		$this->UserEpisode = ClassRegistry::init('UserEpisode');
+        $this->UserEpisode->deleteAll(array('UserEpisode.episode_id' =>$this->id),false)
+        
+        return true;
+    }
 }
 ?>
