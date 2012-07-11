@@ -147,7 +147,7 @@ $i = 0;
 	</tbody>
 	</table>-->
 <?php
-
+/*
 if(isset($ep_seen) && count($ep_seen) != 0)
 	echo '<hr>
 	<p class="subtle big">Seen last by:</p>
@@ -166,8 +166,8 @@ foreach($ep_seen as $animeEp)
 }
 if(isset($ep_seen) && count($ep_seen) != 0)
 	echo '</ul>';
+ */
 ?>
-<hr>
 <?php
 if(count($relationships) != 0)
 {

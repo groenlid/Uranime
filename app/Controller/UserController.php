@@ -1,6 +1,6 @@
 <?php
 class UserController extends AppController {
-	var $helpers = array('Gravatar','Time');
+	var $helpers = array('Gravatar','Time','Text');
 	var $uses = array('Activity','UserEpisode');
 	var $name = 'User';
     var $paginate = array( 
@@ -13,7 +13,7 @@ class UserController extends AppController {
 				);
 	var $components = array(
 		'Email',
-		'Acl',
+        'Acl',
 		'Auth' => array(
         	'authenticate' => array(
             	'Form' => array(
@@ -55,30 +55,97 @@ class UserController extends AppController {
 		//$activities = $this->Activity->findAllBySubjectId($id);
 		//debug($this->User);
 		$activities = $this->paginate($this->User->Activity,array('Activity.subject_id' => $id));
-		
-		/*$episodes = $this->UserEpisode->find('all',array('conditions' => array('user_id' => $id)));
-		echo "<pre>";
-		print_r($episodes);
-		echo "</pre>";*/
-		App::uses('Helper', 'Time');
+        $episodes = $this->UserEpisode->getLastSeenEpisodes($id,10, true);
+        $activities = array_merge($activities, $episodes);
+        usort($activities, array('Activity','cmp'));
+        App::uses('Helper', 'Time');
 		$this->Anime->recursive = -1;
-		foreach($activities as $key => $activity)
-		{
-			if($activity['Activity']['object_type'] == 'episode')
+
+        $shownActivity = array();
+        foreach($activities as $key => $a)
+        {
+            // If the row is a activity.
+            if(isset($a['Activity'])){
+                $anime = $this->Anime->findById($a['Activity']['object_id']);
+
+                $desc = "";
+                switch($a['Activity']['object_type']){
+                case 'anime':
+                    $desc = " added a new anime to the system named " . $anime['Anime']['title'];
+                    $comment = $anime['Anime']['desc'];
+                case 'fanart':
+                    $desc = 'changed the fanart for anime ' . $anime['Anime']['title'];
+                    $comment = $anime['Anime']['fanart'];
+                    break;
+                case 'image':
+                    $desc = 'changed the image for anime ' . $anime['Anime']['title'];
+                    $comment = $anime['Anime']['image'];
+                    break;
+                case 'reference':
+                    $desc = 'changed the reference for anime ' . $anime['Anime']['title'];
+                    $comment = null;
+                    break;
+                }
+
+                $shownActivity[] = array(
+                    'thumbnail' => "<img src='" . $this->Anime->getFanart($anime['Anime']['id'],50) . "'>",
+                    'comment' => $comment,
+                    'timestamp' => $a['Activity']['timestamp'],
+                    'desc' => $desc
+                    );
+            }
+            if(isset($a['UserEpisode'])){
+                $anime = $this->Anime->findById($a['Episode']['anime_id']);
+                
+                $desc = " watched <a href='/episode/view/".$a['Episode']['id']."'>episode " . $a['Episode']['number']. "</a>";
+				$desc .= "  of anime <a href='/anime/view/".$anime['Anime']['id']."'>" . $anime['Anime']['title']."</a>";
+                
+                $shownActivity[] = array(
+                    'thumbnail' => '<img src="' . $this->Episode->fetchImage($a['Episode']['id'],50) . '">',
+                    'comment' => null,
+                    'timestamp' => $a['UserEpisode']['timestamp'],
+                    'desc' => $desc
+                    );
+            }
+            /*
+            if($activity['Activity']['object_type'] == 'episode')
 				$activities[$key]['object'] = $this->Episode->findById($activity['Activity']['object_id']);
 			else
 				$activities[$key]['object'] = $this->Anime->findById($activity['Activity']['object_id']);
-			
-		}
-		
-		$this->set('activity',$activities);
+             */
+        }
+
+
+         
+		$this->set('activity',$shownActivity);
 
 		// Variables for user graphs
 
 
 		//debug($activities);
 		//$this->set('activity',$this->Activity->findAllBySubjectId($id));	
-	}
+    }
+    /**
+     * Compares different models based on their timestamp
+     */
+    static function cmp($a, $b){
+        $aTime = UserController::getTime($a);
+        $bTime = UserController::getTime($b);
+        if($aTime == $bTime)
+            return 0;
+        else
+            return ($aTime < $bTime) ? +1 : -1;   
+    }
+
+    static function getTime($modelData)
+    {
+        
+        if(isset($modelData['UserEpisode']['timestamp']))
+            return strtotime($modelData['UserEpisode']['timestamp']);
+        else if(isset($modelData['Activity']['timestamp']))
+            return strtotime($modelData['Activity']['timestamp']);
+        die();
+    }
 
 	function settings(){
 		$id = $this->Auth->user('id');
@@ -377,4 +444,5 @@ class UserController extends AppController {
 		$this->redirect($this->Auth->logout());
 	}
 }
+
 ?>

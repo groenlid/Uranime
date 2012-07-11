@@ -29,6 +29,13 @@ class User extends AppModel {
     /**
      * Checks whether user with id $userid is admin
      */
+    public function gravatar($userid = null, $size = null){
+        $email = $this->read('email',$userid);
+        if($size != null)
+            $size  = "?s=" . $size;
+        return "http://gravatar.com/avatar/" . md5($email['User']['email']) . $size;
+        return $this->Gravatar->image($email['User']['email'], array('size' => '150', 'rating' => 'pg'),array('class' => 'animeimage'));
+    }
 
     public function isAdmin($userid = null){
         if($this->id != null && $userid == null)

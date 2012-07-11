@@ -634,25 +634,8 @@ class ApiController extends AppController {
 		
 		//echo $newWidth . " " . $newHeight;
 		$imagick->resizeImage($newWidth, $newHeight, Imagick::FILTER_LANCZOS, 1);
-		/*$size = getimagesize($filepath);
 		
-		header('Content-Type:'.$size['mime']);
 		
-		$image = imagecreatefromstring(file_get_contents($filepath));
-		$result = imagecreatetruecolor($newWidth, $newHeight);
-		
-		imagecopyresampled($result, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-		
-		imagejpeg($result, null, 100);*/
-		
-		//$tmpPlace = '/home/content/00/8758600/html/app/tmp/imageresize/'.uniqid();
-		//$shellTxt = 'convert '.SERVER_PATH.IMAGE_PATH.$file.' -resize '.$newWidth.'x'.$newHeight.' '.$tmpPlace;
-		//echo $shellTxt;
-		//shell_exec($shellTxt);
-		
-		//$fileStream = fopen($tmpPlace,'r');
-		//echo $fileStream;
-		//echo($imagick);
 		header('Content-Type: image/'.$imagick->getImageFormat());
 
 		echo($imagick);

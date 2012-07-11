@@ -688,31 +688,95 @@ class AnimeController extends AppController {
 		}
 
 		$this->Activity->recursive = 0;
-		//$animeActivities = $this->Activity->find('all',array('conditions' => array('object_id' => $id)));
 		$animeActivities_episodes = $this->Activity->find('all', array('conditions' => array(
 			"(object_id=".$id." AND object_type IN('fanart','image','anime','reference')) OR (object_type='episode' AND object_id IN (SELECT episodes.id FROM episodes WHERE episodes.anime_id=".$id."))"
 			)));
 
-		//$activities = $this->Anime->Episode->UserEpisode;
 		
 		$this->UserEpisode->recursive = 0;
 		$ep_seen = $this->UserEpisode->find('all',array(
-			'fields' => array('COUNT(*) as amount,User.email, UserEpisode.user_id'),
-			'conditions' => array('episode_id IN (SELECT episodes.id FROM episodes WHERE episodes.anime_id='.$id.')'),
+			'fields' => array('COUNT(*) as seenepisode_amount,User.email, UserEpisode.user_id, MAX(UserEpisode.timestamp) as timestamp, User.nick'),
+			'conditions' => array('episode_id IN (SELECT episodes.id FROM episodes WHERE episodes.anime_id='.$id.' AND special IS NULL)'),
 			'group' => array('UserEpisode.user_id'),
 			'order' => array('UserEpisode.id DESC')
 			));
-		$this->set('ep_seen', $ep_seen);
-		$activities = $this->Anime->getActivity($id);
-		//debug($ep_seen);
-		$this->Episode->recursive = -1;
-		$this->Anime->recursive = -1;
+        //debug($ep_seen);
+        $activities = $this->Activity->find('all',array('conditions' => array('object_id' => $id)));
 
-		$this->Comment->recursive = -1;
+		//debug($ep_seen);
+
+		$this->Comment->recursive = 1;
 		$comments = $this->Comment->findAllByAnime_id($id);
-		$this->set("comments",$comments);
-		
-		$this->set('activities',$activities);
+        $activities = array_merge($activities,$comments, $ep_seen);
+        usort($activities, array('Activity','cmp'));
+
+        $count_episodes = $this->Episode->find('count', array(
+            'conditions' => array(
+                'anime_id' => $id,
+                'special IS NULL',
+                'aired <= CURDATE()'
+                ) 
+            )
+        );
+
+        $seen_activities = array();
+        foreach($activities as $a)
+        {
+            // If it is a userseen episode activity
+            if(isset($a[0]['seenepisode_amount'])){
+                $percent = 0;
+                if($count_episodes == 0)
+                    $percent = 100;
+                else if($count_episodes < $a[0]['seenepisode_amount'])
+                    $percent = 100;
+                else
+                    $percent = ($a[0]['seenepisode_amount'] / $count_episodes) * 100;
+                $seen_activities[] = array(
+                    'comment' => '<div class="smallprogress"><div class="smallprogress-filled" style="width:'.$percent.'%"></div></div>',
+                    'timestamp' => $a[0]['timestamp'],
+                    'thumbnail' => "<img src='".$this->User->gravatar($a['UserEpisode']['user_id'],40) . "'>",
+                    'desc' => $a['User']['nick'] . " have watched " . $a[0]['seenepisode_amount'] . " of " . $count_episodes . " episodes ",
+                    'escapecomment' => false
+                );
+            }
+            else if(isset($a['Comment'])){
+                $seen_activities[] = array(
+                    'comment' => $a['Comment']['comment'],
+                    'timestamp' => $a['Comment']['timestamp'],
+                    'thumbnail' => "<img src='" . $this->User->gravatar($a['Comment']['user_id'],40) . "'>",
+                    'desc' => $a['User']['nick'] . ' added a comment'
+                    );
+            }
+            else if(isset($a['Activity'])){
+                $desc = $a['subject']['nick'];
+                $comment = null;
+                switch($a['Activity']['object_type']){
+                    case 'fanart':
+                        $desc .= " changed the fanart";
+                        break;
+                    case 'image':
+                        $desc .= " changed the image";
+                        break;
+                    case 'reference':
+                        $desc .= " changed the reference link for " . $a['Activity']['option'];
+                        break;
+                    case 'anime':
+                        $desc .= " added this anime to the system ";
+                        break;
+                }
+                $seen_activities[] = array(
+                    'comment' => $comment,
+                    'desc' => $desc,
+                    'timestamp' => $a['Activity']['timestamp'],
+                    'thumbnail' => "<img src='".$this->User->gravatar($a['Activity']['subject_id'],40) . "'>",
+                    );
+            }
+            else
+                $seen_activities[] = $a;
+        }        
+
+        $this->set('ep_seen', $ep_seen);
+		$this->set('activities',$seen_activities);
 	}
 	function viewepisodes($id = null)
 	{

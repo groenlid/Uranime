@@ -86,8 +86,8 @@
         <ul class="nav pull-right">
           	<?php
 				if($this->Session->check('Auth.User.id'))
-				{
-					if($isAdmin){
+                {
+					if(isset($isAdmin) && $isAdmin){
 						echo '<li>';
 							echo $this->Html->link('Admin <span class="label label-success">'.$animerequestsCount.'</span>','/admin/',array('escape' => false));
 						echo '</li>';

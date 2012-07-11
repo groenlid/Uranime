@@ -48,6 +48,27 @@ class Anime extends AppModel {
 				)
 		);
 
+    /**
+     * Gets the fanart of the given anime id.
+     * If input id equals null, it checks if 
+     * the model already is set
+     */
+    public function getFanart($id = null, $width = null)
+    {
+        $fanart = $this->read('fanart',$id);
+        $pwidth = ($width == null) ? 100 : $width;
+        $placeholder = "http://placehold.it/" . $pwidth;
+        
+       if(!file_exists(WWW_ROOT . IMAGE_PATH . $fanart['Anime']['fanart']))
+           return $placeholder;
+       else
+           return  SERVER_PATH . "/api/imageresize/" . $fanart['Anime']['fanart']  . "/" . $width;
+    }
+    
+    /**
+     * DEPRECATED::: USE cmp function in UserController instead
+     */ 
+   
 	public function getActivity($id = null){
 		
 		$this->Activity = ClassRegistry::init('Activity');

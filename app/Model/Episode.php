@@ -9,7 +9,7 @@ class Episode extends AppModel {
     var $old_image = "";
 	/**
 	 * Returns the thumbnail of the episode image
-	 * If $widht is 0, the full-size image is returned
+	 * If $width is 0, the full-size image is returned
 	 */
 	public function fetchImage($episode_id, $width = 0)
 	{
