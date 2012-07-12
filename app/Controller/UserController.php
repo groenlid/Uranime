@@ -73,6 +73,7 @@ class UserController extends AppController {
                 case 'anime':
                     $desc = " added a new anime to the system named " . $anime['Anime']['title'];
                     $comment = $anime['Anime']['desc'];
+                    break;
                 case 'fanart':
                     $desc = 'changed the fanart for anime ' . $anime['Anime']['title'];
                     $comment = $anime['Anime']['fanart'];
