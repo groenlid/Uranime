@@ -66,15 +66,21 @@ class EpisodeController extends AppController {
 		if(!is_numeric($animeId) || !is_numeric($from) || !is_numeric($to))
 			die();
 
-		$anime = $this->Anime->find('first', array('conditions' => array('id' => $animeId)));
+        $anime = $this->Episode->find('all', array(
+            'conditions' => array(
+                'anime_id' => $animeId
+            ),
+            'order' => array('Episode.number ASC')
+        ));
 		if($anime == null)
 			die();
 		
 		$added = 0;
 		$rejected = 0;
 
-		foreach($anime['Episode'] as $episode)
+		foreach($anime as $episode)
         {
+            $episode = $episode['Episode'];
             // Skip episode if it is a special.
             if($episode['special'] != null)
                 continue;
@@ -110,7 +116,8 @@ class EpisodeController extends AppController {
 		$episodes = $this->Episode->find('all',array(
 			'conditions' => array(
 					'anime_id' => $animeId
-				)
+                ),
+            'order' => array('number ASC')
 			));
 
 		foreach($episodes as $episode)
