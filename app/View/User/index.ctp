@@ -8,7 +8,7 @@ foreach($users as $user)
 		<div class="anime-gallery-single">
 			<div class="anime-gallery-single-inner">
 				<a href="/user/view/'.$user['User']['id'].'/'.$user['User']['nick'].'">
-					'.$this->Gravatar->image($user['User']['email'], array('size' => '75', 'rating' => 'pg')).' 
+					'.$this->Gravatar->image($user['User']['email'], array('size' => '75')).' 
 				</a>
 			</div>
 			<p class="bold calendarinfo" style="max-width: 75px;overflow: hidden;">

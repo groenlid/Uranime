@@ -735,7 +735,7 @@ class AnimeController extends AppController {
                     'comment' => '<div class="smallprogress"><div class="smallprogress-filled" style="width:'.$percent.'%"></div></div>',
                     'timestamp' => $a[0]['timestamp'],
                     'thumbnail' => "<img src='".$this->User->gravatar($a['UserEpisode']['user_id'],40) . "'>",
-                    'desc' => $a['User']['nick'] . " have watched " . $a[0]['seenepisode_amount'] . " of " . $count_episodes . " episodes ",
+                    'desc' => "<a href='/user/view/" . $a['UserEpisode']['user_id'] . "'>" . $a['User']['nick'] . "</a> have watched " . $a[0]['seenepisode_amount'] . " of " . $count_episodes . " episodes ",
                     'escapecomment' => false
                 );
             }

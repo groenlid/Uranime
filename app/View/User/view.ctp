@@ -5,7 +5,7 @@
 <div class="row">
 <div class="span3">
 	<div>
-		<?= $this->Gravatar->image($email, array('size' => '150', 'rating' => 'pg'),array('class' => 'animeimage')) ?>
+		<?= $this->Gravatar->image($email, array('size' => '150'),array('class' => 'animeimage')) ?>
 	</div><hr>
 <a href="/library/view/<?=$id.'/'.$nick?>" class="btn" style="margin-bottom:10px">View Anime-library</a>
 <a href="/watchlist/view/<?=$id.'/'.$nick?>" class="btn">View Watchlist</a>
