@@ -98,14 +98,41 @@ class UserController extends AppController {
             if(isset($a['UserEpisode'])){
                 $anime = $this->Anime->findById($a['Episode']['anime_id']);
                 
+                $seenEpisodes = $this->UserEpisode->getByAnime($a['Episode']['anime_id'],$a['UserEpisode']['user_id']);
+                $seenEpisodes = count($seenEpisodes);
+                $count_episodes = $this->Episode->find('count', array(
+                    'conditions' => array(
+                        'anime_id' => $a['Episode']['anime_id'],
+                        'special IS NULL',
+                        'aired <= CURDATE()'
+                        ) 
+                    )
+                );
+                    
+                $percent = 0;
+                if($count_episodes == 0)
+                    $percent = 100;
+                else if($count_episodes < $seenEpisodes)
+                    $percent = 100;
+                else
+                    $percent = ($seenEpisodes / $count_episodes) * 100;
+                /*
+                 $seen_activities[] = array(
+                    'timestamp' => $a[0]['timestamp'],
+                    'thumbnail' => "<img src='".$this->User->gravatar($a['UserEpisode']['user_id'],40) . "'>",
+                    'desc' => "<a href='/user/view/" . $a['UserEpisode']['user_id'] . "'>" . $a['User']['nick'] . "</a> have watched " . $a[0]['seenepisode_amount'] . " of " . $count_episodes . " episodes ",
+                    'escapecomment' => false
+                */
+                
                 $desc = " watched <a href='/episode/view/".$a['Episode']['id']."'>episode " . $a['Episode']['number']. "</a>";
 				$desc .= "  of anime <a href='/anime/view/".$anime['Anime']['id']."'>" . $anime['Anime']['title']."</a>";
                 
                 $shownActivity[] = array(
                     'thumbnail' => '<img src="' . $this->Episode->fetchImage($a['Episode']['id'],50) . '">',
-                    'comment' => null,
+                    'comment' => '<div class="smallprogress"><div class="smallprogress-filled" style="width:'.$percent.'%"></div></div>',
                     'timestamp' => $a['UserEpisode']['timestamp'],
-                    'desc' => $desc
+                    'desc' => $desc,
+                    'escapecomment' => false
                     );
             }
             /*
