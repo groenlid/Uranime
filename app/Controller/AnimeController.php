@@ -430,7 +430,6 @@ class AnimeController extends AppController {
 		$this->set('anime', $this->Anime->find('all'));
 		//$this->AnimeRatingBayes->recursive = 1;
 		$this->set('animerating',$this->AnimeRatingBayes->getHighestRated(5));
-
 	}
 	
 	function add() {
@@ -777,7 +776,31 @@ class AnimeController extends AppController {
 
         $this->set('ep_seen', $ep_seen);
 		$this->set('activities',$seen_activities);
-	}
+    }
+    function all($sort = null){
+        $order = "Anime.title ASC";
+        
+        if($sort == 'age')
+            $order = "Anime.id DESC";
+
+        $this->paginate = array(
+        		'fields' => array(
+					/*'DISTINCT(anime_id)',*/
+					'Anime.*'),
+				'from' => array(
+					'Anime',
+					'AnimeSynonym'
+				),
+				'order' => $order,
+				'group' => 'Anime.id',
+        		'limit' => 25
+    	);
+
+		//$this->set(compact('animes'));
+		$this->set('animes',$this->paginate('AnimeSynonym'));
+		
+    }
+
 	function viewepisodes($id = null)
 	{
 		$this->Anime->id = $id;

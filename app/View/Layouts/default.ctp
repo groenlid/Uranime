@@ -61,7 +61,7 @@
           		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Anime<b class="caret"></b></a>
           		<ul class="dropdown-menu">
           			<li><?=$this->Html->link('Anime','/anime/')?></li>
-          			<li><?=$this->Html->link('View all','/search/basic')?></li>
+          			<li><?=$this->Html->link('View all','/anime/all')?></li>
           			<li class="divider"></li>
           			<?php
           			if($this->Session->read('Auth.User.id') == '1')

@@ -1,5 +1,4 @@
-<h2><?=ucfirst($nick['User']['nick'])?>'s Watchlist</h2>
-<div class="btn-toolbar">
+<div class="btn-toolbar pull-right">
 <div class="btn-group">
 	<button class="btn">Sort by</button>
 	<a class="btn dropdown-toggle" href="#" data-toggle="dropdown">
@@ -11,6 +10,7 @@
 	</ul>
 </div>
 </div>
+<h2><?=ucfirst($nick['User']['nick'])?>'s Watchlist</h2>
 <hr>
 <?php
 if($watchlist == null || !isset($watchlist))

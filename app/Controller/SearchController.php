@@ -29,44 +29,8 @@ class SearchController extends AppController {
 		//$this->Text = new TextHelper();
 		$search = Sanitize::clean($search, array('encode' => false));
 		$search = trim($search);
-		//$this->Anime->recursive = -1;
 
 
-		/*$animes = $this->Anime->find('all', 
-			array(
-				'conditions' 	=> array("OR" => 
-					array(
-						'Anime.title LIKE' => "%$search%",
-						'AnimeSynonym.title LIKE' => "%$search%"
-						)
-					),
-				'table' => array('anime'),
-				'fields' => array('Anime.title','Anime.id','image','desc','fanart'),
-				'order' => array('title ASC'),
-				'joins' => array(
-					array(
-							'table' => 'anime_synonyms',
-							'alias'	=> 'AnimeSynonym',
-							'type' => 'LEFT',
-							'conditions' => array(
-									'AnimeSynonym.anime_id = Anime.id'
-								)
-						)
-					)
-				)
-			);*///$this->set('episodes', $this->paginate($this->Anime->Episode, array('Anime.id' => $id)));	
-		/*$animes = $this->AnimeSynonym->find('all',
-			array(
-				'fields' => array(
-					'DISTINCT(anime_id)',
-					'Anime.*'),
-				'conditions' => array(
-						'LOWER(AnimeSynonym.title) LIKE' => "%".strtolower($search)."%",
-					),
-				'order' => 'Anime.title ASC'
-			)
-		);*/
-		
 		$this->paginate = array(
         		'fields' => array(
 					/*'DISTINCT(anime_id)',*/
