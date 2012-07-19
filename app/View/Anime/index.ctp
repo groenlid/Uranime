@@ -24,7 +24,7 @@ if($fanart == null || $fanart == "")
 	</div>
 </div>
 
-<h3>Latest added anime</h3>
+<h2 class="calendar">Latest added anime <small><span class="smaller subtle pull-right"><a href="/anime/all/age">View more new</a></span></small></h2>
 <div class="anime-gallery-poster">
 <?php
 foreach($lastAnime as $animeSingle)
@@ -50,7 +50,7 @@ foreach($lastAnime as $animeSingle)
 <br class="clear">
 </div>
 
-<h3>Top anime</h3>
+<h2 class="calendar">Top anime</h2>
 <div class="anime-gallery-poster">
 <?php
 foreach($animerating as $anime)
