@@ -575,8 +575,8 @@ class ApiController extends AppController {
 	{
 		if($number > 10)
 			$number = 10;
-		if($offset > 10)
-			$offset = 10;
+		if(!is_numeric($offset))
+			$offset = 0;
 
 		$this->Anime->recursive = -1;
 		$anime = $this->Anime->find('all', array('limit' => $number, 'offset' => $offset,'order' => array('Anime.id DESC')));
@@ -585,8 +585,14 @@ class ApiController extends AppController {
 		//$this->set('_serialize',array('anime'));
 	}
 
-	function trendingAnime($number = 5){
-		$animeList = $this->AnimeRatingBayes->getHighestRated($number);
+	function trendingAnime($number = 5, $offset = 0){
+        
+        if($number > 10)
+			$number = 10;
+		if(!is_numeric($offset))
+			$offset = 0;
+        
+        $animeList = $this->AnimeRatingBayes->getHighestRated($number, $offset);
 		$anime = array();
 		foreach($animeList as $single)
 		{
