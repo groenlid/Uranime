@@ -342,7 +342,7 @@ class ApiController extends AppController {
 
 	}
 	
-	function watchanime($userid = null, $id = null,$bulk = false)
+	function watchanime($userid = null, $id = null,$seen = "true")
 	{
 		$this->login($userid);
 		/*if($this->requestAction('/Episode/watchEpisode/'.$id))
@@ -363,11 +363,25 @@ class ApiController extends AppController {
 		$this->Episode->recursive = -1;
 		$episodes = $this->Episode->find('all',array(
 			'conditions' => array(
-					'anime_id' => $id
-				)
-			));
+                'anime_id' => $id
+            ),
+            'order' => array('aired DESC')
+            )
+        );
+
 		$amount = 0;
-		foreach($episodes as $episode)
+        foreach($episodes as $episode){
+            if($seen == "false")
+            {
+                $this->UserEpisode->deleteAll(
+                    array(
+                        "user_id" => $userid, 
+                        "episode_id" => $episode['Episode']['id']
+                    ),
+                    false
+                );
+                continue;
+            }
 			if(strtotime($episode['Episode']['aired']) < time()){
 				
 				$count = $this->UserEpisode->find('count',array(
@@ -399,7 +413,8 @@ class ApiController extends AppController {
 						continue;
 					}
 				}	
-			}
+            }
+        }
 			if($amount != 0)
 				$this->requestAction('/api/setanimescrape/'.$id);
 			else
