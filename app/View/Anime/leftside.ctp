@@ -58,7 +58,7 @@ foreach($anime['ScrapeInfo'] as $scrapeInfo)
 		"</li>";
 ?>
 	</ul>
-<br class="clear">̈́
+<br class="clear">
 <?php
 $status_text = array(
 	'currently' => 'Currently airing',
