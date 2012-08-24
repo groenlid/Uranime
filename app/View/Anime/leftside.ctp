@@ -95,7 +95,7 @@ echo '
     	</tr>
     	<tr>
     		<td>Time</td>
-    		<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * $reg_episodes. " min" ) :"N/A").'</td>
+        )<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * $reg_episodes. " min" ) :"N/A").'</td>
     	</tr>
     	';
 }
@@ -113,7 +113,7 @@ echo '
     	<tr>
     		<td>Type</td>
     		<td><?=(isset($type))? strtoupper($type) : 'N/A' ?></td>
-    	</tr>
+        </tr>
     </tbody>
 </table>
 <?php
@@ -122,18 +122,12 @@ echo '
 if($this->Session->check('Auth.User.id'))
 {
 	if($watchlist != null)
-		echo $this->Html->link('Remove from watchlist','/watchlist/remove/'.$id,array('class' => 'btn btn-warning'));
+		echo $this->Html->link('Remove from watchlist','/watchlist/remove/'.$id,array('class' => 'span2 btn btn-warning'));
 	else
-		echo $this->Html->link('Add to watchlist','/watchlist/add/'.$id,array('class' => 'btn btn-primary'));
+		echo $this->Html->link('Add to watchlist','/watchlist/add/'.$id,array('class' => 'span2 btn btn-primary'));
 }
-//if($this->Session->check('Auth.User.id') && $this->Session->check('Auth.User.id') == 1)
 if($isAdmin)
-{
-	echo '<h3> Admin info </h3>';
-	echo $this->Html->link('Scrape', '/anime/setScrape/'.$id, array('class' => 'btn btn-success'));
-	
-}
-
+	echo $this->Html->link('Scrape', '/anime/setScrape/'.$id, array('class' => 'btn span2 btn-success'));
 ?>
 <hr>
 <!-- Place this tag where you want the +1 button to render. -->
