@@ -53,11 +53,12 @@ $links = array(
 );
 
 foreach($anime['ScrapeInfo'] as $scrapeInfo)
-	echo "	<li id='".$scrapeInfo['scrape_source']."'>".
+	echo "<li id='".$scrapeInfo['scrape_source']."'>".
 			"<a href='".$links[$scrapeInfo['scrape_source']].$scrapeInfo['scrape_id']."'>".$scrapeInfo['scrape_source']."</a>".
 		"</li>";
 ?>
-	</ul>
+    </ul>
+
 <br class="clear">
 <?php
 $status_text = array(
@@ -65,8 +66,7 @@ $status_text = array(
 	'finished' => 'Finished airing',
 	'unaired' => 'Unaired'
 	);
-?>
-<table class="table table-striped table-condensed table-small">
+?><table class="table table-striped table-condensed table-small">
 	<tbody>
 		<tr>
     		<td>Status</td>
