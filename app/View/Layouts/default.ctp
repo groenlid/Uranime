@@ -27,7 +27,7 @@
 	<?=$this->Html->script('d3.min.js');?>
 	<?=$this->Html->script('d3.layout.min.js');?>
 	<?=$this->Html->script('rickshaw.js');?>
-	<?=$this->Html->script('jquery.timeago.js');?>
+	<?=$this->Html->script('moment.min.js');?>
 	<?=$this->Html->script('jquery.smooth-scroll.min.js');?>
 	<?=$this->Html->script('lightbox.js');?>
 <script type="text/javascript">

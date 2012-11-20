@@ -66,7 +66,8 @@ $status_text = array(
 	'finished' => 'Finished airing',
 	'unaired' => 'Unaired'
 	);
-?><table class="table table-striped table-condensed table-small">
+?>
+<table class="table table-striped table-condensed table-small">
 	<tbody>
 		<tr>
     		<td>Status</td>

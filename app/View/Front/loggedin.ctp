@@ -162,7 +162,9 @@ if(count($episodes) != 0)
 
 		printable += subject_name + ' watched ' + statusText;
 		//printable += "</p><p class='subtle'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</p></div>";
-		printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</abbr></p></div>";
+        var then = moment(item.UserEpisode.timestamp);
+        var now = moment();
+        printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+now.from(then)+"</abbr></p></div>";
 		
 		printable += "<div class='span1'>";
 		var domain = '<?= SERVER_PATH ?>';
