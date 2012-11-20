@@ -164,7 +164,7 @@ if(count($episodes) != 0)
 		//printable += "</p><p class='subtle'>"+jQuery.timeago(item.UserEpisode.timestamp)+"</p></div>";
         var then = moment(item.UserEpisode.timestamp);
         var now = moment();
-        printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+now.from(then)+"</abbr></p></div>";
+        printable += "</p><p class='subtle'><abbr class='timeago' title='"+item.UserEpisode.timestamp+"'>"+then.from(now)+"</abbr></p></div>";
 		
 		printable += "<div class='span1'>";
 		var domain = '<?= SERVER_PATH ?>';

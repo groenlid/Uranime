@@ -96,7 +96,7 @@ echo '
     	</tr>
     	<tr>
     		<td>Time</td>
-        )<td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * $reg_episodes. " min" ) :"N/A").'</td>
+        <td>'.((isset($anime['Episode']) && isset($runtime))? ($runtime * $reg_episodes. " min" ) :"N/A").'</td>
     	</tr>
     	';
 }
