@@ -12,7 +12,6 @@ function searchy(inputString) {
 $(document).ready(function() { 
 	$('.dropdown-toggle').dropdown()
 	$(".alert-message").alert();
-	jQuery("abbr.timeago").timeago();
 	$('.genres li').tooltip({'placement':'bottom'});
 	/*$("input.scoreinput").hide();*/
 	$("#showHidden").click(function(){
