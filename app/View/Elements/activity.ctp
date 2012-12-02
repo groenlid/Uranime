@@ -5,14 +5,13 @@
     $escape = (isset($activity['escapecomment'])) ? $activity['escapecomment'] : true;
     // New comment system
     
-    $timeago = $this->Time->timeAgoInWords(strtotime($activity['timestamp']));
 	$result .= "
 	<div class='comment-container'>
 		<div class='comment-avatar'>
 			".$activity['thumbnail']."
 		</div>
 		<div class='comment'>
-			<div class='comment-meta'>" . $activity['desc'] . "<span class='comment-time'><abbr class='timeago' title='".$time."'>".$timeago."</abbr></span></div>";
+			<div class='comment-meta'>" . $activity['desc'] . "<span class='comment-time'><abbr class='timeago' title='".$time."'>".$time."</abbr></span></div>";
 
 	if(isset($activity['comment']))
 		$result .= "
