@@ -3,14 +3,17 @@
 	$time = strftime("%Y-%m-%dT%H:%M:%S%z",strtotime($activity['timestamp']));
 	$result = "";
     $escape = (isset($activity['escapecomment'])) ? $activity['escapecomment'] : true;
-	// New comment system
+    // New comment system
+    
+    var then = moment(strtotime($time));
+    var now = moment();
 	$result .= "
 	<div class='comment-container'>
 		<div class='comment-avatar'>
 			".$activity['thumbnail']."
 		</div>
 		<div class='comment'>
-			<div class='comment-meta'>" . $activity['desc'] . "<span class='comment-time'><abbr class='timeago' title='".$time."'></abbr></span></div>";
+			<div class='comment-meta'>" . $activity['desc'] . "<span class='comment-time'><abbr class='timeago' title='".$time."'>then.from(now)</abbr></span></div>";
 
 	if(isset($activity['comment']))
 		$result .= "
